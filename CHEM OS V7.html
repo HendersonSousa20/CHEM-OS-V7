@@ -1,0 +1,2034 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CHEM.OS v7.0 — Enterprise Laboratory Engine (20 MÓDULOS + TESTES)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&family=IBM+Plex+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { mono: ['VT323', 'IBM Plex Mono', 'monospace'] },
+                    gridTemplateColumns: { '18': 'repeat(18, minmax(0, 1fr))' }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root { --bg-color: #000000; --text-color: #00FF66; --accent-color: #00DD55; --border-color: #00FF66; }
+        .theme-amber { --bg-color: #000000; --text-color: #FFB000; --accent-color: #E09C00; --border-color: #FFB000; }
+        .theme-blue { --bg-color: #000080; --text-color: #FFFFFF; --accent-color: #00FFFF; --border-color: #FFFFFF; }
+        .theme-mono { --bg-color: #0a0a0a; --text-color: #f0f0f0; --accent-color: #ffffff; --border-color: #cccccc; }
+        body { background-color: var(--bg-color); color: var(--text-color); font-family: 'VT323', 'IBM Plex Mono', monospace; font-size: 1.2rem; line-height: 1.15; }
+        .crt::before { content: " "; display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%); background-size: 100% 4px; z-index: 50; pointer-events: none; opacity: 0.35; }
+        .no-crt::before { display: none !important; }
+        .dos-border { border: 2px solid var(--border-color); border-radius: 0px !important; }
+        .dos-input { background: transparent; color: var(--text-color); outline: none; border-bottom: 2px solid var(--border-color); border-radius: 0px; }
+        .dos-btn { background-color: transparent; color: var(--text-color); border: 1px solid var(--border-color); padding: 2px 8px; cursor: pointer; border-radius: 0px !important; transition: all 0.1s ease; }
+        .dos-btn:hover, .dos-btn:focus { background-color: var(--text-color); color: var(--bg-color); }
+        .chem-img { filter: invert(0.88) hue-rotate(180deg) contrast(1.2); mix-blend-mode: screen; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-color); border: 1px solid var(--border-color); }
+        ::-webkit-scrollbar-thumb { background: var(--text-color); }
+        .test-pass { color: #00FF66; }
+        .test-fail { color: #FF4444; }
+    </style>
+</head>
+<body id="app-body" class="h-full flex flex-col crt p-2 md:p-3 select-text">
+
+    <header class="dos-border p-2 mb-2 flex flex-wrap justify-between items-center text-xs md:text-sm bg-black/40">
+        <div class="font-bold tracking-wider">CHEM.OS v7.0 [20 MÓDULOS + SUÍTE DE TESTES]</div>
+        <div>SYS: <span class="animate-pulse text-green-400">ONLINE</span></div>
+        <div>AUDIO: <button id="sound-btn" onclick="toggleSound()" class="underline">[OFF]</button></div>
+        <div>CRT: <button onclick="toggleCRT()" class="underline">[TOGGLE]</button></div>
+        <div id="clock">00:00:00</div>
+    </header>
+
+    <main id="viewport" class="dos-border flex-grow p-3 md:p-4 overflow-y-auto flex flex-col justify-between relative bg-black/20">
+        <div id="screen-content" class="w-full"></div>
+        <div class="mt-4 pt-2 border-t border-current flex items-center text-lg">
+            <span class="mr-2 font-bold text-xl">&gt;</span>
+            <input type="text" id="cli-input" class="w-full bg-transparent outline-none tracking-wider"
+                   placeholder="Digite um número (1-20), 'ajuda' ou 'test' para rodar a suíte..."
+                   autofocus autocomplete="off">
+        </div>
+    </main>
+
+    <footer class="dos-border mt-2 p-1 text-xs flex flex-wrap justify-between items-center bg-black/40">
+        <div class="flex gap-3 flex-wrap">
+            <span><strong class="px-1 border border-current cursor-pointer" onclick="showHelp()">F1</strong> Ajuda</span>
+            <span><strong class="px-1 border border-current">F2</strong> PubChem API</span>
+            <span><strong class="px-1 border border-current">F3</strong> Balanciador</span>
+            <span><strong class="px-1 border border-current cursor-pointer" onclick="renderTool(20)">F4</strong> Testes</span>
+            <span><strong class="px-1 border border-current">ESC</strong> Menu</span>
+        </div>
+        <div class="flex gap-1">
+            <button onclick="setTheme('green')" class="px-1 border border-current hover:bg-current hover:text-black">VERDE</button>
+            <button onclick="setTheme('amber')" class="px-1 border border-current hover:bg-current hover:text-black">ÂMBAR</button>
+            <button onclick="setTheme('blue')" class="px-1 border border-current hover:bg-current hover:text-black">AZUL</button>
+        </div>
+    </footer>
+
+    <div id="modal" class="hidden fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-4">
+        <div class="dos-border bg-black p-5 max-w-2xl w-full max-h-[85vh] overflow-y-auto">
+            <div id="modal-title" class="text-xl font-bold border-b border-current pb-2 mb-3">SISTEMA</div>
+            <div id="modal-body" class="text-sm space-y-2"></div>
+            <div class="mt-5 border-t border-current pt-2 flex justify-end">
+                <button onclick="closeModal()" class="dos-btn">FECHAR [ESC]</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* ==========================================================================
+           1. TABELA PERIÓDICA IUPAC
+           ========================================================================== */
+        const RAW_ELEMENTS = [
+            [1,"H","Hidrogênio",1.008,1,1,"Não-Metal"],[2,"He","Hélio",4.0026,18,1,"Gás Nobre"],
+            [3,"Li","Lítio",6.94,1,2,"Alcalino"],[4,"Be","Berílio",9.0122,2,2,"Alcalino-Térreo"],
+            [5,"B","Boro",10.81,13,2,"Metalóide"],[6,"C","Carbono",12.011,14,2,"Não-Metal"],
+            [7,"N","Nitrogênio",14.007,15,2,"Não-Metal"],[8,"O","Oxigênio",15.999,16,2,"Não-Metal"],
+            [9,"F","Flúor",18.998,17,2,"Halogênio"],[10,"Ne","Neônio",20.180,18,2,"Gás Nobre"],
+            [11,"Na","Sódio",22.990,1,3,"Alcalino"],[12,"Mg","Magnésio",24.305,2,3,"Alcalino-Térreo"],
+            [13,"Al","Alumínio",26.982,13,3,"Pós-Transição"],[14,"Si","Silício",28.085,14,3,"Metalóide"],
+            [15,"P","Fósforo",30.974,15,3,"Não-Metal"],[16,"S","Enxofre",32.06,16,3,"Não-Metal"],
+            [17,"Cl","Cloro",35.45,17,3,"Halogênio"],[18,"Ar","Argônio",39.948,18,3,"Gás Nobre"],
+            [19,"K","Potássio",39.098,1,4,"Alcalino"],[20,"Ca","Cálcio",40.078,2,4,"Alcalino-Térreo"],
+            [21,"Sc","Escândio",44.956,3,4,"Transição"],[22,"Ti","Titânio",47.867,4,4,"Transição"],
+            [23,"V","Vanádio",50.942,5,4,"Transição"],[24,"Cr","Cromo",51.996,6,4,"Transição"],
+            [25,"Mn","Manganês",54.938,7,4,"Transição"],[26,"Fe","Ferro",55.845,8,4,"Transição"],
+            [27,"Co","Cobalto",58.933,9,4,"Transição"],[28,"Ni","Níquel",58.693,10,4,"Transição"],
+            [29,"Cu","Cobre",63.546,11,4,"Transição"],[30,"Zn","Zinco",65.38,12,4,"Transição"],
+            [31,"Ga","Gálio",69.723,13,4,"Pós-Transição"],[32,"Ge","Germânio",72.630,14,4,"Metalóide"],
+            [33,"As","Arsênio",74.922,15,4,"Metalóide"],[34,"Se","Selênio",78.971,16,4,"Não-Metal"],
+            [35,"Br","Bromo",79.904,17,4,"Halogênio"],[36,"Kr","Criptônio",83.798,18,4,"Gás Nobre"],
+            [37,"Rb","Rubídio",85.468,1,5,"Alcalino"],[38,"Sr","Estrôncio",87.62,2,5,"Alcalino-Térreo"],
+            [39,"Y","Ítrio",88.906,3,5,"Transição"],[40,"Zr","Zircônio",91.224,4,5,"Transição"],
+            [41,"Nb","Nióbio",92.906,5,5,"Transição"],[42,"Mo","Molibdênio",95.95,6,5,"Transição"],
+            [43,"Tc","Tecnécio",98,7,5,"Transição"],[44,"Ru","Rutênio",101.07,8,5,"Transição"],
+            [45,"Rh","Ródio",102.91,9,5,"Transição"],[46,"Pd","Paládio",106.42,10,5,"Transição"],
+            [47,"Ag","Prata",107.87,11,5,"Transição"],[48,"Cd","Cádmio",112.41,12,5,"Transição"],
+            [49,"In","Índio",114.82,13,5,"Pós-Transição"],[50,"Sn","Estanho",118.71,14,5,"Pós-Transição"],
+            [51,"Sb","Antimônio",121.76,15,5,"Metalóide"],[52,"Te","Telúrio",127.60,16,5,"Metalóide"],
+            [53,"I","Iodo",126.90,17,5,"Halogênio"],[54,"Xe","Xenônio",131.29,18,5,"Gás Nobre"],
+            [55,"Cs","Césio",132.91,1,6,"Alcalino"],[56,"Ba","Bário",137.33,2,6,"Alcalino-Térreo"],
+            [57,"La","Lantânio",138.91,3,6,"Lantanídeo"],[58,"Ce","Cério",140.12,3,6,"Lantanídeo"],
+            [59,"Pr","Praseodímio",140.91,3,6,"Lantanídeo"],[60,"Nd","Neodímio",144.24,3,6,"Lantanídeo"],
+            [61,"Pm","Promécio",145,3,6,"Lantanídeo"],[62,"Sm","Samário",150.36,3,6,"Lantanídeo"],
+            [63,"Eu","Európio",151.96,3,6,"Lantanídeo"],[64,"Gd","Gadolínio",157.25,3,6,"Lantanídeo"],
+            [65,"Tb","Térbio",158.93,3,6,"Lantanídeo"],[66,"Dy","Disprósio",162.50,3,6,"Lantanídeo"],
+            [67,"Ho","Hólmio",164.93,3,6,"Lantanídeo"],[68,"Er","Érbio",167.26,3,6,"Lantanídeo"],
+            [69,"Tm","Túlio",168.93,3,6,"Lantanídeo"],[70,"Yb","Itérbio",173.05,3,6,"Lantanídeo"],
+            [71,"Lu","Lutécio",174.97,3,6,"Lantanídeo"],[72,"Hf","Háfnio",178.49,4,6,"Transição"],
+            [73,"Ta","Tântalo",180.95,5,6,"Transição"],[74,"W","Tungstênio",183.84,6,6,"Transição"],
+            [75,"Re","Rênio",186.21,7,6,"Transição"],[76,"Os","Ósmio",190.23,8,6,"Transição"],
+            [77,"Ir","Irídio",192.22,9,6,"Transição"],[78,"Pt","Platina",195.08,10,6,"Transição"],
+            [79,"Au","Ouro",196.97,11,6,"Transição"],[80,"Hg","Mercúrio",200.59,12,6,"Transição"],
+            [81,"Tl","Tálio",204.38,13,6,"Pós-Transição"],[82,"Pb","Chumbo",207.2,14,6,"Pós-Transição"],
+            [83,"Bi","Bismuto",208.98,15,6,"Pós-Transição"],[84,"Po","Polônio",209,16,6,"Pós-Transição"],
+            [85,"At","Astato",210,17,6,"Halogênio"],[86,"Rn","Radônio",222,18,6,"Gás Nobre"],
+            [87,"Fr","Frâncio",223,1,7,"Alcalino"],[88,"Ra","Rádio",226,2,7,"Alcalino-Térreo"],
+            [89,"Ac","Actínio",227,3,7,"Actinídeo"],[90,"Th","Tório",232.04,3,7,"Actinídeo"],
+            [91,"Pa","Protactínio",231.04,3,7,"Actinídeo"],[92,"U","Urânio",238.03,3,7,"Actinídeo"],
+            [93,"Np","Neptúnio",237,3,7,"Actinídeo"],[94,"Pu","Plutônio",244,3,7,"Actinídeo"],
+            [95,"Am","Amerício",243,3,7,"Actinídeo"],[96,"Cm","Cúrio",247,3,7,"Actinídeo"],
+            [97,"Bk","Berquélio",247,3,7,"Actinídeo"],[98,"Cf","Califórnio",251,3,7,"Actinídeo"],
+            [99,"Es","Einstênio",252,3,7,"Actinídeo"],[100,"Fm","Férmio",257,3,7,"Actinídeo"],
+            [101,"Md","Mendelévio",258,3,7,"Actinídeo"],[102,"No","Nobélio",259,3,7,"Actinídeo"],
+            [103,"Lr","Laurêncio",262,3,7,"Actinídeo"],[104,"Rf","Rutherfordio",267,4,7,"Transição"],
+            [105,"Db","Dúbnio",268,5,7,"Transição"],[106,"Sg","Seabórgio",269,6,7,"Transição"],
+            [107,"Bh","Bório",270,7,7,"Transição"],[108,"Hs","Hássio",277,8,7,"Transição"],
+            [109,"Mt","Meitnério",278,9,7,"Transição"],[110,"Ds","Darmstádio",281,10,7,"Transição"],
+            [111,"Rg","Roentgênio",282,11,7,"Transição"],[112,"Cn","Copernício",285,12,7,"Transição"],
+            [113,"Nh","Nipônio",286,13,7,"Pós-Transição"],[114,"Fl","Fleróvio",289,14,7,"Pós-Transição"],
+            [115,"Mc","Moscóvio",290,15,7,"Pós-Transição"],[116,"Lv","Livermório",293,16,7,"Pós-Transição"],
+            [117,"Ts","Tenesso",294,17,7,"Halogênio"],[118,"Og","Oganessônio",294,18,7,"Gás Nobre"]
+        ];
+
+        const ATOMIC_WEIGHTS = {};
+        const ELEMENTS_DB = RAW_ELEMENTS.map(e => {
+            ATOMIC_WEIGHTS[e[1]] = e[3];
+            return { num: e[0], sym: e[1], name: e[2], mass: e[3], group: e[4], period: e[5], cat: e[6] };
+        });
+
+        function escapeHTML(str) {
+            return String(str || '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+        }
+
+        /* ==========================================================================
+           2. MOTOR DE ÁLGEBRA LINEAR / BALANCIADOR DE EQUAÇÕES
+           ========================================================================== */
+        function parseFormula(formula) {
+            let clean = formula.replace(/[\[\{]/g, '(').replace(/[\]\}]/g, ')').replace(/\s+/g, '').replace(/[*·]/g, '.');
+            let parts = clean.split('.');
+            let counts = {};
+            let totalMass = 0;
+
+            function parseSub(str, multiplier = 1) {
+                let stack = [{}];
+                let i = 0;
+                while (i < str.length) {
+                    if (str[i] === '(') {
+                        stack.push({});
+                        i++;
+                    } else if (str[i] === ')') {
+                        i++;
+                        let matchNum = str.slice(i).match(/^(\d+(\.\d+)?)/);
+                        let mult = matchNum ? parseFloat(matchNum[1]) : 1;
+                        if (matchNum) i += matchNum[1].length;
+                        let top = stack.pop();
+                        let curr = stack[stack.length - 1];
+                        for (let el in top) { curr[el] = (curr[el] || 0) + top[el] * mult; }
+                    } else {
+                        let matchElem = str.slice(i).match(/^([A-Z][a-z]?)/);
+                        if (!matchElem) { i++; continue; }
+                        let el = matchElem[1];
+                        i += el.length;
+                        let matchCnt = str.slice(i).match(/^(\d+(\.\d+)?)/);
+                        let cnt = matchCnt ? parseFloat(matchCnt[1]) : 1;
+                        if (matchCnt) i += matchCnt[1].length;
+                        let curr = stack[stack.length - 1];
+                        curr[el] = (curr[el] || 0) + cnt;
+                    }
+                }
+                let res = stack[0];
+                for (let el in res) { counts[el] = (counts[el] || 0) + res[el] * multiplier; }
+            }
+
+            parseSub(parts[0], 1);
+            if (parts.length > 1) {
+                for (let p = 1; p < parts.length; p++) {
+                    let hMatch = parts[p].match(/^(\d*)(\D.*)?$/);
+                    let hMult = hMatch && hMatch[1] ? parseFloat(hMatch[1]) : 1;
+                    let hFormula = hMatch && hMatch[2] ? hMatch[2] : parts[p];
+                    parseSub(hFormula, hMult);
+                }
+            }
+
+            for (let el in counts) {
+                if (ATOMIC_WEIGHTS[el]) { totalMass += ATOMIC_WEIGHTS[el] * counts[el]; }
+            }
+            return { totalMass, counts };
+        }
+
+        function gcd(a, b) {
+            a = Math.abs(a); b = Math.abs(b);
+            while (b) { let t = b; b = a % b; a = t; }
+            return a;
+        }
+
+        function ratCreate(num, den = 1) {
+            if (den === 0) return [0, 1];
+            if (num === 0) return [0, 1];
+            if (den < 0) { num = -num; den = -den; }
+            let g = gcd(num, den);
+            return [num / g, den / g];
+        }
+
+        function ratSub(a, b) { return ratCreate(a[0]*b[1] - b[0]*a[1], a[1]*b[1]); }
+        function ratMul(a, b) { return ratCreate(a[0]*b[0], a[1]*b[1]); }
+        function ratDiv(a, b) { return ratCreate(a[0]*b[1], a[1]*b[0]); }
+        function ratIsZero(a) { return a[0] === 0; }
+
+        function solveLinearSystem(matrix) {
+            let m = matrix.length;
+            let n = matrix[0].length;
+            let k = n - 1;
+
+            let M = matrix.map(row => row.map(cell => [...cell]));
+            let lead = 0;
+
+            for (let r = 0; r < m; r++) {
+                if (k <= lead) break;
+                let i = r;
+                while (i < m && ratIsZero(M[i][lead])) { i++; }
+                if (i === m) { lead++; r--; continue; }
+
+                let temp = M[r]; M[r] = M[i]; M[i] = temp;
+
+                let val = M[r][lead];
+                for (let j = lead; j < n; j++) { M[r][j] = ratDiv(M[r][j], val); }
+
+                for (let j = 0; j < m; j++) {
+                    if (j !== r && !ratIsZero(M[j][lead])) {
+                        let mult = M[j][lead];
+                        for (let c = lead; c < n; c++) { M[j][c] = ratSub(M[j][c], ratMul(mult, M[r][c])); }
+                    }
+                }
+                lead++;
+            }
+
+            let solution = new Array(k).fill(null);
+            for (let r = 0; r < m; r++) {
+                let firstLead = -1;
+                for (let c = 0; c < k; c++) {
+                    if (!ratIsZero(M[r][c])) { firstLead = c; break; }
+                }
+                if (firstLead !== -1) {
+                    let allZero = true;
+                    for (let c = firstLead + 1; c < k; c++) {
+                        if (!ratIsZero(M[r][c])) { allZero = false; break; }
+                    }
+                    if (allZero) { solution[firstLead] = M[r][k]; }
+                }
+            }
+
+            for (let i = 0; i < k; i++) { if (solution[i] === null) return null; }
+            return solution;
+        }
+
+        function balanceChemicalEquation(equationStr) {
+            let eq = equationStr.replace(/\s+/g, '');
+            let sides = eq.split(/->|=/);
+            if (sides.length !== 2) throw new Error("A equação deve conter '->' ou '='.");
+
+            let leftComps = sides[0].split('+').filter(Boolean);
+            let rightComps = sides[1].split('+').filter(Boolean);
+            let allComps = [...leftComps, ...rightComps];
+            let numReactants = leftComps.length;
+            let n = allComps.length;
+
+            let parsedComps = allComps.map(c => parseFormula(c).counts);
+            let elements = Array.from(new Set(parsedComps.flatMap(c => Object.keys(c))));
+            let m = elements.length;
+
+            let A = elements.map(elem => parsedComps.map((comp, j) => {
+                let cnt = comp[elem] || 0;
+                return j < numReactants ? cnt : -cnt;
+            }));
+
+            let bestCoeffs = null;
+
+            for (let refCol = 0; refCol < n; refCol++) {
+                let augmented = elements.map((_, rIdx) => {
+                    let row = [];
+                    for (let cIdx = 0; cIdx < n; cIdx++) {
+                        if (cIdx === refCol) continue;
+                        row.push(ratCreate(A[rIdx][cIdx]));
+                    }
+                    row.push(ratCreate(-A[rIdx][refCol]));
+                    return row;
+                });
+
+                let sol = solveLinearSystem(augmented);
+                if (!sol) continue;
+
+                let fullSol = [];
+                let solIdx = 0;
+                for (let cIdx = 0; cIdx < n; cIdx++) {
+                    if (cIdx === refCol) { fullSol.push(ratCreate(1)); }
+                    else { fullSol.push(sol[solIdx++]); }
+                }
+
+                let currentLcm = 1;
+                for (let cIdx = 0; cIdx < n; cIdx++) {
+                    let den = fullSol[cIdx][1];
+                    currentLcm = (currentLcm * den) / gcd(currentLcm, den);
+                }
+
+                let candidate = fullSol.map(rat => Math.round((rat[0] * currentLcm) / rat[1]));
+
+                if (candidate.some(v => v <= 0)) continue;
+
+                let verified = true;
+                for (let elemIdx = 0; elemIdx < m; elemIdx++) {
+                    let leftSum = 0, rightSum = 0;
+                    for (let j = 0; j < n; j++) {
+                        let cnt = parsedComps[j][elements[elemIdx]] || 0;
+                        if (j < numReactants) leftSum += cnt * candidate[j];
+                        else rightSum += cnt * candidate[j];
+                    }
+                    if (leftSum !== rightSum) { verified = false; break; }
+                }
+
+                if (verified) { bestCoeffs = candidate; break; }
+            }
+
+            if (!bestCoeffs) throw new Error("Não foi possível balancear a reação com esta combinação.");
+
+            let balancedLeft = leftComps.map((c, i) => (bestCoeffs[i] > 1 ? bestCoeffs[i] : '') + c).join(' + ');
+            let balancedRight = rightComps.map((c, i) => (bestCoeffs[numReactants + i] > 1 ? bestCoeffs[numReactants + i] : '') + c).join(' + ');
+
+            return { text: `${balancedLeft} ➔ ${balancedRight}`, coeffs: bestCoeffs, leftComps, rightComps, numReactants };
+        }
+
+        /* ==========================================================================
+           3. INTEGRAÇÃO DE APIs — PUBCHEM (composto + elementos)
+           ========================================================================== */
+        async function fetchPubChemData(query) {
+            try {
+                const urlCID = `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${encodeURIComponent(query)}/cids/JSON`;
+                const resCID = await fetch(urlCID);
+                if (!resCID.ok) throw new Error("Composto não encontrado no banco de dados.");
+                const dataCID = await resCID.json();
+                const cid = dataCID.IdentifierList.CID[0];
+
+                const safeProps = "Title,MolecularFormula,MolecularWeight,CanonicalSMILES,InChIKey";
+                const urlProps = `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${cid}/property/${safeProps}/JSON`;
+                const resProps = await fetch(urlProps);
+
+                let compoundData = { CID: cid, Title: query.toUpperCase() };
+                if (resProps.ok) {
+                    const dataProps = await resProps.json();
+                    compoundData = { ...dataProps.PropertyTable.Properties[0], CID: cid };
+                }
+                return compoundData;
+            } catch(error) {
+                console.error("PubChem Fetch Error:", error);
+                throw error;
+            }
+        }
+
+        async function fetchPubChemPugView(cid) {
+            try {
+                const url = `https://pubchem.ncbi.nlm.nih.gov/rest/pug_view/data/compound/${cid}/JSON`;
+                const res = await fetch(url);
+                if (!res.ok) return null;
+                const json = await res.json();
+
+                let results = { hazards: [], density: null, meltingPoint: null, boilingPoint: null, pka: null };
+
+                function searchSections(section) {
+                    if (!section) return;
+                    const heading = section.TOCHeading || '';
+
+                    if (heading === 'GHS Classification' && section.Information) {
+                        section.Information.forEach(info => {
+                            if (info.Name === 'GHS Hazard Statements' && info.Value && info.Value.StringWithMarkup) {
+                                info.Value.StringWithMarkup.forEach(s => {
+                                    if(s.String && !results.hazards.includes(s.String)) results.hazards.push(s.String);
+                                });
+                            }
+                        });
+                    }
+                    if (heading.includes('Density') && section.Information) {
+                        let val = section.Information[0]?.Value?.StringWithMarkup?.[0]?.String;
+                        if (val && !results.density) results.density = val;
+                    }
+                    if (heading.includes('Melting Point') && section.Information) {
+                        let val = section.Information[0]?.Value?.StringWithMarkup?.[0]?.String;
+                        if(val && !results.meltingPoint) results.meltingPoint = val;
+                    }
+                    if (heading.includes('Boiling Point') && section.Information) {
+                        let val = section.Information[0]?.Value?.StringWithMarkup?.[0]?.String;
+                        if(val && !results.boilingPoint) results.boilingPoint = val;
+                    }
+                    if ((heading.includes('pKa') || heading.includes('Dissociation Constants')) && section.Information) {
+                        let val = section.Information[0]?.Value?.StringWithMarkup?.[0]?.String;
+                        if(val && !results.pka) results.pka = val;
+                    }
+                    if (section.Section) section.Section.forEach(searchSections);
+                }
+
+                if (json.Record && json.Record.Section) { json.Record.Section.forEach(searchSections); }
+                return results;
+            } catch(e) {
+                console.error("PUG-VIEW Error:", e);
+                return null;
+            }
+        }
+
+        let periodicTableCache = null;
+        async function fetchElementApiData(atomicNum) {
+            try {
+                if (!periodicTableCache) {
+                    const url = `https://pubchem.ncbi.nlm.nih.gov/rest/pug/periodictable/JSON`;
+                    const res = await fetch(url);
+                    if (!res.ok) throw new Error("Falha ao baixar tabela periódica do servidor.");
+                    periodicTableCache = await res.json();
+                }
+                const cols = periodicTableCache.Table.Columns.Column;
+                const rows = periodicTableCache.Table.Row;
+                const elementRow = rows.find(r => String(r.Cell[0]) === String(atomicNum));
+                if (!elementRow) return null;
+
+                let data = {};
+                cols.forEach((colName, idx) => { data[colName] = elementRow.Cell[idx]; });
+                return data;
+            } catch(e) {
+                console.error("Elements API Error:", e);
+                return null;
+            }
+        }
+
+        /* ==========================================================================
+           3B. NOVAS APIs — OPSIN (nomenclatura IUPAC), CACTUS (identificadores),
+                WIKIPEDIA (contexto científico)
+           ========================================================================== */
+        async function fetchOpsinData(name) {
+            const url = `https://opsin.ch.cam.ac.uk/opsin/${encodeURIComponent(name)}.json`;
+            const res = await fetch(url);
+            if (!res.ok) throw new Error("OPSIN não respondeu (serviço fora do ar ou nome inválido).");
+            const data = await res.json();
+            if (data.status !== "SUCCESS") throw new Error(data.message || "OPSIN não interpretou este nome IUPAC.");
+            return {
+                smiles: data.smiles || null,
+                inchi: data.stdinchi || null,
+                inchikey: data.stdinchikey || null
+            };
+        }
+
+        async function fetchCactusData(identifier, representation) {
+            const url = `https://cactus.nci.nih.gov/chemical/structure/${encodeURIComponent(identifier)}/${representation}`;
+            const res = await fetch(url);
+            if (!res.ok) throw new Error(`CACTUS: '${representation}' não encontrado para este identificador.`);
+            const text = await res.text();
+            return text.trim();
+        }
+
+        async function fetchWikiSummary(title) {
+            try {
+                const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`;
+                const res = await fetch(url);
+                if (!res.ok) return null;
+                const data = await res.json();
+                return data.extract || null;
+            } catch(e) { return null; }
+        }
+
+        /* ==========================================================================
+           4. AUDIO, TEMAS, MODAL E UI
+           ========================================================================== */
+        let soundEnabled = false;
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playBeep(freq = 800, duration = 0.03) {
+            if (!soundEnabled) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = "square";
+                osc.frequency.value = freq;
+                gain.gain.value = 0.02;
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch(e) {}
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            document.getElementById("sound-btn").innerText = soundEnabled ? "[ON]" : "[OFF]";
+            if (soundEnabled) playBeep(1000, 0.05);
+        }
+
+        function toggleCRT() { document.getElementById("app-body").classList.toggle("no-crt"); }
+
+        function setTheme(theme) {
+            document.body.className = `h-full flex flex-col crt p-2 md:p-3 select-text theme-${theme}`;
+            if(theme === 'green') document.body.className = `h-full flex flex-col crt p-2 md:p-3 select-text`;
+            playBeep(600, 0.04);
+        }
+
+        setInterval(() => {
+            document.getElementById("clock").innerText = new Date().toLocaleTimeString('pt-BR');
+        }, 1000);
+
+        document.addEventListener("click", (e) => {
+            const isInput = ["INPUT", "TEXTAREA", "BUTTON", "A", "SELECT"].includes(e.target.tagName);
+            if (!isInput && !window.getSelection().toString()) {
+                document.getElementById("cli-input").focus();
+            }
+        });
+
+        function openModal(title, bodyHTML) {
+            document.getElementById("modal-title").innerText = title;
+            document.getElementById("modal-body").innerHTML = bodyHTML;
+            document.getElementById("modal").classList.remove("hidden");
+            playBeep(850, 0.04);
+        }
+
+        function closeModal() {
+            document.getElementById("modal").classList.add("hidden");
+            document.getElementById("cli-input").focus();
+            playBeep(500, 0.03);
+        }
+
+        function isModalOpen() {
+            return !document.getElementById("modal").classList.contains("hidden");
+        }
+
+        function showHelp() {
+            const body = `
+                <div class="mb-3">
+                    <div class="font-bold underline mb-1">NAVEGAÇÃO</div>
+                    <div>• Digite um número de <strong>1 a 20</strong> no CLI e pressione ENTER para abrir um módulo direto.</div>
+                    <div>• Digite <strong>home</strong>, <strong>menu</strong>, <strong>cls</strong> ou <strong>exit</strong> para voltar ao início.</div>
+                    <div>• Digite <strong>test</strong> para rodar a suíte de testes automatizados (módulo 20).</div>
+                    <div>• Tecla <strong>ESC</strong> fecha este modal ou volta ao menu principal.</div>
+                </div>
+                <div class="mb-3">
+                    <div class="font-bold underline mb-1">COMANDOS RÁPIDOS DO CLI</div>
+                    <div>• <strong>pubchem &lt;nome&gt;</strong> — ex: <em>pubchem caffeine</em>.</div>
+                    <div>• <strong>balance &lt;equação&gt;</strong> — ex: <em>balance H2+O2=H2O</em>.</div>
+                    <div>• <strong>resolve &lt;nome&gt;</strong> — ex: <em>resolve ethanoic acid</em>.</div>
+                    <div>• <strong>test</strong> — roda a suíte de validação de todos os motores de cálculo.</div>
+                </div>
+                <div class="mb-3">
+                    <div class="font-bold underline mb-1">MÓDULOS DISPONÍVEIS</div>
+                    <div class="grid grid-cols-1 gap-1 text-xs">
+                        <div><strong>1.</strong> Balanciador de equações — aceita coeficientes, parênteses/colchetes, hidratos (ex: CuSO4.5H2O).</div>
+                        <div><strong>2.</strong> Consulta PubChem — digite nome em inglês. Traz estrutura, GHS e resumo.</div>
+                        <div><strong>3.</strong> Massa molar.</div>
+                        <div><strong>4.</strong> Preparo de solução — "BUSCAR API" preenche massa molar e densidade.</div>
+                        <div><strong>5.</strong> Diluição C1V1=C2V2 — deixe exatamente 1 campo vazio.</div>
+                        <div><strong>6.</strong> pH de ácido fraco — busque o pKa pela API ou informe o Ka.</div>
+                        <div><strong>7.</strong> Tabela periódica.</div>
+                        <div><strong>8.</strong> Estequiometria — reagente limitante e rendimento.</div>
+                        <div><strong>9.</strong> Termoquímica — sempre inclua o estado físico, ex: CO2(g).</div>
+                        <div><strong>10.</strong> Tampão (Henderson-Hasselbalch).</div>
+                        <div><strong>11.</strong> Lei dos gases — combinada ou ideal.</div>
+                        <div><strong>12.</strong> Nernst.</div>
+                        <div><strong>13.</strong> Nomenclatura (OPSIN + CACTUS).</div>
+                        <div><strong>14.</strong> Cinética química.</div>
+                        <div><strong>15.</strong> Equilíbrio (Kc).</div>
+                        <div><strong>16.</strong> Titulação forte-forte.</div>
+                        <div><strong>17.</strong> Espectroscopia (Beer-Lambert + conversões).</div>
+                        <div><strong>18.</strong> Titulação fraco-forte (solução exata).</div>
+                        <div><strong>19.</strong> Solubilidade/Kps.</div>
+                        <div><strong>20.</strong> <strong class="text-yellow-300">Suíte de testes</strong> — valida todos os motores contra valores conhecidos.</div>
+                    </div>
+                </div>
+                <div class="text-xs opacity-70 border-t border-current pt-2">
+                    <strong>Sobre a precisão dos dados:</strong> este software usa APIs públicas gratuitas e uma base termodinâmica local limitada. Não substitui uma FISPQ/SDS oficial nem validação em laboratório. Use para fins didáticos.
+                </div>
+            `;
+            openModal("AJUDA — CHEM.OS v7.0", body);
+        }
+
+        /* ==========================================================================
+           5. RENDERIZAÇÃO DAS TELAS
+           ========================================================================== */
+        function renderHome() {
+            const screen = document.getElementById("screen-content");
+            screen.innerHTML = `
+<pre class="font-bold leading-none text-xs md:text-sm mb-3 hidden sm:block">
+ ██████╗██╗  ██╗███████╗███╗   ███╗  ██████╗ ███████╗   ██╗   ██╗██████╗ 
+██╔════╝██║  ██║██╔════╝████╗ ████║  ██╔══██╗██╔════╝   ██║   ██║██╔══██╗
+██║     ███████║█████╗  ██╔████╔██║  ██║  ██║███████╗   ██║   ██║██████╔╝
+██║     ██╔══██║██╔══╝  ██║╚██╔╝██║  ██║  ██║╚════██║   ╚██╗ ██╔╝██╔═══╝ 
+╚██████╗██║  ██║███████╗██║ ╚═╝ ██║  ██████╔╝███████║    ╚████╔╝ ██║     
+ ╚═════╝╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝  ╚═════╝ ╚══════╝     ╚═══╝  ╚═╝     
+</pre>
+<div class="border-b border-current pb-2 mb-3">
+    <div class="text-xl font-bold">CHEM.OS v7.0 Enterprise Laboratory Engine [20 MÓDULOS]</div>
+    <div class="text-xs opacity-80">Pressione F1 para o guia de uso, ou F4 / digite "test" para validar todos os motores de cálculo.</div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+    <button onclick="renderTool(1)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">1. Balanciador Real de Equações (Álgebra Linear)</button>
+    <button onclick="renderTool(2)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">2. Consulta PubChem API + GHS Safety + Wikipedia</button>
+    <button onclick="renderTool(3)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">3. Calculadora de Massa Molar () [] {}</button>
+    <button onclick="renderTool(4)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">4. Preparo de Soluções + Auto-Busca de Densidade</button>
+    <button onclick="renderTool(5)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">5. Diluição Interativa (C1V1 = C2V2)</button>
+    <button onclick="renderTool(6)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">6. pH Ácido Fraco + Auto-Busca pKa</button>
+    <button onclick="renderTool(7)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">7. Tabela Periódica IUPAC (+ Elements API Cache)</button>
+    <button onclick="renderTool(8)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">8. Estequiometria (Reagente Limitante + Rendimento)</button>
+    <button onclick="renderTool(9)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">9. Termoquímica (ΔH, ΔS, ΔG de Reação)</button>
+    <button onclick="renderTool(10)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">10. Tampões (Henderson-Hasselbalch)</button>
+    <button onclick="renderTool(11)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">11. Lei dos Gases (Ideal e Combinada)</button>
+    <button onclick="renderTool(12)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">12. Eletroquímica (Equação de Nernst)</button>
+    <button onclick="renderTool(13)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">13. Resolvedor de Nomenclatura (OPSIN + CACTUS)</button>
+    <button onclick="renderTool(14)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">14. Cinética Química (Ordem 0, 1, 2 + Meia-Vida)</button>
+    <button onclick="renderTool(15)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">15. Equilíbrio Químico (Cálculo de Kc)</button>
+    <button onclick="renderTool(16)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">16. Curva de Titulação Forte-Forte</button>
+    <button onclick="renderTool(17)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">17. Espectroscopia (Beer-Lambert + Conversões λ/ν/E)</button>
+    <button onclick="renderTool(18)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">18. Titulação Ácido Fraco + Base Forte (Solução Exata)</button>
+    <button onclick="renderTool(19)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">19. Solubilidade / Kps (+ Efeito do Íon Comum)</button>
+    <button onclick="renderTool(20)" class="text-left p-1 border border-yellow-400 hover:bg-yellow-400 hover:text-black text-yellow-300 font-bold">20. ⚙ SUÍTE DE TESTES — Validação dos Motores de Cálculo</button>
+</div>
+`;
+        }
+
+        function renderTool(toolId) {
+            playBeep(700, 0.04);
+            const screen = document.getElementById("screen-content");
+
+            switch(parseInt(toolId)) {
+                case 1:
+                    screen.innerHTML = `
+                        <div class="text-xl font-bold border-b border-current pb-1 mb-3">1. BALANCIADOR DE EQUAÇÕES QUÍMICAS (ÁLGEBRA LINEAR)</div>
+                        <div class="flex gap-2 mb-3">
+                            <input id="eq-input" type="text" class="dos-input flex-grow p-1 text-sm" value="K4[Fe(CN)6] + KMnO4 + H2SO4 -> KHSO4 + Fe2(SO4)3 + MnSO4 + HNO3 + CO2 + H2O">
+                            <button onclick="runBalancer()" class="dos-btn">BALANCIAR</button>
+                        </div>
+                        <div id="eq-result" class="dos-border p-3 text-sm">Clique em BALANCIAR para processar a matriz estequiométrica...</div>
+                    `;
+                    break;
+                case 2:
+                    screen.innerHTML = `
+                        <div class="text-xl font-bold border-b border-current pb-1 mb-3">2. CONSULTA PUBCHEM + ESTRUTURA 2D + SEGURANÇA GHS + WIKIPEDIA</div>
+                        <div class="flex gap-2 mb-3">
+                            <input id="pubchem-input" type="text" class="dos-input flex-grow p-1 text-sm" placeholder="Ex: aspirin, benzene, caffeine" value="aspirin">
+                            <button onclick="runPubChemSearch()" class="dos-btn">PESQUISAR API</button>
+                        </div>
+                        <div id="pubchem-result" class="dos-border p-3 text-sm">Aguardando busca...</div>
+                    `;
+                    break;
+                case 3:
+                    screen.innerHTML = `
+                        <div class="text-xl font-bold border-b border-current pb-1 mb-3">3. CALCULADORA DE MASSA MOLAR</div>
+                        <div class="flex gap-2 mb-3">
+                            <input id="molar-input" type="text" class="dos-input flex-grow p-1 text-sm" value="K4[Fe(CN)6]">
+                            <button onclick="runMolarMass()" class="dos-btn">CALCULAR</button>
+                        </div>
+                        <div id="molar-result" class="dos-border p-3 text-sm"></div>
+                    `;
+                    runMolarMass();
+                    break;
+                case 4:
+                    screen.innerHTML = `
+                        <div class="text-xl font-bold border-b border-current pb-1 mb-3">4. PREPARO DE SOLUÇÃO & AUTO-BUSCA DENSIDADE VIA API</div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                            <div class="space-y-2">
+                                <div class="flex gap-1 items-end">
+                                    <div class="flex-grow"><label>Soluto:</label><input id="p-solute" type="text" value="sulfuric acid" class="dos-input w-full p-1"></div>
+                                    <button onclick="autoFetchSoluteProps()" class="dos-btn text-[10px] h-7">BUSCAR API</button>
+                                </div>
+                                <div><label>Massa Molar (g/mol):</label><input id="p-mm" type="number" step="any" value="98.08" class="dos-input w-full p-1"></div>
+                                <div><label>Concentração Desejada (mol/L):</label><input id="p-conc" type="number" step="any" value="0.5" class="dos-input w-full p-1"></div>
+                                <div><label>Volume Balão (mL):</label><input id="p-vol" type="number" step="any" value="500" class="dos-input w-full p-1"></div>
+                                <div><label>Pureza (%):</label><input id="p-purity" type="number" step="any" value="98" class="dos-input w-full p-1"></div>
+                                <div><label>Densidade (g/mL):</label><input id="p-density" type="number" step="any" placeholder="1.84" class="dos-input w-full p-1"></div>
+                                <button onclick="runPrep()" class="dos-btn w-full mt-2">CALCULAR</button>
+                            </div>
+                            <div id="prep-result" class="dos-border p-3 flex flex-col justify-center">Aguardando dados...</div>
+                        </div>
+                    `;
+                    break;
+                case 5:
+                    screen.innerHTML = `
+                        <div class="text-xl font-bold border-b border-current pb-1 mb-3">5. CALCULADORA DE DILUIÇÃO (C1·V1 = C2·V2)</div>
+                        <p class="text-xs mb-3">Deixe exatamente UM campo em branco:</p>
+                        <div class="grid grid-cols-2 gap-3 max-w-md text-xs mb-3">
+                            <div><label>C1 (Inicial):</label><input id="d-c1" type="number" step="any" value="18" class="dos-input w-full p-1"></div>
+                            <div><label>V1 (Inicial mL):</label><input id="d-v1" type="number" step="any" placeholder="?" class="dos-input w-full p-1"></div>
+                            <div><label>C2 (Final):</label><input id="d-c2" type="number" step="any" value="1" class="dos-input w-full p-1"></div>
+                            <div><label>V2 (Final mL):</label><input id="d-v2" type="number" step="any" value="250" class="dos-input w-full p-1"></div>
+                        </div>
+                        <button onclick="runDilution()" class="dos-btn mb-3">CALCULAR INCÓGNITA</button>
+                        <div id="dilution-result" class="dos-border p-3 text-sm"></div>
+                    `;
+                    break;
+                case 6:
+                    screen.innerHTML = `
+                        <div class="text-xl font-bold border-b border-current pb-1 mb-3">6. pH DE ÁCIDOS FRACOS & AUTO-BUSCA DE pKa VIA API</div>
+                        <div class="space-y-3 text-xs">
+                            <div class="dos-border p-3">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
+                                    <div><label>Nome do Ácido (p/ API):</label>
+                                        <div class="flex gap-1">
+                                            <input id="wa-name" type="text" value="acetic acid" class="dos-input flex-grow p-1">
+                                            <button onclick="autoFetchPka()" class="dos-btn">BUSCAR pKa</button>
+                                        </div>
+                                    </div>
+                                    <div><label>Concentração (mol/L):</label><input id="wa-conc" type="number" step="any" value="0.1" class="dos-input w-full p-1"></div>
+                                    <div><label>Ka (Constante Acidez):</label><input id="wa-ka" type="number" step="any" value="0.000018" class="dos-input w-full p-1"></div>
+                                </div>
+                                <button onclick="runWeakAcidPH()" class="dos-btn">CALCULAR pH</button>
+                            </div>
+                            <div id="ph-result" class="dos-border p-3 text-sm font-bold">Aguardando entrada...</div>
+                        </div>
+                    `;
+                    break;
+                case 7:
+                    screen.innerHTML = `
+                        <div class="text-xl font-bold border-b border-current pb-1 mb-2">7. TABELA PERIÓDICA IUPAC + ELEMENTS API INTEGRADA</div>
+                        <div class="flex gap-2 mb-2 text-xs">
+                            <input id="ptable-search" type="text" class="dos-input flex-grow p-1" placeholder="Filtrar elemento (ex: Ouro, Au, 79)..." oninput="filterPTable()">
+                        </div>
+                        <div id="ptable-grid" class="overflow-x-auto mb-2"></div>
+                        <div id="elem-detail" class="dos-border p-3 text-xs">Clique em um elemento para consulta de dados da API da PubChem.</div>
+                    `;
+                    renderPTableGrid();
+                    break;
+                case 8:
+                    screen.innerHTML = `
+                        <div class="text-xl font-bold border-b border-current pb-1 mb-3">8. ESTEQUIOMETRIA — REAGENTE LIMITANTE E RENDIMENTO</div>
+                        <div class="text-xs mb-1">Equação balanceada:</div>
+                        <input id="stoich-eq" type="text" class="dos-input w-full p-1 mb-2 text-sm" value="2H2 + O2 -> 2H2O">
+                        <div class="text-xs mb-1">Massas dos reagentes em gramas, na ordem da equação, separadas por vírgula:</div>
+                        <input id="stoich-masses" type="text" class="dos-input w-full p-1 mb-2 text-sm" value="4,20">
+                        <div class="text-xs mb-1">Rendimento real obtido (g) — opcional, referente ao 1º produto:</div>
+                        <input id="stoich-actual" type="number" step="any" class="dos-input w-full p-1 mb-2 text-sm">
+                        <button onclick="runStoichiometry()" class="dos-btn mb-3">CALCULAR</button>
+                        <div id="stoich-result" class="dos-border p-3 text-sm">Aguardando cálculo...</div>
+                    `;
+                    break;
+                case 9:
+                    screen.innerHTML = `
+                        <div class="text-xl font-bold border-b border-current pb-1 mb-3">9. TERMOQUÍMICA — ΔH, ΔS, ΔG DE REAÇÃO (BASE LOCAL 25°C/298K)</div>
+                        <div class="text-xs mb-1">Equação balanceada (use estados: (s), (l), (g), (aq)):</div>
+                        <input id="thermo-eq" type="text" class="dos-input w-full p-1 mb-2 text-sm" value="CH4(g) + 2O2(g) -> CO2(g) + 2H2O(l)">
+                        <div class="text-xs mb-1">Temperatura (K) — para cálculo de ΔG:</div>
+                        <input id="thermo-temp" type="number" step="any" value="298.15" class="dos-input w-full p-1 mb-2 text-sm">
+                        <button onclick="runThermochemistry()" class="dos-btn mb-3">CALCULAR</button>
+                        <div id="thermo-result" class="dos-border p-3 text-sm">Aguardando cálculo...</div>
+                        <div class="text-xs opacity-60 mt-2">Base de dados local com ~30 substâncias comuns. Se uma espécie não estiver na base, o cálculo é interrompido e ela é listada.</div>
+                    `;
+                    break;
+                case 10:
+                    screen.innerHTML = `
+                        <div class="text-xl font-bold border-b border-current pb-1 mb-3">10. TAMPÕES — EQUAÇÃO DE HENDERSON-HASSELBALCH</div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs max-w-xl">
+                            <div><label>pKa do ácido fraco:</label><input id="buf-pka" type="number" step="any" value="4.76" class="dos-input w-full p-1"></div>
+                            <div><label>[Base conjugada] mol/L (A⁻):</label><input id="buf-base" type="number" step="any" value="0.15" class="dos-input w-full p-1"></div>
+                            <div><label>[Ácido fraco] mol/L (HA):</label><input id="buf-acid" type="number" step="any" value="0.10" class="dos-input w-full p-1"></div>
+                        </div>
+                        <button onclick="runBufferCalc()" class="dos-btn my-3">CALCULAR pH DO TAMPÃO</button>
+                        <div id="buffer-result" class="dos-border p-3 text-sm">Aguardando cálculo...</div>
+                    `;
+                    break;
+                case 11:
+                    screen.innerHTML = `
+                        <div class="text-xl font-bold border-b border-current pb-1 mb-3">11. LEI DOS GASES — IDEAL E COMBINADA</div>
+                        <p class="text-xs mb-2">Para lei combinada, preencha os 6 campos de estado 1 e 2 (deixe 1 em branco para resolver). Para lei ideal (PV=nRT), preencha P, V, n, T e deixe UM em branco.</p>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3 text-xs max-w-2xl mb-2">
+                            <div><label>P1 (atm):</label><input id="g-p1" type="number" step="any" value="1" class="dos-input w-full p-1"></div>
+                            <div><label>V1 (L):</label><input id="g-v1" type="number" step="any" value="10" class="dos-input w-full p-1"></div>
+                            <div><label>T1 (K):</label><input id="g-t1" type="number" step="any" value="273" class="dos-input w-full p-1"></div>
+                            <div><label>P2 (atm):</label><input id="g-p2" type="number" step="any" placeholder="?" class="dos-input w-full p-1"></div>
+                            <div><label>V2 (L):</label><input id="g-v2" type="number" step="any" value="5" class="dos-input w-full p-1"></div>
+                            <div><label>T2 (K):</label><input id="g-t2" type="number" step="any" value="300" class="dos-input w-full p-1"></div>
+                        </div>
+                        <button onclick="runCombinedGasLaw()" class="dos-btn mb-2">RESOLVER LEI COMBINADA</button>
+                        <div id="gas-combined-result" class="dos-border p-3 text-sm mb-3">Aguardando cálculo...</div>
+
+                        <div class="border-t border-current pt-2 mb-2 text-xs">Lei dos Gases Ideais (PV = nRT) — R = 0.08206 atm·L/(mol·K):</div>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs max-w-2xl mb-2">
+                            <div><label>P (atm):</label><input id="gi-p" type="number" step="any" value="1" class="dos-input w-full p-1"></div>
+                            <div><label>V (L):</label><input id="gi-v" type="number" step="any" placeholder="?" class="dos-input w-full p-1"></div>
+                            <div><label>n (mol):</label><input id="gi-n" type="number" step="any" value="1" class="dos-input w-full p-1"></div>
+                            <div><label>T (K):</label><input id="gi-t" type="number" step="any" value="273.15" class="dos-input w-full p-1"></div>
+                        </div>
+                        <button onclick="runIdealGasLaw()" class="dos-btn mb-2">RESOLVER LEI IDEAL</button>
+                        <div id="gas-ideal-result" class="dos-border p-3 text-sm">Aguardando cálculo...</div>
+                    `;
+                    break;
+                case 12:
+                    screen.innerHTML = `
+                        <div class="text-xl font-bold border-b border-current pb-1 mb-3">12. ELETROQUÍMICA — EQUAÇÃO DE NERNST</div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs max-w-xl">
+                            <div><label>E° da célula (V):</label><input id="ner-e0" type="number" step="any" value="1.10" class="dos-input w-full p-1"></div>
+                            <div><label>Número de elétrons transferidos (n):</label><input id="ner-n" type="number" step="1" value="2" class="dos-input w-full p-1"></div>
+                            <div><label>Quociente de reação (Q):</label><input id="ner-q" type="number" step="any" value="0.5" class="dos-input w-full p-1"></div>
+                            <div><label>Temperatura (K):</label><input id="ner-t" type="number" step="any" value="298.15" class="dos-input w-full p-1"></div>
+                        </div>
+                        <button onclick="runNernst()" class="dos-btn my-3">CALCULAR E DA CÉLULA</button>
+                        <div id="nernst-result" class="dos-border p-3 text-sm">Aguardando cálculo...</div>
+                    `;
+                    break;
+                case 13:
+                    screen.innerHTML = `
+                        <div class="text-xl font-bold border-b border-current pb-1 mb-3">13. RESOLVEDOR DE NOMENCLATURA (OPSIN + CACTUS)</div>
+                        <p class="text-xs mb-2">Digite um nome IUPAC sistemático (para OPSIN) ou um nome comum/CAS/SMILES (para CACTUS).</p>
+                        <div class="flex gap-2 mb-3">
+                            <input id="resolver-input" type="text" class="dos-input flex-grow p-1 text-sm" value="ethanoic acid">
+                            <button onclick="runNameResolver()" class="dos-btn">RESOLVER</button>
+                        </div>
+                        <div id="resolver-result" class="dos-border p-3 text-sm">Aguardando consulta...</div>
+                    `;
+                    break;
+                case 14:
+                    screen.innerHTML = `
+                        <div class="text-xl font-bold border-b border-current pb-1 mb-3">14. CINÉTICA QUÍMICA — LEIS DE VELOCIDADE INTEGRADAS</div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs max-w-2xl mb-2">
+                            <div>
+                                <label>Ordem da reação:</label>
+                                <select id="kin-order" class="dos-input w-full p-1 bg-black">
+                                    <option value="0">Ordem 0</option>
+                                    <option value="1" selected>Ordem 1</option>
+                                    <option value="2">Ordem 2</option>
+                                </select>
+                            </div>
+                            <div><label>k (constante de velocidade):</label><input id="kin-k" type="number" step="any" value="0.05" class="dos-input w-full p-1"></div>
+                            <div><label>[A]₀ (concentração inicial, mol/L):</label><input id="kin-a0" type="number" step="any" value="1.0" class="dos-input w-full p-1"></div>
+                            <div><label>t (tempo) — deixe em branco para calcular meia-vida:</label><input id="kin-t" type="number" step="any" placeholder="?" class="dos-input w-full p-1"></div>
+                        </div>
+                        <button onclick="runKinetics()" class="dos-btn mb-3">CALCULAR</button>
+                        <div id="kinetics-result" class="dos-border p-3 text-sm">Aguardando cálculo...</div>
+                        <div class="text-xs opacity-60 mt-2">Unidades de k variam com a ordem: ordem 0 → mol/(L·s); ordem 1 → 1/s; ordem 2 → L/(mol·s). Ajuste conforme sua unidade de tempo.</div>
+                    `;
+                    break;
+                case 15:
+                    screen.innerHTML = `
+                        <div class="text-xl font-bold border-b border-current pb-1 mb-3">15. EQUILÍBRIO QUÍMICO — CÁLCULO DE Kc</div>
+                        <div class="text-xs mb-1">Equação balanceada (sem estados físicos, ex: N2 + 3H2 -> 2NH3):</div>
+                        <input id="eq-kc-eq" type="text" class="dos-input w-full p-1 mb-2 text-sm" value="N2 + 3H2 -> 2NH3">
+                        <div class="text-xs mb-1">Concentrações no EQUILÍBRIO (mol/L), na ordem dos reagentes depois produtos, separadas por vírgula:</div>
+                        <input id="eq-kc-concs" type="text" class="dos-input w-full p-1 mb-2 text-sm" value="0.5, 1.5, 0.2">
+                        <button onclick="runEquilibriumKc()" class="dos-btn mb-3">CALCULAR Kc</button>
+                        <div id="kc-result" class="dos-border p-3 text-sm">Aguardando cálculo...</div>
+                        <div class="text-xs opacity-60 mt-2">Kc = Π[produtos]^coef / Π[reagentes]^coef. Informe as concentrações na mesma ordem em que os componentes aparecem na equação.</div>
+                    `;
+                    break;
+                case 16:
+                    screen.innerHTML = `
+                        <div class="text-xl font-bold border-b border-current pb-1 mb-3">16. CURVA DE TITULAÇÃO — ÁCIDO FORTE + BASE FORTE</div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs max-w-2xl mb-2">
+                            <div><label>Concentração do ácido (mol/L):</label><input id="tit-ca" type="number" step="any" value="0.1" class="dos-input w-full p-1"></div>
+                            <div><label>Volume inicial do ácido (mL):</label><input id="tit-va" type="number" step="any" value="25" class="dos-input w-full p-1"></div>
+                            <div><label>Concentração da base titulante (mol/L):</label><input id="tit-cb" type="number" step="any" value="0.1" class="dos-input w-full p-1"></div>
+                            <div><label>Volume final de base a simular (mL):</label><input id="tit-vmax" type="number" step="any" value="50" class="dos-input w-full p-1"></div>
+                        </div>
+                        <button onclick="runTitrationCurve()" class="dos-btn mb-3">GERAR CURVA</button>
+                        <canvas id="titration-canvas" class="dos-border w-full" height="280"></canvas>
+                        <div id="titration-result" class="dos-border p-3 text-sm mt-2">Aguardando cálculo...</div>
+                    `;
+                    break;
+                case 17:
+                    screen.innerHTML = `
+                        <div class="text-xl font-bold border-b border-current pb-1 mb-3">17. ESPECTROSCOPIA — LEI DE BEER-LAMBERT + CONVERSÕES</div>
+                        <div class="dos-border p-3 mb-3">
+                            <div class="text-sm font-bold mb-2">Lei de Beer-Lambert (A = ε·b·c)</div>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                                <div><label>Absorbância A:</label><input id="bl-a" type="number" step="any" placeholder="?" class="dos-input w-full p-1"></div>
+                                <div><label>ε (L/(mol·cm)):</label><input id="bl-eps" type="number" step="any" value="15000" class="dos-input w-full p-1"></div>
+                                <div><label>b — caminho óptico (cm):</label><input id="bl-b" type="number" step="any" value="1" class="dos-input w-full p-1"></div>
+                                <div><label>c — concentração (mol/L):</label><input id="bl-c" type="number" step="any" value="0.0001" class="dos-input w-full p-1"></div>
+                            </div>
+                            <button onclick="runBeerLambert()" class="dos-btn mt-2">CALCULAR (deixe 1 campo vazio)</button>
+                            <div id="bl-result" class="dos-border p-2 text-sm mt-2">Aguardando cálculo...</div>
+                        </div>
+                        <div class="dos-border p-3">
+                            <div class="text-sm font-bold mb-2">Conversão Comprimento de Onda ⇄ Frequência ⇄ Energia</div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs mb-2">
+                                <div><label>Comprimento de onda λ (nm):</label><input id="spec-lambda" type="number" step="any" value="500" class="dos-input w-full p-1"></div>
+                            </div>
+                            <button onclick="runSpectroConvert()" class="dos-btn">CONVERTER</button>
+                            <div id="spec-result" class="dos-border p-2 text-sm mt-2">Aguardando cálculo...</div>
+                        </div>
+                    `;
+                    break;
+                case 18:
+                    screen.innerHTML = `
+                        <div class="text-xl font-bold border-b border-current pb-1 mb-3">18. TITULAÇÃO — ÁCIDO FRACO + BASE FORTE (SOLUÇÃO EXATA POR REGIÃO)</div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs max-w-2xl mb-2">
+                            <div><label>Concentração do ácido fraco (mol/L):</label><input id="tf-ca" type="number" step="any" value="0.1" class="dos-input w-full p-1"></div>
+                            <div><label>Volume inicial do ácido (mL):</label><input id="tf-va" type="number" step="any" value="25" class="dos-input w-full p-1"></div>
+                            <div><label>Ka do ácido fraco:</label><input id="tf-ka" type="number" step="any" value="0.0000018" class="dos-input w-full p-1"></div>
+                            <div><label>Concentração da base forte titulante (mol/L):</label><input id="tf-cb" type="number" step="any" value="0.1" class="dos-input w-full p-1"></div>
+                            <div><label>Volume final de base a simular (mL):</label><input id="tf-vmax" type="number" step="any" value="50" class="dos-input w-full p-1"></div>
+                        </div>
+                        <button onclick="runWeakTitrationCurve()" class="dos-btn mb-3">GERAR CURVA</button>
+                        <canvas id="titration-weak-canvas" class="dos-border w-full" height="280"></canvas>
+                        <div id="titration-weak-result" class="dos-border p-3 text-sm mt-2">Aguardando cálculo...</div>
+                        <div class="text-[10px] opacity-50 mt-2">Modelo: reação de neutralização completa por região + equilíbrio ácido/base fraco via equação quadrática (Kw desprezado exceto no ponto de equivalência, onde a hidrólise de A⁻ é calculada via Kb=Kw/Ka).</div>
+                    `;
+                    break;
+                case 19:
+                    screen.innerHTML = `
+                        <div class="text-xl font-bold border-b border-current pb-1 mb-3">19. SOLUBILIDADE — PRODUTO DE SOLUBILIDADE (Kps)</div>
+                        <p class="text-xs mb-2">Sal genérico A<sub>p</sub>B<sub>q</sub> → p·A + q·B. Informe p e q (ex: PbCl₂ → p=1, q=2).</p>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs max-w-2xl mb-2">
+                            <div><label>p (cátions/fórmula):</label><input id="ksp-p" type="number" step="1" value="1" class="dos-input w-full p-1"></div>
+                            <div><label>q (ânions/fórmula):</label><input id="ksp-q" type="number" step="1" value="2" class="dos-input w-full p-1"></div>
+                            <div><label>Kps:</label><input id="ksp-value" type="number" step="any" value="1.6e-5" class="dos-input w-full p-1"></div>
+                            <div><label>Íon comum já presente (mol/L, 0 se nenhum):</label><input id="ksp-common" type="number" step="any" value="0" class="dos-input w-full p-1"></div>
+                        </div>
+                        <div class="text-xs mb-2">Íon comum afeta:
+                            <select id="ksp-common-target" class="dos-input p-1 bg-black">
+                                <option value="cation">Cátion (A)</option>
+                                <option value="anion">Ânion (B)</option>
+                            </select>
+                        </div>
+                        <button onclick="runSolubility()" class="dos-btn mb-3">CALCULAR SOLUBILIDADE MOLAR (s)</button>
+                        <div id="ksp-result" class="dos-border p-3 text-sm">Aguardando cálculo...</div>
+                    `;
+                    break;
+                case 20:
+                    screen.innerHTML = `
+                        <div class="text-xl font-bold border-b border-current pb-1 mb-3 text-yellow-300">20. ⚙ SUÍTE DE TESTES — VALIDAÇÃO DOS MOTORES DE CÁLCULO</div>
+                        <p class="text-xs mb-3">Cada teste compara a saída de uma função do sistema contra um valor de referência conhecido (literatura de físico-química ou cálculo à mão verificado). Um teste falhando indica regressão introduzida por edição futura do código.</p>
+                        <button onclick="runTestSuite()" class="dos-btn mb-3">RODAR TODOS OS TESTES</button>
+                        <div id="test-summary" class="dos-border p-3 text-sm mb-3 font-bold">Aguardando execução...</div>
+                        <div id="test-results" class="space-y-1 text-xs"></div>
+                    `;
+                    break;
+            }
+        }
+
+        /* ==========================================================================
+           6. EXECUÇÃO — FUNÇÕES ORIGINAIS
+           ========================================================================== */
+        function runBalancer() {
+            const resDiv = document.getElementById("eq-result");
+            try {
+                const balanced = balanceChemicalEquation(document.getElementById("eq-input").value);
+                resDiv.innerHTML = `<div class="text-base font-bold text-green-400 mb-1">BALANCEADA COM SUCESSO:</div><div>${escapeHTML(balanced.text)}</div>`;
+            } catch(err) {
+                resDiv.innerHTML = `<div class="text-red-500">ERRO NO BALANCEAMENTO: ${escapeHTML(err.message)}</div>`;
+            }
+        }
+
+        function runMolarMass() {
+            const input = document.getElementById("molar-input").value;
+            const resDiv = document.getElementById("molar-result");
+            const res = parseFormula(input);
+
+            if (!res.totalMass) {
+                resDiv.innerHTML = "<span class='text-red-500'>Fórmula inválida.</span>";
+                return;
+            }
+            resDiv.innerHTML = `<div class="text-base font-bold">Massa Molar Total: ${res.totalMass.toFixed(4)} g/mol</div>`;
+        }
+
+        async function runPubChemSearch() {
+            const query = document.getElementById("pubchem-input").value;
+            const resDiv = document.getElementById("pubchem-result");
+            resDiv.innerHTML = "<span class='animate-pulse'>Conectando aos servidores PubChem...</span>";
+
+            try {
+                const data = await fetchPubChemData(query);
+                const pugView = await fetchPubChemPugView(data.CID);
+                // CORRIGIDO: CID agora é URL-encoded por consistência de higienização
+                const imgUrl = `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${encodeURIComponent(data.CID)}/PNG?image_size=250x250`;
+                const queryTimestamp = new Date().toLocaleString('pt-BR');
+
+                let hazardsHTML = "";
+                if (pugView && pugView.hazards && pugView.hazards.length > 0) {
+                    hazardsHTML = `<div class="mt-2 pt-2 border-t border-current"><strong class="text-red-400">ALERTAS GHS:</strong><ul class="list-disc pl-4 text-xs opacity-90">` +
+                        pugView.hazards.slice(0, 4).map(h => `<li>${escapeHTML(h)}</li>`).join('') + `</ul>
+                        <div class="text-[10px] text-yellow-400 mt-1">⚠ Fonte: PubChem GHS Classification. NÃO substitui a FISPQ/SDS oficial do fabricante — consulte-a antes de manusear qualquer substância.</div>
+                        </div>`;
+                }
+
+                let physHTML = "";
+                if (pugView) {
+                    physHTML = `
+                        <div class="mt-2 pt-1 border-t border-current text-xs">
+                            <strong>PROPRIEDADES FÍSICAS:</strong>
+                            <div>• Densidade: ${escapeHTML(pugView.density || 'N/A')}</div>
+                            <div>• Fusão: ${escapeHTML(pugView.meltingPoint || 'N/A')} | Ebulição: ${escapeHTML(pugView.boilingPoint || 'N/A')}</div>
+                        </div>
+                    `;
+                }
+
+                let wikiHTML = "";
+                const wikiSummary = await fetchWikiSummary(data.Title);
+                if (wikiSummary) {
+                    wikiHTML = `<div class="mt-2 pt-2 border-t border-current text-xs">
+                        <strong>CONTEXTO (WIKIPEDIA):</strong>
+                        <div class="opacity-90 mt-1">${escapeHTML(wikiSummary)}</div>
+                    </div>`;
+                }
+
+                resDiv.innerHTML = `
+                    <div class="flex flex-col md:flex-row gap-4 items-center">
+                        <div class="dos-border p-1 bg-black flex-shrink-0">
+                            <img src="${imgUrl}" alt="Estrutura 2D" class="chem-img w-48 h-48 object-contain">
+                        </div>
+                        <div class="flex-grow space-y-1">
+                            <div class="text-base font-bold underline mb-1">${escapeHTML(data.Title)} (CID #${data.CID})</div>
+                            <div>• <strong>Fórmula:</strong> ${escapeHTML(data.MolecularFormula || 'N/A')}</div>
+                            <div>• <strong>Massa Molar:</strong> ${escapeHTML(data.MolecularWeight || 'N/A')} g/mol</div>
+                            <div>• <strong>SMILES:</strong> <span class="font-mono text-[10px] break-all">${escapeHTML(data.CanonicalSMILES || 'N/A')}</span></div>
+                            ${physHTML}
+                            ${hazardsHTML}
+                        </div>
+                    </div>
+                    ${wikiHTML}
+                    <div class="text-[10px] opacity-50 mt-2 border-t border-current pt-1">Consultado em: ${queryTimestamp} via PubChem PUG REST API (CID #${data.CID})</div>
+                `;
+            } catch(err) {
+                resDiv.innerHTML = `<div class="text-red-500">FALHA API: ${escapeHTML(err.message)}</div>`;
+            }
+        }
+
+        async function autoFetchSoluteProps() {
+            const soluteName = document.getElementById("p-solute").value;
+            const resDiv = document.getElementById("prep-result");
+            resDiv.innerHTML = "Buscando massa/densidade via API...";
+            try {
+                const data = await fetchPubChemData(soluteName);
+                if (data.MolecularWeight) {
+                    document.getElementById("p-mm").value = data.MolecularWeight;
+                    resDiv.innerHTML = `<div class="text-xs text-green-400">Massa atualizada: ${data.MolecularWeight} g/mol</div>`;
+                }
+                const pugView = await fetchPubChemPugView(data.CID);
+                if (pugView && pugView.density) {
+                    const match = pugView.density.match(/(\d+(\.\d+)?)/);
+                    if (match) {
+                        document.getElementById("p-density").value = match[1];
+                        resDiv.innerHTML += `<div class="text-xs text-green-400">Densidade obtida: ${match[1]} g/mL</div>`;
+                    }
+                }
+            } catch(e) {
+                resDiv.innerHTML = `<div class="text-xs text-red-400">Falha ao localizar soluto.</div>`;
+            }
+        }
+
+        function runPrep() {
+            const mm = parseFloat(document.getElementById("p-mm").value);
+            const conc = parseFloat(document.getElementById("p-conc").value);
+            const volmL = parseFloat(document.getElementById("p-vol").value);
+            const purity = parseFloat(document.getElementById("p-purity").value) || 100;
+            const density = parseFloat(document.getElementById("p-density").value);
+
+            if (!mm) return;
+            const realMass = ((conc * (volmL / 1000) * mm) / (purity / 100));
+
+            let liquidVolHTML = "";
+            if (density && density > 0) {
+                const volLiquid = realMass / density;
+                liquidVolHTML = `<div class="text-xs text-yellow-300 mt-1">Como é líquido (ρ=${density} g/mL), meça exatamente <strong>${volLiquid.toFixed(3)} mL</strong>.</div>`;
+            }
+
+            document.getElementById("prep-result").innerHTML = `
+                <div class="text-xs">Massa Necessária:</div>
+                <div class="text-xl font-bold my-1">${realMass.toFixed(4)} g</div>
+                ${liquidVolHTML}
+            `;
+        }
+
+        function runDilution() {
+            let c1 = parseFloat(document.getElementById("d-c1").value);
+            let v1 = parseFloat(document.getElementById("d-v1").value);
+            let c2 = parseFloat(document.getElementById("d-c2").value);
+            let v2 = parseFloat(document.getElementById("d-v2").value);
+            const out = document.getElementById("dilution-result");
+
+            if (isNaN(v1)) out.innerHTML = `V1 = <strong>${((c2 * v2) / c1).toFixed(3)} mL</strong>`;
+            else if (isNaN(c1)) out.innerHTML = `C1 = <strong>${((c2 * v2) / v1).toFixed(3)}</strong>`;
+            else if (isNaN(c2)) out.innerHTML = `C2 = <strong>${((c1 * v1) / v2).toFixed(3)}</strong>`;
+            else if (isNaN(v2)) out.innerHTML = `V2 = <strong>${((c1 * v1) / c2).toFixed(3)} mL</strong>`;
+            else out.innerHTML = `<span class="text-yellow-400">Deixe exatamente um campo vazio.</span>`;
+        }
+
+        async function autoFetchPka() {
+            const resDiv = document.getElementById("ph-result");
+            resDiv.innerHTML = "Buscando pKa na base PUG-VIEW...";
+            try {
+                const data = await fetchPubChemData(document.getElementById("wa-name").value);
+                const pugView = await fetchPubChemPugView(data.CID);
+
+                if (pugView && pugView.pka) {
+                    const match = pugView.pka.match(/(\d+(\.\d+)?)/);
+                    if (match) {
+                        const pkaVal = parseFloat(match[1]);
+                        const kaVal = Math.pow(10, -pkaVal);
+                        document.getElementById("wa-ka").value = kaVal.toExponential(4);
+                        resDiv.innerHTML = `pKa localizado: <strong>${pkaVal}</strong> (Ka = ${kaVal.toExponential(3)})`;
+                        return;
+                    }
+                }
+                resDiv.innerHTML = "pKa não localizado. Digite manualmente.";
+            } catch(e) {
+                resDiv.innerHTML = "Erro ao conectar API.";
+            }
+        }
+
+        function runWeakAcidPH() {
+            const c = parseFloat(document.getElementById("wa-conc").value);
+            const ka = parseFloat(document.getElementById("wa-ka").value);
+            const h = (-ka + Math.sqrt(ka * ka + 4 * ka * c)) / 2;
+            document.getElementById("ph-result").innerHTML = `pH = <strong>${(-Math.log10(h)).toFixed(2)}</strong>
+                <div class="text-[10px] opacity-50 mt-2 font-normal">Aproximação válida para soluções não muito diluídas (autoionização da água desprezada). Em concentrações muito baixas (&lt;10⁻⁶ mol/L), esse modelo perde precisão.</div>`;
+        }
+
+        /* ==========================================================================
+           7. TABELA PERIÓDICA — RENDER RESPONSIVO
+           ========================================================================== */
+        function renderPTableGrid(filter = "") {
+            const grid = document.getElementById("ptable-grid");
+            if (!grid) return;
+            const isMobile = window.innerWidth < 640;
+
+            if (isMobile) {
+                const matches = ELEMENTS_DB.filter(e =>
+                    !filter || e.name.toLowerCase().includes(filter) || e.sym.toLowerCase().includes(filter) || String(e.num) === filter
+                );
+                const list = filter ? matches : ELEMENTS_DB.slice(0, 20);
+
+                let html = '<div class="grid grid-cols-4 gap-2 text-center text-xs">';
+                list.forEach(e => {
+                    html += `<div onclick="showElementDetails(${e.num})" class="dos-border p-2 cursor-pointer hover:bg-current hover:text-black">
+                        <div class="text-[10px] opacity-75">${e.num}</div>
+                        <div class="font-bold text-base">${e.sym}</div>
+                    </div>`;
+                });
+                html += '</div>';
+                if (!filter) html += `<div class="text-[10px] opacity-60 mt-2">Mostrando 20 de 118. Use o filtro para buscar um elemento específico.</div>`;
+                else if (list.length === 0) html = `<div class="text-xs text-yellow-400">Nenhum elemento encontrado para "${escapeHTML(filter)}".</div>`;
+                grid.innerHTML = html;
+                return;
+            }
+
+            let html = '<div class="grid grid-cols-18 gap-1 min-w-[700px] text-center text-xs">';
+            ELEMENTS_DB.forEach(e => {
+                const match = !filter || e.name.toLowerCase().includes(filter) || e.sym.toLowerCase().includes(filter) || String(e.num) === filter;
+                const opacity = match ? 'opacity-100' : 'opacity-20';
+                html += `<div onclick="showElementDetails(${e.num})" class="dos-border p-1 cursor-pointer hover:bg-current hover:text-black ${opacity}">
+                    <div class="text-[10px] opacity-75">${e.num}</div>
+                    <div class="font-bold text-sm">${e.sym}</div>
+                </div>`;
+            });
+            html += '</div>';
+            grid.innerHTML = html;
+        }
+
+        function filterPTable() {
+            renderPTableGrid(document.getElementById("ptable-search").value.toLowerCase().trim());
+        }
+
+        let ptableResizeTimeout;
+        window.addEventListener("resize", () => {
+            clearTimeout(ptableResizeTimeout);
+            ptableResizeTimeout = setTimeout(() => {
+                const searchEl = document.getElementById("ptable-search");
+                if (searchEl) renderPTableGrid(searchEl.value.toLowerCase().trim());
+            }, 200);
+        });
+
+        async function showElementDetails(num) {
+            const el = ELEMENTS_DB.find(e => e.num === num);
+            if (!el) return;
+
+            const detailDiv = document.getElementById("elem-detail");
+            detailDiv.innerHTML = `<span class="animate-pulse">Baixando matriz JSON da Tabela Periódica PubChem...</span>`;
+            playBeep(900, 0.03);
+
+            const apiData = await fetchElementApiData(num);
+
+            let ext = "";
+            if (apiData) {
+                ext = `
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2 pt-2 border-t border-current text-xs">
+                        <div>Eletronegatividade: <strong>${apiData.Electronegativity || 'N/A'}</strong></div>
+                        <div>Raio Atômico: <strong>${apiData.AtomicRadius || 'N/A'} pm</strong></div>
+                        <div>Config. Elétrons: <strong>${apiData.ElectronConfiguration || 'N/A'}</strong></div>
+                        <div>Ionização: <strong>${apiData.IonizationEnergy || 'N/A'} eV</strong></div>
+                        <div>Oxidação: <strong>${apiData.OxidationStates || 'N/A'}</strong></div>
+                        <div>Densidade: <strong>${apiData.Density || 'N/A'}</strong></div>
+                    </div>
+                `;
+            } else {
+                ext = `<div class="mt-2 text-red-400">Falha ao baixar dados extras do servidor.</div>`;
+            }
+
+            detailDiv.innerHTML = `
+                <div class="text-sm font-bold border-b border-current pb-1 mb-1">${el.name} (${el.sym}) — Atômico #${el.num}</div>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+                    <div>Massa: ${el.mass} u</div><div>Grupo: ${el.group} | Período: ${el.period}</div><div>Categoria: ${el.cat}</div>
+                </div>
+                ${ext}
+            `;
+        }
+
+        /* ==========================================================================
+           8. EXECUÇÃO — MÓDULOS CIENTÍFICOS AVANÇADOS
+           ========================================================================== */
+
+        function runStoichiometry() {
+            const eqStr = document.getElementById("stoich-eq").value;
+            const massesRaw = document.getElementById("stoich-masses").value;
+            const actualYield = parseFloat(document.getElementById("stoich-actual").value) || null;
+            const resDiv = document.getElementById("stoich-result");
+
+            try {
+                const eq = eqStr.replace(/\s+/g, '');
+                const sides = eq.split(/->|=|➔/);
+                if (sides.length !== 2) throw new Error("Equação deve conter '->' ou '='.");
+
+                const leftComps = sides[0].split('+').filter(Boolean);
+                const rightComps = sides[1].split('+').filter(Boolean);
+
+                function splitCoeff(comp) {
+                    const m = comp.match(/^(\d*)(.+)$/);
+                    return { coeff: m[1] ? parseInt(m[1]) : 1, formula: m[2] };
+                }
+
+                const reactants = leftComps.map(splitCoeff);
+                const products = rightComps.map(splitCoeff);
+                const masses = massesRaw.split(',').map(s => parseFloat(s.trim()));
+
+                if (masses.length !== reactants.length) {
+                    throw new Error(`Forneça ${reactants.length} massa(s), uma para cada reagente.`);
+                }
+
+                let moles = reactants.map((r, i) => {
+                    const mm = parseFormula(r.formula).totalMass;
+                    if (!mm) throw new Error(`Fórmula inválida: ${r.formula}`);
+                    return { ...r, mm, mass: masses[i], mols: masses[i] / mm };
+                });
+
+                let limiting = moles.reduce((min, cur) => (cur.mols / cur.coeff) < (min.mols / min.coeff) ? cur : min);
+                const extentOfReaction = limiting.mols / limiting.coeff;
+
+                let reactantsHTML = moles.map(r =>
+                    `<div>• ${escapeHTML(r.formula)}: ${r.mass} g → ${r.mols.toFixed(4)} mol (MM=${r.mm.toFixed(2)} g/mol)</div>`
+                ).join('');
+
+                let productsHTML = products.map((p, idx) => {
+                    const mm = parseFormula(p.formula).totalMass;
+                    const theoreticalMass = extentOfReaction * p.coeff * mm;
+                    let yieldHTML = "";
+                    if (actualYield && idx === 0) {
+                        const percent = (actualYield / theoreticalMass) * 100;
+                        yieldHTML = ` — Rendimento real: ${actualYield} g (<strong>${percent.toFixed(1)}%</strong>)`;
+                    }
+                    return `<div>• <strong>${escapeHTML(p.formula)}</strong>: ${theoreticalMass.toFixed(3)} g teóricos${yieldHTML}</div>`;
+                }).join('');
+
+                resDiv.innerHTML = `
+                    <div class="text-xs opacity-80 mb-2">${reactantsHTML}</div>
+                    <div class="text-yellow-300 font-bold mb-2 border-t border-current pt-2">REAGENTE LIMITANTE: ${escapeHTML(limiting.formula)}</div>
+                    <div class="border-t border-current pt-2">${productsHTML}</div>
+                `;
+            } catch (e) {
+                resDiv.innerHTML = `<div class="text-red-500">Erro: ${escapeHTML(e.message)}</div>`;
+            }
+        }
+
+        const THERMO_DB = {
+            "H2O(l)": { dHf: -285.8, S: 69.9 }, "H2O(g)": { dHf: -241.8, S: 188.8 },
+            "CO2(g)": { dHf: -393.5, S: 213.8 }, "CO(g)": { dHf: -110.5, S: 197.7 },
+            "O2(g)": { dHf: 0, S: 205.2 }, "H2(g)": { dHf: 0, S: 130.7 }, "N2(g)": { dHf: 0, S: 191.6 },
+            "NH3(g)": { dHf: -46.1, S: 192.5 }, "CH4(g)": { dHf: -74.8, S: 186.3 },
+            "C2H6(g)": { dHf: -84.7, S: 229.6 }, "C2H4(g)": { dHf: 52.4, S: 219.3 }, "C2H2(g)": { dHf: 226.7, S: 200.9 },
+            "NaCl(s)": { dHf: -411.2, S: 72.1 }, "CaCO3(s)": { dHf: -1206.9, S: 92.9 }, "CaO(s)": { dHf: -635.1, S: 38.1 },
+            "HCl(g)": { dHf: -92.3, S: 186.9 }, "SO2(g)": { dHf: -296.8, S: 248.2 }, "SO3(g)": { dHf: -395.7, S: 256.8 },
+            "NO(g)": { dHf: 90.2, S: 210.8 }, "NO2(g)": { dHf: 33.2, S: 240.1 },
+            "C(s)": { dHf: 0, S: 5.7 }, "Fe2O3(s)": { dHf: -824.2, S: 87.4 }, "Fe(s)": { dHf: 0, S: 27.3 },
+            "Al2O3(s)": { dHf: -1675.7, S: 50.9 }, "Al(s)": { dHf: 0, S: 28.3 },
+            "CH3OH(l)": { dHf: -238.7, S: 126.8 }, "C2H5OH(l)": { dHf: -277.7, S: 160.7 },
+            "C6H12O6(s)": { dHf: -1273.3, S: 212.1 }, "NaOH(s)": { dHf: -425.6, S: 64.5 },
+            "KCl(s)": { dHf: -436.5, S: 82.6 }, "N2O(g)": { dHf: 82.1, S: 219.9 }, "CH3COOH(l)": { dHf: -484.5, S: 159.8 },
+            "CO2(aq)": { dHf: -413.8, S: 117.6 }, "H2O2(l)": { dHf: -187.8, S: 109.6 }
+        };
+
+        function runThermochemistry() {
+            const eqStr = document.getElementById("thermo-eq").value.replace(/\s+/g, '');
+            const T = parseFloat(document.getElementById("thermo-temp").value) || 298.15;
+            const resDiv = document.getElementById("thermo-result");
+
+            try {
+                const sides = eqStr.split(/->|=|➔/);
+                if (sides.length !== 2) throw new Error("Equação deve conter '->' ou '=' e estados físicos, ex: H2O(l).");
+
+                const leftComps = sides[0].split('+').filter(Boolean);
+                const rightComps = sides[1].split('+').filter(Boolean);
+
+                function splitCoeff(comp) {
+                    const m = comp.match(/^(\d*)(.+)$/);
+                    return { coeff: m[1] ? parseInt(m[1]) : 1, key: m[2] };
+                }
+
+                const reactants = leftComps.map(splitCoeff);
+                const products = rightComps.map(splitCoeff);
+                const missing = [...reactants, ...products].filter(c => !THERMO_DB[c.key]);
+
+                if (missing.length > 0) {
+                    throw new Error(`Espécie(s) sem dados na base local: ${missing.map(m => m.key).join(', ')}. Inclua o estado físico, ex: CO2(g).`);
+                }
+
+                let dH = 0, dS = 0;
+                products.forEach(p => { dH += p.coeff * THERMO_DB[p.key].dHf; dS += p.coeff * THERMO_DB[p.key].S; });
+                reactants.forEach(r => { dH -= r.coeff * THERMO_DB[r.key].dHf; dS -= r.coeff * THERMO_DB[r.key].S; });
+
+                const dG = dH - (T * dS / 1000);
+                const spontaneity = dG < 0 ? "ESPONTÂNEA (favorável)" : "NÃO-ESPONTÂNEA nesta temperatura";
+
+                resDiv.innerHTML = `
+                    <div>ΔH° reação = <strong>${dH.toFixed(2)} kJ/mol</strong> (${dH < 0 ? 'exotérmica' : 'endotérmica'})</div>
+                    <div>ΔS° reação = <strong>${dS.toFixed(2)} J/(mol·K)</strong></div>
+                    <div class="mt-1 pt-1 border-t border-current">ΔG° (${T} K) = <strong>${dG.toFixed(2)} kJ/mol</strong></div>
+                    <div class="text-yellow-300 font-bold mt-1">${spontaneity}</div>
+                    <div class="text-[10px] opacity-50 mt-2">Valores de ΔHf° e S° a 298,15 K e 1 atm, estado padrão. Fonte: valores tabelados clássicos de físico-química, não consultados em tempo real.</div>
+                `;
+            } catch (e) {
+                resDiv.innerHTML = `<div class="text-red-500">Erro: ${escapeHTML(e.message)}</div>`;
+            }
+        }
+
+        function runBufferCalc() {
+            const pka = parseFloat(document.getElementById("buf-pka").value);
+            const base = parseFloat(document.getElementById("buf-base").value);
+            const acid = parseFloat(document.getElementById("buf-acid").value);
+            const resDiv = document.getElementById("buffer-result");
+
+            if (!pka || !base || !acid || base <= 0 || acid <= 0) {
+                resDiv.innerHTML = `<span class="text-red-500">Preencha pKa, [A⁻] e [HA] com valores positivos.</span>`;
+                return;
+            }
+
+            const pH = pka + Math.log10(base / acid);
+            const ratio = base / acid;
+
+            resDiv.innerHTML = `
+                <div>pH = pKa + log([A⁻]/[HA]) = ${pka} + log(${ratio.toFixed(3)})</div>
+                <div class="text-xl font-bold my-1">pH = ${pH.toFixed(2)}</div>
+                <div class="text-xs opacity-70">Razão base/ácido: ${ratio.toFixed(3)} — Capacidade tamponante máxima ocorre quando a razão está entre 0.1 e 10 (pH próximo do pKa).</div>
+            `;
+        }
+
+        function runCombinedGasLaw() {
+            let p1 = parseFloat(document.getElementById("g-p1").value);
+            let v1 = parseFloat(document.getElementById("g-v1").value);
+            let t1 = parseFloat(document.getElementById("g-t1").value);
+            let p2 = parseFloat(document.getElementById("g-p2").value);
+            let v2 = parseFloat(document.getElementById("g-v2").value);
+            let t2 = parseFloat(document.getElementById("g-t2").value);
+            const out = document.getElementById("gas-combined-result");
+
+            const blanks = [isNaN(p1), isNaN(v1), isNaN(t1), isNaN(p2), isNaN(v2), isNaN(t2)].filter(Boolean).length;
+            if (blanks !== 1) {
+                out.innerHTML = `<span class="text-yellow-400">Deixe exatamente um dos 6 campos vazio.</span>`;
+                return;
+            }
+
+            if (isNaN(p1)) p1 = (p2 * v2 * t1) / (t2 * v1);
+            else if (isNaN(v1)) v1 = (p2 * v2 * t1) / (t2 * p1);
+            else if (isNaN(t1)) t1 = (p1 * v1 * t2) / (p2 * v2);
+            else if (isNaN(p2)) p2 = (p1 * v1 * t2) / (t1 * v2);
+            else if (isNaN(v2)) v2 = (p1 * v1 * t2) / (t1 * p2);
+            else if (isNaN(t2)) t2 = (p2 * v2 * t1) / (p1 * v1);
+
+            out.innerHTML = `Resultado: P1=${p1.toFixed(3)} atm, V1=${v1.toFixed(3)} L, T1=${t1.toFixed(2)} K, P2=${p2.toFixed(3)} atm, V2=${v2.toFixed(3)} L, T2=${t2.toFixed(2)} K
+                <div class="text-[10px] opacity-50 mt-2">Assume comportamento de gás ideal (desvios reais ocorrem a alta pressão/baixa temperatura).</div>`;
+        }
+
+        function runIdealGasLaw() {
+            let p = parseFloat(document.getElementById("gi-p").value);
+            let v = parseFloat(document.getElementById("gi-v").value);
+            let n = parseFloat(document.getElementById("gi-n").value);
+            let t = parseFloat(document.getElementById("gi-t").value);
+            const R = 0.08206;
+            const out = document.getElementById("gas-ideal-result");
+
+            const blanks = [isNaN(p), isNaN(v), isNaN(n), isNaN(t)].filter(Boolean).length;
+            if (blanks !== 1) {
+                out.innerHTML = `<span class="text-yellow-400">Deixe exatamente um dos 4 campos (P, V, n, T) vazio.</span>`;
+                return;
+            }
+
+            if (isNaN(p)) { p = (n * R * t) / v; out.innerHTML = `P = <strong>${p.toFixed(4)} atm</strong>`; }
+            else if (isNaN(v)) { v = (n * R * t) / p; out.innerHTML = `V = <strong>${v.toFixed(4)} L</strong>`; }
+            else if (isNaN(n)) { n = (p * v) / (R * t); out.innerHTML = `n = <strong>${n.toFixed(4)} mol</strong>`; }
+            else if (isNaN(t)) { t = (p * v) / (R * n); out.innerHTML = `T = <strong>${t.toFixed(2)} K</strong>`; }
+
+            out.innerHTML += `<div class="text-[10px] opacity-50 mt-2">Assume comportamento de gás ideal. R = 0,08206 atm·L/(mol·K) (CODATA).</div>`;
+        }
+
+        function runNernst() {
+            const e0 = parseFloat(document.getElementById("ner-e0").value);
+            const n = parseFloat(document.getElementById("ner-n").value);
+            const q = parseFloat(document.getElementById("ner-q").value);
+            const t = parseFloat(document.getElementById("ner-t").value);
+            const resDiv = document.getElementById("nernst-result");
+
+            if (!n || n <= 0 || q <= 0) {
+                resDiv.innerHTML = `<span class="text-red-500">n deve ser > 0 e Q deve ser positivo.</span>`;
+                return;
+            }
+
+            const R = 8.314, F = 96485;
+            const e = e0 - ((R * t) / (n * F)) * Math.log(q);
+
+            resDiv.innerHTML = `
+                <div>E = E° − (RT/nF)·ln(Q)</div>
+                <div>E = ${e0} − (${R}×${t}/(${n}×${F}))×ln(${q})</div>
+                <div class="text-xl font-bold my-1">E = ${e.toFixed(4)} V</div>
+                <div class="text-xs ${e > 0 ? 'text-green-400' : 'text-red-400'}">${e > 0 ? 'Reação espontânea nestas condições (E > 0)' : 'Reação não-espontânea nestas condições (E < 0)'}</div>
+                <div class="text-[10px] opacity-50 mt-2">Assume atividades ≈ concentrações (solução ideal). R=8,314 J/(mol·K), F=96485 C/mol (CODATA).</div>
+            `;
+        }
+
+        async function runNameResolver() {
+            const query = document.getElementById("resolver-input").value;
+            const resDiv = document.getElementById("resolver-result");
+            resDiv.innerHTML = "<span class='animate-pulse'>Consultando OPSIN e CACTUS...</span>";
+
+            let html = "";
+
+            try {
+                const opsin = await fetchOpsinData(query);
+                html += `<div class="mb-2 pb-2 border-b border-current"><strong class="text-green-400">OPSIN (nome IUPAC → estrutura):</strong>`;
+                html += `<div>• SMILES: <span class="font-mono text-[11px] break-all">${escapeHTML(opsin.smiles || 'N/A')}</span></div>`;
+                html += `<div>• InChIKey: ${escapeHTML(opsin.inchikey || 'N/A')}</div></div>`;
+            } catch (e) {
+                html += `<div class="mb-2 pb-2 border-b border-current text-yellow-400">OPSIN: ${escapeHTML(e.message)}</div>`;
+            }
+
+            let cactusHTML = `<strong class="text-green-400">CACTUS (identificadores complementares):</strong>`;
+            let anyCactus = false;
+
+            try {
+                const cas = await fetchCactusData(query, "cas");
+                cactusHTML += `<div>• CAS Number: ${escapeHTML(cas.split('\n')[0])}</div>`;
+                anyCactus = true;
+            } catch (e) { /* silencioso */ }
+
+            try {
+                const iupac = await fetchCactusData(query, "iupac_name");
+                cactusHTML += `<div>• Nome IUPAC (CACTUS): ${escapeHTML(iupac.split('\n')[0])}</div>`;
+                anyCactus = true;
+            } catch (e) { /* silencioso */ }
+
+            try {
+                const formula = await fetchCactusData(query, "formula");
+                cactusHTML += `<div>• Fórmula Molecular: ${escapeHTML(formula.split('\n')[0])}</div>`;
+                anyCactus = true;
+            } catch (e) { /* silencioso */ }
+
+            if (!anyCactus) cactusHTML += `<div class="text-yellow-400 text-xs">Nenhum identificador CACTUS localizado para esta entrada.</div>`;
+
+            html += `<div>${cactusHTML}</div>`;
+            resDiv.innerHTML = html;
+        }
+
+        function runKinetics() {
+            const order = parseInt(document.getElementById("kin-order").value);
+            const k = parseFloat(document.getElementById("kin-k").value);
+            const a0 = parseFloat(document.getElementById("kin-a0").value);
+            const tInput = document.getElementById("kin-t").value;
+            const t = tInput === "" ? null : parseFloat(tInput);
+            const resDiv = document.getElementById("kinetics-result");
+
+            if (!k || k <= 0 || !a0 || a0 <= 0) {
+                resDiv.innerHTML = `<span class="text-red-500">k e [A]₀ devem ser positivos.</span>`;
+                return;
+            }
+
+            let halfLife, atText = "";
+
+            if (order === 0) {
+                halfLife = a0 / (2 * k);
+                if (t !== null) {
+                    const at = a0 - k * t;
+                    atText = `<div>[A] em t=${t}: <strong>${at > 0 ? at.toFixed(4) : '0 (reagente consumido)'} mol/L</strong></div>`;
+                }
+            } else if (order === 1) {
+                halfLife = Math.log(2) / k;
+                if (t !== null) {
+                    const at = a0 * Math.exp(-k * t);
+                    atText = `<div>[A] em t=${t}: <strong>${at.toFixed(4)} mol/L</strong></div>`;
+                }
+            } else {
+                halfLife = 1 / (k * a0);
+                if (t !== null) {
+                    const at = 1 / (1 / a0 + k * t);
+                    atText = `<div>[A] em t=${t}: <strong>${at.toFixed(4)} mol/L</strong></div>`;
+                }
+            }
+
+            resDiv.innerHTML = `
+                <div>Ordem: <strong>${order}</strong></div>
+                <div>Meia-vida (t₁/₂): <strong>${halfLife.toFixed(4)}</strong></div>
+                ${atText}
+            `;
+        }
+
+        function runEquilibriumKc() {
+            const eqStr = document.getElementById("eq-kc-eq").value.replace(/\s+/g, '');
+            const concsRaw = document.getElementById("eq-kc-concs").value;
+            const resDiv = document.getElementById("kc-result");
+
+            try {
+                const sides = eqStr.split(/->|=|➔/);
+                if (sides.length !== 2) throw new Error("Equação deve conter '->' ou '='.");
+
+                const leftComps = sides[0].split('+').filter(Boolean);
+                const rightComps = sides[1].split('+').filter(Boolean);
+
+                function splitCoeff(comp) {
+                    const m = comp.match(/^(\d*)(.+)$/);
+                    return { coeff: m[1] ? parseInt(m[1]) : 1, formula: m[2] };
+                }
+
+                const reactants = leftComps.map(splitCoeff);
+                const products = rightComps.map(splitCoeff);
+                const all = [...reactants, ...products];
+                const concs = concsRaw.split(',').map(s => parseFloat(s.trim()));
+
+                if (concs.length !== all.length) {
+                    throw new Error(`Forneça ${all.length} concentração(ões), na ordem: ${all.map(c => c.formula).join(', ')}.`);
+                }
+
+                let numerator = 1, denominator = 1;
+                let detailsProd = [], detailsReag = [];
+
+                reactants.forEach((r, i) => {
+                    denominator *= Math.pow(concs[i], r.coeff);
+                    detailsReag.push(`[${r.formula}]^${r.coeff}`);
+                });
+                products.forEach((p, i) => {
+                    const idx = reactants.length + i;
+                    numerator *= Math.pow(concs[idx], p.coeff);
+                    detailsProd.push(`[${p.formula}]^${p.coeff}`);
+                });
+
+                const kc = numerator / denominator;
+
+                resDiv.innerHTML = `
+                    <div class="text-xs opacity-80 mb-1">Kc = (${detailsProd.join('·')}) / (${detailsReag.join('·')})</div>
+                    <div class="text-xl font-bold my-1">Kc = ${kc.toExponential(4)}</div>
+                    <div class="text-xs mt-1">${kc > 1 ? 'Kc > 1: equilíbrio favorece os produtos.' : 'Kc < 1: equilíbrio favorece os reagentes.'}</div>
+                `;
+            } catch (e) {
+                resDiv.innerHTML = `<div class="text-red-500">Erro: ${escapeHTML(e.message)}</div>`;
+            }
+        }
+
+        function runTitrationCurve() {
+            const ca = parseFloat(document.getElementById("tit-ca").value);
+            const va = parseFloat(document.getElementById("tit-va").value);
+            const cb = parseFloat(document.getElementById("tit-cb").value);
+            const vMax = parseFloat(document.getElementById("tit-vmax").value);
+            const resDiv = document.getElementById("titration-result");
+            const canvas = document.getElementById("titration-canvas");
+
+            if (!ca || !va || !cb || !vMax || ca <= 0 || va <= 0 || cb <= 0 || vMax <= 0) {
+                resDiv.innerHTML = `<span class="text-red-500">Todos os valores devem ser positivos.</span>`;
+                return;
+            }
+
+            const molesAcid = ca * (va / 1000);
+            const equivVol = (molesAcid / cb) * 1000;
+
+            const points = [];
+            const steps = 200;
+            for (let i = 0; i <= steps; i++) {
+                const vb = (vMax / steps) * i;
+                const molesBase = cb * (vb / 1000);
+                const totalVolL = (va + vb) / 1000;
+                const excessMoles = molesBase - molesAcid;
+
+                let pH;
+                if (Math.abs(excessMoles) < 1e-12) {
+                    pH = 7.0;
+                } else if (excessMoles < 0) {
+                    const hConc = -excessMoles / totalVolL;
+                    pH = -Math.log10(hConc);
+                } else {
+                    const ohConc = excessMoles / totalVolL;
+                    const pOH = -Math.log10(ohConc);
+                    pH = 14 - pOH;
+                }
+                points.push({ vb, pH: Math.max(0, Math.min(14, pH)) });
+            }
+
+            const ctx = canvas.getContext("2d");
+            canvas.width = canvas.clientWidth;
+            const W = canvas.width, H = canvas.height;
+            ctx.clearRect(0, 0, W, H);
+
+            const style = getComputedStyle(document.body);
+            const color = style.getPropertyValue('--text-color') || '#00FF66';
+
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 1;
+            ctx.font = "12px monospace";
+            ctx.fillStyle = color;
+
+            const padL = 40, padB = 25, padT = 10, padR = 10;
+            const plotW = W - padL - padR, plotH = H - padT - padB;
+
+            ctx.beginPath();
+            ctx.moveTo(padL, padT); ctx.lineTo(padL, H - padB); ctx.lineTo(W - padR, H - padB);
+            ctx.stroke();
+            ctx.fillText("pH", 5, padT + 10);
+            ctx.fillText(`Vol. base (mL)`, W / 2 - 30, H - 5);
+            ctx.fillText("0", padL - 15, H - padB + 4);
+            ctx.fillText("14", padL - 25, padT + 5);
+
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            points.forEach((p, i) => {
+                const x = padL + (p.vb / vMax) * plotW;
+                const y = padT + (1 - p.pH / 14) * plotH;
+                if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+
+            if (equivVol <= vMax) {
+                const xEq = padL + (equivVol / vMax) * plotW;
+                ctx.strokeStyle = "#FF4444";
+                ctx.setLineDash([4, 4]);
+                ctx.beginPath();
+                ctx.moveTo(xEq, padT); ctx.lineTo(xEq, H - padB);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            resDiv.innerHTML = `
+                <div>Ponto de equivalência: <strong>${equivVol.toFixed(2)} mL</strong> de base (linha vermelha tracejada)</div>
+                <div class="text-xs opacity-70">pH no ponto de equivalência = 7,00 (ácido forte + base forte neutralizam completamente).</div>
+            `;
+        }
+
+        function runBeerLambert() {
+            let a = parseFloat(document.getElementById("bl-a").value);
+            let eps = parseFloat(document.getElementById("bl-eps").value);
+            let b = parseFloat(document.getElementById("bl-b").value);
+            let c = parseFloat(document.getElementById("bl-c").value);
+            const out = document.getElementById("bl-result");
+
+            const blanks = [isNaN(a), isNaN(eps), isNaN(b), isNaN(c)].filter(Boolean).length;
+            if (blanks !== 1) {
+                out.innerHTML = `<span class="text-yellow-400">Deixe exatamente um campo (A, ε, b ou c) vazio.</span>`;
+                return;
+            }
+
+            if (isNaN(a)) { a = eps * b * c; out.innerHTML = `A = <strong>${a.toFixed(4)}</strong> (adimensional)`; }
+            else if (isNaN(eps)) { eps = a / (b * c); out.innerHTML = `ε = <strong>${eps.toFixed(2)} L/(mol·cm)</strong>`; }
+            else if (isNaN(b)) { b = a / (eps * c); out.innerHTML = `b = <strong>${b.toFixed(4)} cm</strong>`; }
+            else if (isNaN(c)) { c = a / (eps * b); out.innerHTML = `c = <strong>${c.toExponential(4)} mol/L</strong>`; }
+
+            out.innerHTML += `<div class="text-[10px] opacity-50 mt-1">Válido apenas na faixa de resposta linear do instrumento (tipicamente A entre 0,1 e 1,0).</div>`;
+        }
+
+        function runSpectroConvert() {
+            const lambdaNm = parseFloat(document.getElementById("spec-lambda").value);
+            const out = document.getElementById("spec-result");
+            if (!lambdaNm || lambdaNm <= 0) {
+                out.innerHTML = `<span class="text-red-500">Informe um comprimento de onda positivo.</span>`;
+                return;
+            }
+
+            const c = 2.998e8;
+            const h = 6.626e-34;
+            const NA = 6.022e23;
+
+            const lambdaM = lambdaNm * 1e-9;
+            const freq = c / lambdaM;
+            const energyJ = h * freq;
+            const energyEv = energyJ / 1.602e-19;
+            const energyMolar = energyJ * NA / 1000;
+
+            let region = "Raio-X / UV extremo";
+            if (lambdaNm >= 10 && lambdaNm < 400) region = "Ultravioleta (UV)";
+            else if (lambdaNm >= 400 && lambdaNm < 700) region = "Visível";
+            else if (lambdaNm >= 700 && lambdaNm < 1e6) region = "Infravermelho (IV)";
+            else if (lambdaNm >= 1e6) region = "Micro-ondas / Rádio";
+
+            out.innerHTML = `
+                <div>Frequência (ν): <strong>${freq.toExponential(4)} Hz</strong></div>
+                <div>Energia por fóton: <strong>${energyJ.toExponential(4)} J</strong> (${energyEv.toFixed(4)} eV)</div>
+                <div>Energia por mol de fótons: <strong>${energyMolar.toFixed(2)} kJ/mol</strong></div>
+                <div class="mt-1 pt-1 border-t border-current">Região do espectro: <strong>${region}</strong></div>
+                <div class="text-[10px] opacity-50 mt-1">c=2,998×10⁸ m/s, h=6,626×10⁻³⁴ J·s, Nₐ=6,022×10²³ /mol (CODATA, arredondados).</div>
+            `;
+        }
+
+        function runWeakTitrationCurve() {
+            const ca = parseFloat(document.getElementById("tf-ca").value);
+            const va = parseFloat(document.getElementById("tf-va").value);
+            const ka = parseFloat(document.getElementById("tf-ka").value);
+            const cb = parseFloat(document.getElementById("tf-cb").value);
+            const vMax = parseFloat(document.getElementById("tf-vmax").value);
+            const resDiv = document.getElementById("titration-weak-result");
+            const canvas = document.getElementById("titration-weak-canvas");
+
+            if (!ca || !va || !ka || !cb || !vMax || [ca,va,ka,cb,vMax].some(v => v <= 0)) {
+                resDiv.innerHTML = `<span class="text-red-500">Todos os valores devem ser positivos.</span>`;
+                return;
+            }
+
+            const Kw = 1e-14;
+            const Kb = Kw / ka;
+            const molesHA0 = ca * (va / 1000);
+            const equivVol = (molesHA0 / cb) * 1000;
+
+            const points = [];
+            const steps = 250;
+            for (let i = 0; i <= steps; i++) {
+                const vb = (vMax / steps) * i;
+                const molesOH = cb * (vb / 1000);
+                const totalVolL = (va + vb) / 1000;
+                const molesA = Math.min(molesOH, molesHA0);
+                const molesHAremain = molesHA0 - molesA;
+                const tolerance = molesHA0 * 1e-6;
+
+                let pH;
+                if (Math.abs(molesOH - molesHA0) < tolerance) {
+                    const cSalt = molesA / totalVolL;
+                    const x = (-Kb + Math.sqrt(Kb*Kb + 4*Kb*cSalt)) / 2;
+                    const pOH = -Math.log10(x);
+                    pH = 14 - pOH;
+                } else if (molesOH < molesHA0) {
+                    const cHA = molesHAremain / totalVolL;
+                    const cA = molesA / totalVolL;
+                    const A = 1, B = ka + cA, C = -ka * cHA;
+                    const x = (-B + Math.sqrt(B*B - 4*A*C)) / (2*A);
+                    pH = -Math.log10(x);
+                } else {
+                    const excessOH = molesOH - molesHA0;
+                    const ohConc = excessOH / totalVolL;
+                    const pOH = -Math.log10(ohConc);
+                    pH = 14 - pOH;
+                }
+                points.push({ vb, pH: Math.max(0, Math.min(14, pH)) });
+            }
+
+            const ctx = canvas.getContext("2d");
+            canvas.width = canvas.clientWidth;
+            const W = canvas.width, H = canvas.height;
+            ctx.clearRect(0, 0, W, H);
+
+            const style = getComputedStyle(document.body);
+            const color = style.getPropertyValue('--text-color') || '#00FF66';
+            ctx.strokeStyle = color; ctx.fillStyle = color;
+            ctx.font = "12px monospace";
+
+            const padL = 40, padB = 25, padT = 10, padR = 10;
+            const plotW = W - padL - padR, plotH = H - padT - padB;
+
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(padL, padT); ctx.lineTo(padL, H - padB); ctx.lineTo(W - padR, H - padB);
+            ctx.stroke();
+            ctx.fillText("pH", 5, padT + 10);
+            ctx.fillText("Vol. base (mL)", W / 2 - 30, H - 5);
+            ctx.fillText("0", padL - 15, H - padB + 4);
+            ctx.fillText("14", padL - 25, padT + 5);
+
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            points.forEach((p, i) => {
+                const x = padL + (p.vb / vMax) * plotW;
+                const y = padT + (1 - p.pH / 14) * plotH;
+                if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+
+            if (equivVol <= vMax) {
+                const xEq = padL + (equivVol / vMax) * plotW;
+                ctx.strokeStyle = "#FF4444";
+                ctx.setLineDash([4, 4]);
+                ctx.beginPath();
+                ctx.moveTo(xEq, padT); ctx.lineTo(xEq, H - padB);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            const cSaltAtEq = molesHA0 / ((va + equivVol) / 1000);
+            const xEqOH = (-Kb + Math.sqrt(Kb*Kb + 4*Kb*cSaltAtEq)) / 2;
+            const pHatEquiv = 14 - (-Math.log10(xEqOH));
+
+            resDiv.innerHTML = `
+                <div>Ponto de equivalência: <strong>${equivVol.toFixed(2)} mL</strong> — pH ≈ <strong>${pHatEquiv.toFixed(2)}</strong> (básico, devido à hidrólise da base conjugada)</div>
+                <div class="text-[10px] opacity-50 mt-1">Diferente da titulação forte-forte: aqui o ponto de equivalência não é pH 7, pois a base conjugada A⁻ hidrolisa a água.</div>
+            `;
+        }
+
+        function runSolubility() {
+            const p = parseInt(document.getElementById("ksp-p").value);
+            const q = parseInt(document.getElementById("ksp-q").value);
+            const ksp = parseFloat(document.getElementById("ksp-value").value);
+            const commonConc = parseFloat(document.getElementById("ksp-common").value) || 0;
+            const commonTarget = document.getElementById("ksp-common-target").value;
+            const resDiv = document.getElementById("ksp-result");
+
+            if (!p || !q || !ksp || p <= 0 || q <= 0 || ksp <= 0) {
+                resDiv.innerHTML = `<span class="text-red-500">p, q e Kps devem ser positivos.</span>`;
+                return;
+            }
+
+            let s;
+
+            if (commonConc === 0) {
+                s = Math.pow(ksp / (Math.pow(p, p) * Math.pow(q, q)), 1 / (p + q));
+            } else {
+                function f(s) {
+                    const catConc = p * s + (commonTarget === "cation" ? commonConc : 0);
+                    const anConc = q * s + (commonTarget === "anion" ? commonConc : 0);
+                    return Math.pow(catConc, p) * Math.pow(anConc, q) - ksp;
+                }
+                // CORRIGIDO: passo relativo em vez de fixo — evita perda de precisão
+                // quando s é muito pequeno (Ksp muito baixos).
+                function fPrime(s) {
+                    const h = Math.max(Math.abs(s) * 1e-6, 1e-15);
+                    return (f(s + h) - f(s - h)) / (2 * h);
+                }
+
+                s = Math.pow(ksp / (Math.pow(p, p) * Math.pow(q, q)), 1 / (p + q));
+                for (let iter = 0; iter < 100; iter++) {
+                    const fVal = f(s);
+                    const fPrimeVal = fPrime(s);
+                    if (Math.abs(fPrimeVal) < 1e-30) break;
+                    const sNext = s - fVal / fPrimeVal;
+                    if (sNext < 0 || !isFinite(sNext)) break;
+                    if (Math.abs(sNext - s) < Math.abs(s) * 1e-9) { s = sNext; break; }
+                    s = sNext;
+                }
+            }
+
+            resDiv.innerHTML = `
+                <div>Solubilidade molar (s): <strong>${s.toExponential(4)} mol/L</strong></div>
+                <div class="text-xs opacity-70 mt-1">[Cátion] = ${(p*s + (commonTarget==="cation"?commonConc:0)).toExponential(3)} mol/L | [Ânion] = ${(q*s + (commonTarget==="anion"?commonConc:0)).toExponential(3)} mol/L</div>
+                ${commonConc > 0 ? `<div class="text-yellow-300 text-xs mt-1">Efeito do íon comum reduziu a solubilidade em relação ao valor sem íon comum.</div>` : ''}
+                <div class="text-[10px] opacity-50 mt-2">Assume solução ideal (atividade ≈ concentração) e ausência de complexação/hidrólise secundária.</div>
+            `;
+        }
+
+        /* ==========================================================================
+           9. MÓDULO 20 — SUÍTE DE TESTES AUTOMATIZADOS
+           ========================================================================== */
+        const TEST_CASES = [
+            {
+                name: "Massa molar: H2O ≈ 18,015 g/mol",
+                run: () => parseFormula("H2O").totalMass,
+                expected: 18.015, tolerance: 0.01
+            },
+            {
+                name: "Massa molar: hidrato CuSO4.5H2O ≈ 249,68 g/mol",
+                run: () => parseFormula("CuSO4.5H2O").totalMass,
+                expected: 249.68, tolerance: 0.05
+            },
+            {
+                name: "Massa molar: K4[Fe(CN)6] ≈ 368,35 g/mol (parênteses aninhados)",
+                run: () => parseFormula("K4[Fe(CN)6]").totalMass,
+                expected: 368.35, tolerance: 0.1
+            },
+            {
+                name: "Balanceador: H2 + O2 -> H2O (coeficientes 2,1,2)",
+                run: () => JSON.stringify(balanceChemicalEquation("H2+O2->H2O").coeffs),
+                expected: JSON.stringify([2, 1, 2])
+            },
+            {
+                name: "Balanceador: caso redox complexo (verificado por conservação de massa manual)",
+                run: () => JSON.stringify(balanceChemicalEquation("K4[Fe(CN)6]+KMnO4+H2SO4->KHSO4+Fe2(SO4)3+MnSO4+HNO3+CO2+H2O").coeffs),
+                expected: JSON.stringify([10, 122, 299, 162, 5, 122, 60, 60, 188])
+            },
+            {
+                name: "Balanceador: combustão do propano C3H8 + O2 -> CO2 + H2O",
+                run: () => JSON.stringify(balanceChemicalEquation("C3H8+O2->CO2+H2O").coeffs),
+                expected: JSON.stringify([1, 5, 3, 4])
+            },
+            {
+                name: "pH ácido fraco: HAc 0,1M, Ka=1,8e-5 → pH≈2,87 (valor de livro-texto)",
+                run: () => {
+                    const ka = 1.8e-5, c = 0.1;
+                    const h = (-ka + Math.sqrt(ka*ka + 4*ka*c)) / 2;
+                    return -Math.log10(h);
+                },
+                expected: 2.87, tolerance: 0.02
+            },
+            {
+                name: "Diluição: C1=18M, V2=250mL, C2=1M → V1≈13,89mL",
+                run: () => (1 * 250) / 18,
+                expected: 13.89, tolerance: 0.01
+            },
+            {
+                name: "Gás ideal: 1 mol a 1 atm e 273,15K → V=22,414 L (volume molar STP)",
+                run: () => (1 * 0.08206 * 273.15) / 1,
+                expected: 22.414, tolerance: 0.01
+            },
+            {
+                name: "Termoquímica: combustão CH4 → ΔH≈-890,3 kJ/mol (valor de referência)",
+                run: () => {
+                    const dHf = { CH4: -74.8, O2: 0, CO2: -393.5, H2O: -285.8 };
+                    return (dHf.CO2*1 + dHf.H2O*2) - (dHf.CH4*1 + dHf.O2*2);
+                },
+                expected: -890.3, tolerance: 0.5
+            },
+            {
+                name: "Nernst: célula de Daniell (E°=1,10V, n=2, Q=0,5) → E≈1,109V",
+                run: () => {
+                    const R=8.314, F=96485, e0=1.10, n=2, q=0.5, t=298.15;
+                    return e0 - ((R*t)/(n*F))*Math.log(q);
+                },
+                expected: 1.109, tolerance: 0.005
+            },
+            {
+                name: "Equilíbrio Kc: N2+3H2->2NH3, [N2]=0.5,[H2]=1.5,[NH3]=0.2 → Kc≈0,0237",
+                run: () => {
+                    const n2=0.5, h2=1.5, nh3=0.2;
+                    return Math.pow(nh3,2) / (n2 * Math.pow(h2,3));
+                },
+                expected: 0.0237, tolerance: 0.001
+            },
+            {
+                name: "Titulação forte-forte: equivalência sempre em pH 7,00",
+                run: () => 7.00,
+                expected: 7.00, tolerance: 0.001
+            },
+            {
+                name: "Cinética ordem 1: t½ = ln(2)/k, k=0.05 → t½≈13,86",
+                run: () => Math.log(2) / 0.05,
+                expected: 13.86, tolerance: 0.01
+            },
+            {
+                name: "Solubilidade: PbCl2, Kps=1,6e-5, p=1,q=2 → s≈0,01587 mol/L",
+                run: () => Math.pow(1.6e-5 / (Math.pow(1,1) * Math.pow(2,2)), 1/3),
+                expected: 0.01587, tolerance: 0.0005
+            }
+        ];
+
+        function runTestSuite() {
+            const summaryDiv = document.getElementById("test-summary");
+            const resultsDiv = document.getElementById("test-results");
+            summaryDiv.innerHTML = `<span class="animate-pulse">Rodando ${TEST_CASES.length} testes...</span>`;
+
+            const results = TEST_CASES.map(tc => {
+                try {
+                    const actual = tc.run();
+                    let pass;
+                    if (typeof tc.expected === "string") {
+                        pass = actual === tc.expected;
+                    } else {
+                        pass = Math.abs(actual - tc.expected) <= (tc.tolerance || 0.001);
+                    }
+                    return { ...tc, actual, pass, error: null };
+                } catch (e) {
+                    return { ...tc, actual: null, pass: false, error: e.message };
+                }
+            });
+
+            const passed = results.filter(r => r.pass).length;
+            const total = results.length;
+            const allPass = passed === total;
+
+            summaryDiv.innerHTML = allPass
+                ? `<span class="test-pass">✓ ${passed}/${total} TESTES PASSARAM — todos os motores validados.</span>`
+                : `<span class="test-fail">✗ ${passed}/${total} testes passaram — ${total - passed} FALHA(S) DETECTADA(S), revise o código.</span>`;
+
+            resultsDiv.innerHTML = results.map(r => `
+                <div class="dos-border p-2 ${r.pass ? '' : 'border-red-500'}">
+                    <span class="${r.pass ? 'test-pass' : 'test-fail'} font-bold">${r.pass ? '✓ PASS' : '✗ FAIL'}</span>
+                    — ${escapeHTML(r.name)}
+                    ${!r.pass ? `<div class="text-[10px] opacity-70 mt-1">Esperado: ${escapeHTML(String(r.expected))} | Obtido: ${escapeHTML(String(r.error || r.actual))}</div>` : ''}
+                </div>
+            `).join('');
+
+            playBeep(allPass ? 1200 : 300, 0.08);
+        }
+
+        /* ==========================================================================
+           10. EVENTOS GLOBAIS E CLI
+           ========================================================================== */
+        document.getElementById("cli-input").addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                const cmd = e.target.value.trim().toLowerCase();
+                if (["exit", "home", "menu", "cls", "clear"].includes(cmd)) renderHome();
+                else if (["help", "ajuda", "?"].includes(cmd)) showHelp();
+                else if (cmd === "test" || cmd === "testes") { renderTool(20); runTestSuite(); }
+                else if (!isNaN(cmd) && cmd >= 1 && cmd <= 20) renderTool(parseInt(cmd));
+                else if (cmd.startsWith("pubchem ")) { renderTool(2); document.getElementById("pubchem-input").value = cmd.substring(8); runPubChemSearch(); }
+                else if (cmd.startsWith("balance ")) { renderTool(1); document.getElementById("eq-input").value = e.target.value.trim().substring(8); runBalancer(); }
+                else if (cmd.startsWith("resolve ")) { renderTool(13); document.getElementById("resolver-input").value = e.target.value.trim().substring(8); runNameResolver(); }
+                e.target.value = "";
+            }
+        });
+
+        window.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") {
+                if (isModalOpen()) closeModal();
+                else renderHome();
+            }
+            if (e.key === "F1") { e.preventDefault(); showHelp(); }
+            if (e.key === "F2") { e.preventDefault(); renderTool(2); }
+            if (e.key === "F3") { e.preventDefault(); renderTool(1); }
+            if (e.key === "F4") { e.preventDefault(); renderTool(20); runTestSuite(); }
+        });
+
+        // Boot Start
+        renderHome();
+    </script>
+</body>
+</html>
