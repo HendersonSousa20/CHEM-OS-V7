@@ -6,19 +6,64 @@
 
 ## 1. VISÃO GERAL DO SISTEMA
 
-O **CHEM.OS v7.0** é uma suíte computacional completa para laboratórios químicos, ensino universitário e pesquisa, desenvolvida em arquitetura *Single-File Web Application* (SWA) com interface retrô estilo *CRT Terminal/DOS*. 
+O **CHEM.OS v7.0** é uma suíte computacional completa para laboratórios químicos, ensino universitário e pesquisa, desenvolvida em arquitetura *Multi-File Web Application* (MFA, sem bundler/build step) com interface retrô estilo *CRT Terminal/DOS* — ver seção 2.0 para a estrutura de arquivos. 
 
-O sistema integra **20 módulos numéricos e analíticos**, cobrindo desde a estequiometria clássica até o equilíbrio iônico complexo, eletroquímica, cinética, termodinâmica e espectroscopia. Além do motor interno de simulação e cálculo algébrico exato, a aplicação faz integrações assíncronas em tempo real com APIs internacionais de dados químicos de alto nível (PubChem REST, PUG View, OPSIN, CACTUS e Wikipedia API).
+O sistema integra **23 módulos numéricos, analíticos, de simulação e de experimentação guiada**, cobrindo desde a estequiometria clássica até o equilíbrio iônico complexo, eletroquímica, cinética, termodinâmica e espectroscopia. Além do motor interno de simulação e cálculo algébrico exato, a aplicação faz integrações assíncronas em tempo real com APIs internacionais de dados químicos de alto nível (PubChem REST, PUG View, OPSIN, CACTUS e Wikipedia API).
 
 ---
 
 ## 2. ARQUITETURA TÉCNICA & STACK TECNOLÓGICO
 
+### 2.0 Estrutura de Arquivos do Projeto
+
+A partir desta versão, o CHEM.OS deixou de ser um único arquivo monolítico e passou a seguir uma **arquitetura modular por responsabilidade** (*separation of concerns*), sem build step e sem dependências de bundler — continua sendo Vanilla JS puro, apenas organizado em múltiplos arquivos carregados via `<script src="...">` em ordem de dependência. Isso facilita manutenção, revisão de código (*code review*), controle de versão granular (diffs por módulo) e onboarding de novos colaboradores.
+
+```
+CHEM-OS-V7-main/
+├── index.html                        # Shell da aplicação: <head>, layout (header/main/footer/modal)
+│                                      # e a lista ordenada de <script src> — sem lógica de negócio.
+├── README.md                         # Esta documentação.
+├── css/
+│   └── styles.css                    # Todo o CSS customizado (temas CRT, .dos-border, .dos-btn, scrollbar, etc.)
+└── js/
+    ├── data/
+    │   └── periodic-table-data.js    # RAW_ELEMENTS (1–118) + ATOMIC_WEIGHTS (dados puros, sem lógica).
+    ├── core/                         # Motores e integrações reutilizados por múltiplos módulos.
+    │   ├── formula-engine.js         # parseFormula() + balanceChemicalEquation() (álgebra linear racional).
+    │   ├── api-utils.js              # Cache leve (sessionStorage, 30 min) + timeout (15s) para chamadas de API.
+    │   ├── pubchem-api.js            # Integração PubChem PUG-REST / PUG-VIEW / Periodic Table JSON.
+    │   ├── name-resolver-api.js      # Integração OPSIN (Cambridge) + CACTUS (NCI) + Wikipedia REST.
+    │   ├── ui-system.js              # Áudio (Web Audio API), temas, modal, CRT toggle, helpers de UI.
+    │   └── chart-engine.js           # Motor de gráficos em Canvas puro (zoom, pan, crosshair, export PNG).
+    ├── render/
+    │   └── screens.js                # renderHome() e renderTool() — monta o HTML de cada uma das 22 telas.
+    └── modules/                      # Lógica de execução específica de cada grupo de módulos.
+        ├── basic-tools.js            # Módulos 1–7 e núcleo dos módulos numéricos originais.
+        ├── periodic-table-render.js  # Renderização responsiva da grade da Tabela Periódica (Módulo 7).
+        ├── advanced-tools.js         # Módulos científicos avançados (cinética, titulação, eletroquímica...).
+        ├── test-suite.js             # Módulo 20 — suíte de testes automatizados (QA).
+        ├── structure-editor.js       # Módulo 21 — editor de estruturas químicas 2D.
+        ├── molecular-simulation.js   # Módulo 22 — simulação molecular (teoria cinética dos gases).
+        └── guided-experiments.js     # Módulo 23 — laboratório virtual de experimentos guiados.
+```
+
+**Ordem de carregamento:** os `<script>` em `index.html` seguem estritamente a ordem de dependência (dados → motores centrais → renderização → módulos de execução → `js/app.js` por último, que registra os eventos globais do CLI e dispara `renderHome()` ao final do boot). Como são scripts clássicos (não ES Modules), todos compartilham o mesmo escopo global — o comportamento é **idêntico** ao arquivo único anterior, apenas fisicamente separado em arquivos menores e coesos.
+
+**Executar o projeto:** por ser HTML/CSS/JS puro sem bundler, basta abrir `index.html` diretamente no navegador (`file:///.../index.html`) — os `<script src>` locais carregam normalmente por esse protocolo. Para desenvolvimento é recomendável usar um servidor estático simples (evita eventuais restrições de cache/CORS do navegador e facilita hot-reload manual), por exemplo:
+```bash
+# Python (já vem instalado na maioria dos sistemas)
+python3 -m http.server 8080 --directory CHEM-OS-V7-main
+
+# ou Node.js
+npx http-server CHEM-OS-V7-main -p 8080
+```
+Depois é só acessar `http://localhost:8080`.
+
 ### 2.1 Stack Tecnológico
-* **Linguagem Base:** HTML5 / CSS3 / JavaScript Vanilla (ES6+ assíncrono com `async/await` e `fetch`).
-* **Framework de Estilização:** Tailwind CSS (via CDN) com extensão de temas customizados e *CSS Custom Properties* (`var(--text-color)`, `var(--bg-color)`, `var(--border-color)`).
+* **Linguagem Base:** HTML5 / CSS3 / JavaScript Vanilla (ES6+ assíncrono com `async/await` e `fetch`), organizado em múltiplos arquivos por responsabilidade (ver seção 2.0).
+* **Framework de Estilização:** Tailwind CSS (via CDN) com extensão de temas customizados e *CSS Custom Properties* (`var(--text-color)`, `var(--bg-color)`, `var(--border-color)`), complementado por `css/styles.css` para as classes específicas do tema CRT/DOS.
 * **Tipografia:** Google Fonts (`VT323` para sensação de terminal CRT e `IBM Plex Mono` para legibilidade de dados numéricos).
-* **Renderização Gráfica:** HTML5 Canvas API para plotagem vetorial e em tempo real de curvas de titulação e pH.
+* **Renderização Gráfica:** HTML5 Canvas API para plotagem vetorial e em tempo real de curvas de titulação, pH, histogramas de velocidade molecular e desenho de estruturas 2D.
 * **Sintetizador de Áudio:** Web Audio API (`AudioContext`) para geração de *beeps* e *feedbacks* sonoros programáticos através de osciladores de onda quadrada sem dependência de arquivos de áudio externos.
 
 ### 2.2 Estrutura da Interface e UX
@@ -29,7 +74,7 @@ O sistema integra **20 módulos numéricos e analíticos**, cobrindo desde a est
 
 ---
 
-## 3. ESPECIFICAÇÃO DOS MÓDULOS (1 AO 20)
+## 3. ESPECIFICAÇÃO DOS MÓDULOS (1 AO 23)
 
 ### Módulo 1: Balanciador Real de Equações Químicas (Álgebra Linear)
 * **Função:** Determinar os coeficientes estequiométricos inteiros mínimos para equações químicas complexas.
@@ -143,6 +188,24 @@ $$
 * **Função:** Módulo de garantia de qualidade e integridade do código (*Unit Testing Framework* interno).
 * **Mecanismo:** Executa bateria de testes automatizados validados contra a literatura internacional para certificar a precisão dos motores de cálculo.
 
+### Módulo 21: ✏ Editor de Estruturas Químicas (2D)
+* **Função:** Editor gráfico de conectividade molecular em Canvas — inserção de átomos, criação/ciclagem de ligações (simples/dupla/tripla) e remoção, com ferramentas dedicadas (Átomo, Ligação, Apagar).
+* **Cálculo Automático:** Fórmula molecular (sistema de Hill) e massa molar calculadas em tempo real, com preenchimento automático de hidrogênios implícitos por valência padrão (C=4, N=3, O=2, S=2, P=3, halogênios=1, B=3, Si=4).
+* **Integração:** Botão de envio direto da fórmula gerada para o Módulo 3 (Massa Molar). Suporta desfazer, limpar e exportação da estrutura como PNG.
+
+### Módulo 22: ⚛ Simulação Molecular (Teoria Cinética dos Gases)
+* **Função:** Simulação de partículas em 2D com colisões elásticas (esferas rígidas), onde as velocidades iniciais são amostradas da **distribuição de Maxwell-Boltzmann** real (via transformação de Box-Muller) a partir da temperatura e massa molar escolhidas.
+* **Parâmetros:** Seleção de gás (H₂, He, CH₄, H₂O, N₂, O₂, Ar, CO₂, Cl₂ ou massa molar personalizada), temperatura (K) e número de partículas.
+* **Leituras em Tempo Real:** $v_{rms}$ simulado, $v_{rms}$ teórico clássico ($\\sqrt{3RT/M}$), temperatura instantânea (via energia cinética média) e histograma de velocidades com a curva teórica de Maxwell-Boltzmann 2D sobreposta.
+* **Nota de Escala:** A energia cinética total do sistema é conservada exatamente nas colisões (validado numericamente); a velocidade de deslocamento na tela usa uma escala visual fixa para permanecer perceptível, mas os valores numéricos de $v_{rms}$ exibidos são sempre os reais, em m/s.
+
+### Módulo 23: 🧪 Experimentos Guiados (Laboratório Virtual)
+* **Função:** Primeiro experimento do laboratório virtual — diferente das calculadoras, aqui o aluno *conduz* o experimento: configura a bancada (concentrações, volumes, indicador), adiciona titulante em incrementos escolhidos por ele mesmo (bureta virtual), observa o frasco mudar de cor em tempo real e decide quando marcar o "ponto de viragem".
+* **Modelo Químico:** Titulação de ácido forte monoprótico com base forte monoprótica, com cálculo de pH em cada volume adicionado (antes, no e após o ponto de equivalência).
+* **Indicadores disponíveis:** Fenolftaleína, Alaranjado de Metila, Azul de Bromotimol e Vermelho de Metila — cada um com sua própria faixa de viragem de pH; a cor do frasco é interpolada continuamente dentro dessa faixa.
+* **Pedagogia:** O volume de equivalência teórico **não é revelado** de antemão — o aluno só descobre comparando, ao final, o ponto de viragem que ele mesmo observou (limitado pela faixa de cor do indicador escolhido) contra o valor calculado, com erro absoluto e percentual explicitados. Isso ilustra de forma concreta por que a escolha do indicador certo importa em Química Analítica.
+* **Saída:** Gráfico de titulação construído ponto a ponto pelos dados que o próprio aluno registrou (reaproveitando o motor de gráficos interativos do Módulo 16/18), tabela de dados, campo de conclusão livre, e relatório formatado para impressão/exportação em PDF (via impressão nativa do navegador).
+
 ---
 
 ## 4. INTEGRAÇÃO DE APIs EXTERNAS
@@ -175,6 +238,12 @@ O CHEM.OS v7.0 utiliza comunicação assíncrona baseada em Promises e Fetch API
 | **CACTUS NCI/CADD** | `https://cactus.nci.nih.gov/chemical/structure/...` | Obtenção de Número CAS, fórmulas e nomes alternativos. |
 | **Wikipedia REST API** | `https://en.wikipedia.org/api/rest_v1/page/summary/...` | Resumos conceituais e contexto histórico/científico das substâncias. |
 
+### 4.1 Resiliência: Cache e Timeout (`js/core/api-utils.js`)
+Todas as chamadas às 5 APIs acima passam por uma camada compartilhada de resiliência:
+* **Cache leve em `sessionStorage`** (30 minutos de validade): se dois alunos (ou o mesmo aluno duas vezes) buscarem a mesma substância na mesma sessão do navegador, a segunda busca é respondida instantaneamente a partir do cache local, sem nova requisição ao servidor — reduz a carga nas APIs públicas gratuitas em uso simultâneo de sala de aula. Um pequeno indicador "⚡ resposta em cache local" aparece no resultado do Módulo 2 (PubChem) quando isso ocorre.
+* **Timeout de 15 segundos** (`AbortController`) em toda requisição: garante que a interface nunca fique "travada" esperando indefinidamente uma resposta que não chega (ex: serviço fora do ar, rede instável).
+* **Mensagens de erro específicas em PT-BR**, diferenciando três causas: composto/nome não encontrado (HTTP 404), erro do servidor (outros códigos HTTP) e falha de conectividade/timeout — em vez de uma mensagem genérica única.
+
 
 ## 5. MOTORES DE CÁLCULO E ALGORITMOS INTERNOS
 
@@ -205,7 +274,10 @@ Além dos botões interativos, o painel do CLI (`#cli-input`) aceita comandos di
 
 ### Comandos Suportados:
 
-* `1` a `20`: Navegação direta para o módulo correspondente.
+* `1` a `23`: Navegação direta para o módulo correspondente.
+* `estrutura` | `editor`: Abre o editor de estruturas químicas (Módulo 21).
+* `simulacao` | `md`: Abre a simulação molecular de teoria cinética dos gases (Módulo 22).
+* `experimento` | `lab`: Abre o laboratório virtual de experimentos guiados (Módulo 23).
 * `home` | `menu` | `cls` | `exit`: Retorna à tela inicial / limpa visualização.
 * `ajuda` | `help`: Abre o modal interativo com instruções detalhadas.
 * `test`: Executa imediatamente a suíte de testes automatizados (Módulo 20).
@@ -242,8 +314,8 @@ assert(Math.abs(result.totalMass - 18.015) < 0.01);
 
 ### 8.1 Requisitos de Execução
 
-* **Ambiente Hospedado:** Qualquer servidor estático (GitHub Pages, Vercel, Netlify, Apache, Nginx) ou abertura direta local no navegador (`file:///caminho/index.html`).
-* **Conectividade:** Requer conexão ativa com a internet para requisições externas de APIs (PubChem, OPSIN, CACTUS, Wikipedia, Google Fonts, Tailwind CDN). Os módulos puramente numéricos (1, 3, 5, 8, 9, 10, 11, 12, 14, 15, 16, 17, 18, 19, 20) funcionam de forma **offline**.
+* **Ambiente Hospedado:** Qualquer servidor estático (GitHub Pages, Vercel, Netlify, Apache, Nginx) ou abertura direta local no navegador (`file:///caminho/index.html`). Ao publicar, envie a pasta inteira (`index.html`, `css/` e `js/`), preservando a hierarquia de diretórios — os caminhos dos `<script src>` são relativos.
+* **Conectividade:** Requer conexão ativa com a internet para requisições externas de APIs (PubChem, OPSIN, CACTUS, Wikipedia, Google Fonts, Tailwind CDN). Os módulos puramente numéricos (1, 3, 5, 8, 9, 10, 11, 12, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23) funcionam de forma **offline**.
 * **Navegadores Suportados:** Chrome/Chromium 80+, Firefox 75+, Edge 80+, Safari 13.1+.
 
 ### 8.2 Guia de Manutenção

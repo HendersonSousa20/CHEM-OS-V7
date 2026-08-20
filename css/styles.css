@@ -1,0 +1,26 @@
+        :root { --bg-color: #000000; --text-color: #00FF66; --accent-color: #00DD55; --border-color: #00FF66; }
+        .theme-amber { --bg-color: #000000; --text-color: #FFB000; --accent-color: #E09C00; --border-color: #FFB000; }
+        .theme-blue { --bg-color: #000080; --text-color: #FFFFFF; --accent-color: #00FFFF; --border-color: #FFFFFF; }
+        .theme-mono { --bg-color: #0a0a0a; --text-color: #f0f0f0; --accent-color: #ffffff; --border-color: #cccccc; }
+        body { background-color: var(--bg-color); color: var(--text-color); font-family: 'VT323', 'IBM Plex Mono', monospace; font-size: 1.2rem; line-height: 1.15; }
+        .crt::before { content: " "; display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%); background-size: 100% 4px; z-index: 50; pointer-events: none; opacity: 0.35; }
+        .no-crt::before { display: none !important; }
+        .dos-border { border: 2px solid var(--border-color); border-radius: 0px !important; }
+        .dos-input { background: transparent; color: var(--text-color); outline: none; border-bottom: 2px solid var(--border-color); border-radius: 0px; }
+        .dos-btn { background-color: transparent; color: var(--text-color); border: 1px solid var(--border-color); padding: 2px 8px; cursor: pointer; border-radius: 0px !important; transition: all 0.1s ease; }
+        .dos-btn:hover, .dos-btn:focus { background-color: var(--text-color); color: var(--bg-color); }
+        .chem-img { filter: invert(0.88) hue-rotate(180deg) contrast(1.2); mix-blend-mode: screen; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-color); border: 1px solid var(--border-color); }
+        ::-webkit-scrollbar-thumb { background: var(--text-color); }
+        .test-pass { color: #00FF66; }
+        .test-fail { color: #FF4444; }
+
+        /* Impressão do relatório de experimento guiado (Módulo 23): esconde toda a
+           interface do app e imprime apenas o conteúdo de #ge-report-print. */
+        @media print {
+            body * { visibility: hidden; }
+            #ge-report-print, #ge-report-print * { visibility: visible; }
+            #ge-report-print { position: absolute; left: 0; top: 0; width: 100%; color: #000 !important; background: #fff !important; }
+            #ge-report-print * { color: #000 !important; background: #fff !important; border-color: #000 !important; }
+        }
