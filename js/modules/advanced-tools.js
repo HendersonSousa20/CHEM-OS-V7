@@ -219,17 +219,25 @@
         async function runNameResolver() {
             const query = document.getElementById("resolver-input").value;
             const resDiv = document.getElementById("resolver-result");
-            resDiv.innerHTML = "<span class='animate-pulse'>Consultando OPSIN e CACTUS...</span>";
+            resDiv.innerHTML = "<span class='animate-pulse'>Consultando OPSIN (com fallback automático) e CACTUS...</span>";
 
             let html = "";
 
             try {
-                const opsin = await fetchOpsinData(query);
-                html += `<div class="mb-2 pb-2 border-b border-current"><strong class="text-green-400">OPSIN (nome IUPAC → estrutura):</strong>`;
-                html += `<div>• SMILES: <span class="font-mono text-[11px] break-all">${escapeHTML(opsin.smiles || 'N/A')}</span></div>`;
-                html += `<div>• InChIKey: ${escapeHTML(opsin.inchikey || 'N/A')}</div></div>`;
+                const structure = await resolveNameToStructure(query);
+                const sourceLabel = structure.source === "OPSIN"
+                    ? "OPSIN (nome IUPAC → estrutura)"
+                    : `${structure.source} (nome → estrutura)`;
+                html += `<div class="mb-2 pb-2 border-b border-current"><strong class="text-green-400">${sourceLabel}:</strong>`;
+                html += `<div>• SMILES: <span class="font-mono text-[11px] break-all">${escapeHTML(structure.smiles || 'N/A')}</span></div>`;
+                html += `<div>• InChIKey: ${escapeHTML(structure.inchikey || 'N/A')}</div>`;
+                if (structure.source !== "OPSIN") {
+                    html += `<div class="text-[10px] text-yellow-400 mt-1">[!] O OPSIN não respondeu agora (serviço fora do ar ou tempo limite excedido) — este resultado veio de ${escapeHTML(structure.source)} como alternativa automática. Para nomenclatura IUPAC muito específica, o resultado do OPSIN costuma ser mais confiável; tente novamente mais tarde se precisar confirmar.</div>`;
+                }
+                html += `</div>`;
             } catch (e) {
-                html += `<div class="mb-2 pb-2 border-b border-current text-yellow-400">OPSIN: ${escapeHTML(e.message)}</div>`;
+                const detail = (e.attempts || []).map(a => `${a.source}: ${a.message}`).join(' · ');
+                html += `<div class="mb-2 pb-2 border-b border-current text-yellow-400">Nenhum serviço de nome → estrutura conseguiu resolver esta entrada agora (tentamos OPSIN, CACTUS e PubChem).${detail ? `<div class="text-[10px] opacity-70 mt-1">${escapeHTML(detail)}</div>` : ''}</div>`;
             }
 
             let cactusHTML = `<strong class="text-green-400">CACTUS (identificadores complementares):</strong>`;

@@ -2,6 +2,11 @@
            5. RENDERIZAÇÃO DAS TELAS
            ========================================================================== */
         function renderHome() {
+            if (typeof geGuardNavigation === "function") { geGuardNavigation(renderHomeInner); }
+            else { renderHomeInner(); }
+        }
+
+        function renderHomeInner() {
             const screen = document.getElementById("screen-content");
             screen.innerHTML = `
 <pre class="font-bold leading-none text-xs md:text-sm mb-3 hidden sm:block">
@@ -13,7 +18,7 @@
  ╚═════╝╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝  ╚═════╝ ╚══════╝     ╚═══╝  ╚═╝     
 </pre>
 <div class="border-b border-current pb-2 mb-3">
-    <div class="text-xl font-bold">CHEM.OS v7.0 Enterprise Laboratory Engine [23 MÓDULOS]</div>
+    <div class="text-xl font-bold">CHEM.OS v7.0 Enterprise Laboratory Engine [25 MÓDULOS]</div>
     <div class="text-xs opacity-80">Pressione F1 para o guia de uso, ou F4 / digite "test" para validar todos os motores de cálculo.</div>
 </div>
 
@@ -37,15 +42,23 @@
     <button onclick="renderTool(17)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">17. Espectroscopia (Beer-Lambert + Conversões λ/ν/E)</button>
     <button onclick="renderTool(18)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">18. Titulação Ácido Fraco + Base Forte (Solução Exata)</button>
     <button onclick="renderTool(19)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">19. Solubilidade / Kps (+ Efeito do Íon Comum)</button>
-    <button onclick="renderTool(20)" class="text-left p-1 border border-yellow-400 hover:bg-yellow-400 hover:text-black text-yellow-300 font-bold">20. ⚙ SUÍTE DE TESTES — Validação dos Motores de Cálculo</button>
-    <button onclick="renderTool(21)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">21. ✏ Editor de Estruturas Químicas (2D)</button>
-    <button onclick="renderTool(22)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">22. ⚛ Simulação Molecular (Teoria Cinética dos Gases)</button>
-    <button onclick="renderTool(23)" class="text-left p-1 border border-cyan-400 hover:bg-cyan-400 hover:text-black text-cyan-300 font-bold">23. 🧪 Experimentos Guiados (Laboratório Virtual) — NOVO</button>
+    <button onclick="renderTool(20)" class="text-left p-1 border border-yellow-400 hover:bg-yellow-400 hover:text-black text-yellow-300 font-bold">20. [TST] SUÍTE DE TESTES — Validação dos Motores de Cálculo</button>
+    <button onclick="renderTool(21)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">21. [EDT] Editor de Estruturas Químicas (2D)</button>
+    <button onclick="renderTool(22)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">22. [SIM] Simulação Molecular (Teoria Cinética dos Gases)</button>
+    <button onclick="renderTool(23)" class="text-left p-1 border border-cyan-400 hover:bg-cyan-400 hover:text-black text-cyan-300 font-bold">23. [LAB] Experimentos Guiados (Laboratório Virtual — 4 experimentos)</button>
+    <button onclick="renderTool(24)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">24. [LIV] Fundamentos de Química Geral (Guia de Estudos)</button>
+    <button onclick="renderTool(25)" class="text-left p-1 border border-cyan-400 hover:bg-cyan-400 hover:text-black text-cyan-300 font-bold">25. [DET] Detetive Químico (Identificação de Cátions) — NOVO</button>
 </div>
 `;
+            screenAnimateIn();
         }
 
         function renderTool(toolId) {
+            if (typeof geGuardNavigation === "function") { geGuardNavigation(() => renderToolInner(toolId)); }
+            else { renderToolInner(toolId); }
+        }
+
+        function renderToolInner(toolId) {
             playBeep(700, 0.04);
             const screen = document.getElementById("screen-content");
 
@@ -362,7 +375,7 @@
                     break;
                 case 20:
                     screen.innerHTML = `
-                        <div class="text-xl font-bold border-b border-current pb-1 mb-3 text-yellow-300">20. ⚙ SUÍTE DE TESTES — VALIDAÇÃO DOS MOTORES DE CÁLCULO</div>
+                        <div class="text-xl font-bold border-b border-current pb-1 mb-3 text-yellow-300">20. [TST] SUÍTE DE TESTES — VALIDAÇÃO DOS MOTORES DE CÁLCULO</div>
                         <p class="text-xs mb-3">Cada teste compara a saída de uma função do sistema contra um valor de referência conhecido (literatura de físico-química ou cálculo à mão verificado). Um teste falhando indica regressão introduzida por edição futura do código.</p>
                         <button onclick="runTestSuite()" class="dos-btn mb-3">RODAR TODOS OS TESTES</button>
                         <div id="test-summary" class="dos-border p-3 text-sm mb-3 font-bold">Aguardando execução...</div>
@@ -371,7 +384,7 @@
                     break;
                 case 21:
                     screen.innerHTML = `
-                        <div class="text-xl font-bold border-b border-current pb-1 mb-3">21. ✏ EDITOR DE ESTRUTURAS QUÍMICAS (2D)</div>
+                        <div class="text-xl font-bold border-b border-current pb-1 mb-3">21. [EDT] EDITOR DE ESTRUTURAS QUÍMICAS (2D)</div>
                         <p class="text-xs mb-2 opacity-80">
                             <strong>Átomo:</strong> clique na tela vazia para inserir; clique num átomo existente para trocar o elemento.
                             <strong>Ligação:</strong> clique em dois átomos para conectar (clicar de novo no mesmo par aumenta a ordem: simples → dupla → tripla → simples).
@@ -394,6 +407,7 @@
                                     <input id="se-custom-el" type="text" placeholder="Outro (ex: Na)" class="dos-input p-1 w-24">
                                     <button onclick="setCustomElement()" class="dos-btn py-1.5">USAR</button>
                                 </div>
+                                <div id="se-custom-el-error" class="text-red-500 text-[10px] mt-1" role="alert" aria-live="polite"></div>
                             </div>
                             <div class="dos-border p-2">
                                 <div class="font-bold mb-1 opacity-80">AÇÕES</div>
@@ -420,7 +434,7 @@
                     break;
                 case 22:
                     screen.innerHTML = `
-                        <div class="text-xl font-bold border-b border-current pb-1 mb-3">22. ⚛ SIMULAÇÃO MOLECULAR — TEORIA CINÉTICA DOS GASES</div>
+                        <div class="text-xl font-bold border-b border-current pb-1 mb-3">22. [SIM] SIMULAÇÃO MOLECULAR — TEORIA CINÉTICA DOS GASES</div>
                         <p class="text-xs mb-2 opacity-80">Simulação de partículas em 2D: as velocidades iniciais de cada molécula são amostradas da <strong>distribuição de Maxwell-Boltzmann</strong> a partir da temperatura e da massa molar escolhidas. As colisões entre partículas (e com as paredes) são perfeitamente elásticas, conservando a energia cinética total do sistema — por isso a "temperatura instantânea" calculada a partir da energia cinética média deve permanecer próxima do valor definido, oscilando apenas pela flutuação estatística natural de um número finito de partículas.</p>
 
                         <div class="flex flex-wrap gap-3 mb-3 items-end text-xs">
@@ -474,11 +488,28 @@
                     break;
                 case 23:
                     screen.innerHTML = `
-                        <div class="text-xl font-bold border-b border-current pb-1 mb-3">23. 🧪 EXPERIMENTOS GUIADOS (LABORATÓRIO VIRTUAL)</div>
+                        <div class="text-xl font-bold border-b border-current pb-1 mb-3">23. [LAB] EXPERIMENTOS GUIADOS (LABORATÓRIO VIRTUAL)</div>
                         <p class="text-xs mb-3 opacity-80">Diferente das calculadoras dos outros módulos, aqui você conduz um experimento passo a passo: prepara a bancada, adiciona reagente aos poucos, observa e registra o que acontece — e só no final descobre o quanto sua leitura experimental chegou perto do valor teórico. No fim, um relatório pronto para imprimir ou salvar como PDF.</p>
                         <div id="ge-content"></div>
                     `;
                     geInit();
                     break;
+                case 24:
+                    screen.innerHTML = `
+                        <div class="text-xl font-bold border-b border-current pb-1 mb-3">24. [LIV] FUNDAMENTOS DE QUÍMICA GERAL (GUIA DE ESTUDOS)</div>
+                        <p class="text-xs mb-3 opacity-80">15 tópicos de Química Geral, no formato de caderno de estudos: diagrama, notas resumidas, fórmula-chave, macete para lembrar, dois exemplos resolvidos, glossário e um mini-quiz de 5 perguntas (ordem embaralhada a cada tentativa) — para aproveitar melhor as ferramentas mais avançadas do site. Seu progresso fica salvo entre sessões.</p>
+                        <div id="gc-content"></div>
+                    `;
+                    gcInit();
+                    break;
+                case 25:
+                    screen.innerHTML = `
+                        <div class="text-xl font-bold border-b border-current pb-1 mb-3">25. [DET] DETETIVE QUÍMICO — IDENTIFICAÇÃO DE CÁTIONS</div>
+                        <p class="text-xs mb-3 opacity-80">Baseado em química analítica qualitativa de verdade: cor da solução, teste de chama e reações de precipitação com quatro reagentes clássicos (NaOH, Na₂CO₃, H₂SO₄ diluído, HCl diluído). Rode o mínimo de testes necessário, registre sua conclusão, e veja a ficha completa do caso — inclusive quando erra.</p>
+                        <div id="cd-content"></div>
+                    `;
+                    cdInit();
+                    break;
             }
+            screenAnimateIn();
         }

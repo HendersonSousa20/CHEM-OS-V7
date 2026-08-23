@@ -16,11 +16,151 @@
         .test-pass { color: #00FF66; }
         .test-fail { color: #FF4444; }
 
-        /* Impressão do relatório de experimento guiado (Módulo 23): esconde toda a
-           interface do app e imprime apenas o conteúdo de #ge-report-print. */
+        /* ==========================================================================
+           MOTION DESIGN — transições, microinterações e feedback visual
+           ========================================================================== */
+
+        /* Respeita usuários que pedem menos movimento no SO/navegador */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+        }
+
+        /* Flicker sutil e contínuo do efeito CRT, para a tela parecer "viva" */
+        @keyframes crtFlicker { 0%, 100% { opacity: 0.35; } 50% { opacity: 0.27; } }
+        .crt::before { animation: crtFlicker 6s ease-in-out infinite; }
+
+        /* Transição de entrada ao trocar de tela/módulo (renderHome / renderTool) */
+        @keyframes screenFadeIn {
+            from { opacity: 0; transform: translateY(10px); filter: blur(1px); }
+            to { opacity: 1; transform: translateY(0); filter: blur(0); }
+        }
+        .screen-fade-in { animation: screenFadeIn 0.32s cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+
+        /* Modal: aparição com leve "pop" em vez de corte seco */
+        @keyframes modalPop {
+            from { opacity: 0; transform: scale(0.94) translateY(8px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        #modal:not(.hidden) .dos-border { animation: modalPop 0.22s cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+
+        /* Botões do menu principal e demais botões soltos dentro das telas
+           (não usam .dos-btn, então ganham sua própria transição + feedback de clique) */
+        #screen-content button { transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.08s ease; }
+        #screen-content button:active { transform: scale(0.97); }
+
+        /* Botões e inputs: feedback tátil de clique/foco */
+        .dos-btn { transition: background-color 0.12s ease, color 0.12s ease, transform 0.08s ease, box-shadow 0.2s ease; }
+        .dos-btn:active { transform: scale(0.94); }
+        .dos-input { transition: border-color 0.15s ease, box-shadow 0.15s ease; }
+        .dos-input:focus { box-shadow: 0 2px 6px -2px var(--text-color); }
+
+        /* Pulso genérico usado para chamar atenção para um elemento recém-atualizado */
+        @keyframes pulseGlowRing {
+            0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--text-color) 60%, transparent); }
+            100% { box-shadow: 0 0 0 14px color-mix(in srgb, var(--text-color) 0%, transparent); }
+        }
+        .pulse-glow { animation: pulseGlowRing 0.6s ease-out; }
+
+        /* Números que "batem" (tick) quando atualizados — usado no pHmetro */
+        @keyframes valueTick {
+            0% { transform: scale(1.22); }
+            100% { transform: scale(1); }
+        }
+        .value-tick { display: inline-block; animation: valueTick 0.28s cubic-bezier(0.3, 1.4, 0.4, 1) both; }
+
+        /* Laboratório guiado (Módulo 23): gota caindo da bureta no frasco */
+        @keyframes geDropFall {
+            0% { top: 0; opacity: 0; transform: translateX(-50%) scaleY(0.8); }
+            15% { opacity: 1; }
+            85% { opacity: 1; }
+            100% { top: 46px; opacity: 0; transform: translateX(-50%) scaleY(1.3); }
+        }
+        .ge-drop {
+            position: absolute; left: 50%; width: 7px; height: 7px; border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #ffffff, var(--accent-color) 70%);
+            box-shadow: 0 0 6px var(--accent-color); pointer-events: none; z-index: 6;
+            animation: geDropFall 0.55s ease-in forwards;
+        }
+
+        /* Impacto da gota no frasco: leve "squash" no vidro + transições suaves de cor/nível */
+        @keyframes geFlaskHit {
+            0% { transform: scale(1); }
+            40% { transform: scale(1.045, 0.965); }
+            100% { transform: scale(1); }
+        }
+        .ge-flask-hit { animation: geFlaskHit 0.32s ease-out; transform-origin: 50% 90%; }
+        #ge-flask-fill { transition: fill 0.55s ease; }
+        #ge-buret-fill { transition: height 0.45s cubic-bezier(0.3, 0.6, 0.3, 1); }
+
+        /* Escala de pH ao vivo: faixa de viragem do indicador + marcador móvel */
+        .ge-ph-track { position: relative; height: 14px; overflow: hidden; }
+        .ge-ph-zone { position: absolute; top: 0; bottom: 0; background: rgba(255, 230, 0, 0.28); transition: left 0.3s ease, width 0.3s ease; }
+        .ge-ph-marker {
+            position: absolute; top: -4px; width: 3px; height: 22px; border-radius: 2px;
+            background: var(--text-color); box-shadow: 0 0 7px var(--text-color);
+            transition: left 0.4s cubic-bezier(0.3, 0.6, 0.3, 1);
+        }
+
+        /* Onda de destaque (tipo "sonar") ao marcar o ponto de viragem */
+        @keyframes geViragemRing {
+            0% { box-shadow: 0 0 0 0 rgba(255, 210, 0, 0.65); }
+            100% { box-shadow: 0 0 0 26px rgba(255, 210, 0, 0); }
+        }
+        .ge-viragem-hit { animation: geViragemRing 0.75s ease-out; }
+        /* Alias genérico do mesmo pulso, para destacar erros de validação inline
+           em qualquer módulo (não só no laboratório guiado). */
+        .field-error-flash { animation: geViragemRing 0.6s ease-out; }
+
+        /* Linhas novas na tabela de dados entram deslizando */
+        @keyframes geRowIn { from { opacity: 0; transform: translateX(-8px); background-color: rgba(255,255,255,0.08); } to { opacity: 1; transform: translateX(0); background-color: transparent; } }
+        .ge-row-new { animation: geRowIn 0.4s ease-out; }
+
+        /* Blocos do relatório final entram em sequência (stagger) */
+        @keyframes geFadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        .ge-fade-item { animation: geFadeUp 0.4s ease-out both; }
+        .ge-fade-item:nth-child(1) { animation-delay: 0s; }
+        .ge-fade-item:nth-child(2) { animation-delay: 0.08s; }
+        .ge-fade-item:nth-child(3) { animation-delay: 0.16s; }
+        .ge-fade-item:nth-child(4) { animation-delay: 0.24s; }
+        .ge-fade-item:nth-child(5) { animation-delay: 0.32s; }
+
+        /* ==========================================================================
+           ACESSIBILIDADE — foco visível, texto oculto para leitor de tela, skip-link
+           ========================================================================== */
+        .sr-only {
+            position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+            overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+        }
+        .skip-link {
+            position: absolute; left: -999px; top: 0; z-index: 100;
+            background: var(--text-color); color: #000; padding: 8px 14px;
+            font-weight: bold; text-decoration: none;
+        }
+        .skip-link:focus { left: 8px; top: 8px; }
+
+        /* Foco visível consistente com o tema (em vez do outline azul padrão do
+           navegador, que destoa da estética do terminal) — nunca remove o foco,
+           só o estiliza, preservando a navegação por teclado. */
+        a:focus-visible, button:focus-visible, input:focus-visible,
+        select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
+            outline: 2px solid var(--text-color);
+            outline-offset: 2px;
+            box-shadow: 0 0 8px var(--text-color);
+        }
+
+        /* Emblemas de perigo GHS (Módulo 2) */
+        .ghs-pictogram {
+            width: 32px; height: 32px; flex-shrink: 0; border: 2px solid #e30613; background: #fff;
+            border-radius: 3px; transform: rotate(45deg); display: flex; align-items: center; justify-content: center;
+        }
+        .ghs-pictogram span { transform: rotate(-45deg); font-size: 15px; line-height: 1; }
+
+        /* Impressão de relatórios (Módulo 23: experimento guiado; Módulo 25: ficha
+           do caso do Detetive Químico): esconde toda a interface do app e imprime
+           apenas o conteúdo do container marcado como -print. */
         @media print {
             body * { visibility: hidden; }
-            #ge-report-print, #ge-report-print * { visibility: visible; }
-            #ge-report-print { position: absolute; left: 0; top: 0; width: 100%; color: #000 !important; background: #fff !important; }
-            #ge-report-print * { color: #000 !important; background: #fff !important; border-color: #000 !important; }
+            #ge-report-print, #ge-report-print *, #cd-report-print, #cd-report-print * { visibility: visible; }
+            #ge-report-print, #cd-report-print { position: absolute; left: 0; top: 0; width: 100%; color: #000 !important; background: #fff !important; }
+            #ge-report-print *, #cd-report-print * { color: #000 !important; background: #fff !important; border-color: #000 !important; }
         }

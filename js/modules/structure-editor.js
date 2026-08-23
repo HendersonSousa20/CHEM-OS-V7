@@ -63,11 +63,13 @@
 
         function setCustomElement() {
             const inp = document.getElementById("se-custom-el");
+            const errEl = document.getElementById("se-custom-el-error");
             const raw = (inp.value || "").trim();
+            if (errEl) errEl.textContent = "";
             if (!raw) return;
             const sym = raw[0].toUpperCase() + raw.slice(1).toLowerCase();
             if (!ATOMIC_WEIGHTS[sym]) {
-                alert("Símbolo de elemento desconhecido: " + sym);
+                if (errEl) { errEl.textContent = "Símbolo de elemento desconhecido: " + sym; pulseElement("se-custom-el-error", "field-error-flash"); }
                 return;
             }
             seSelectedElement = sym;

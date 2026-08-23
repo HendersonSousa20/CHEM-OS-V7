@@ -47,6 +47,17 @@
          * Nunca deixa uma requisição pendurada indefinidamente.
          */
         async function fetchWithTimeout(url, options, timeoutMs = API_FETCH_TIMEOUT_MS) {
+            // Falha imediatamente se o navegador já sabe que não há conexão —
+            // sem isso, o aluno esperava os 15s inteiros de timeout só para
+            // descobrir o óbvio. navigator.onLine === false é um sinal confiável;
+            // === true não garante internet de verdade (ex.: rede local sem
+            // acesso externo), por isso só tratamos o caso negativo aqui.
+            if (typeof navigator !== "undefined" && navigator.onLine === false) {
+                const e = new Error("Sem conexão com a internet — verifique sua rede e tente novamente.");
+                e.isOffline = true;
+                e.isNetworkError = true;
+                throw e;
+            }
             const controller = new AbortController();
             const timer = setTimeout(() => controller.abort(), timeoutMs);
             try {

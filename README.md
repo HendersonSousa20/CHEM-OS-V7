@@ -8,7 +8,9 @@
 
 O **CHEM.OS v7.0** é uma suíte computacional completa para laboratórios químicos, ensino universitário e pesquisa, desenvolvida em arquitetura *Multi-File Web Application* (MFA, sem bundler/build step) com interface retrô estilo *CRT Terminal/DOS* — ver seção 2.0 para a estrutura de arquivos. 
 
-O sistema integra **23 módulos numéricos, analíticos, de simulação e de experimentação guiada**, cobrindo desde a estequiometria clássica até o equilíbrio iônico complexo, eletroquímica, cinética, termodinâmica e espectroscopia. Além do motor interno de simulação e cálculo algébrico exato, a aplicação faz integrações assíncronas em tempo real com APIs internacionais de dados químicos de alto nível (PubChem REST, PUG View, OPSIN, CACTUS e Wikipedia API).
+O sistema integra **25 módulos numéricos, analíticos, de simulação, de experimentação guiada, de estudo e de investigação**, cobrindo desde a estequiometria clássica até o equilíbrio iônico complexo, eletroquímica, cinética, termodinâmica e espectroscopia. Além do motor interno de simulação e cálculo algébrico exato, a aplicação faz integrações assíncronas em tempo real com APIs internacionais de dados químicos de alto nível (PubChem REST, PUG View, OPSIN, CACTUS e Wikipedia API).
+
+**Convenção visual de ícones:** para manter a estética retrô/CRT coerente em toda a interface, nenhum ícone da aplicação usa emoji colorido — todos são tags textuais entre colchetes (ex: `[LAB]`, `[EDT]`, `[MOL]`) ou pequenos SVG vetoriais monocromáticos desenhados sob medida (caso dos pictogramas de perigo GHS no Módulo 2, que seguem a convenção real de símbolo preto sobre fundo branco/losango vermelho). Símbolos tipográficos simples (→, ←, ✓, ✗) são mantidos por serem glifos de texto monocromáticos, não emoji.
 
 ---
 
@@ -44,7 +46,9 @@ CHEM-OS-V7-main/
         ├── test-suite.js             # Módulo 20 — suíte de testes automatizados (QA).
         ├── structure-editor.js       # Módulo 21 — editor de estruturas químicas 2D.
         ├── molecular-simulation.js   # Módulo 22 — simulação molecular (teoria cinética dos gases).
-        └── guided-experiments.js     # Módulo 23 — laboratório virtual de experimentos guiados.
+        ├── guided-experiments.js     # Módulo 23 — laboratório virtual de experimentos guiados.
+        ├── general-chemistry-guide.js # Módulo 24 — guia de estudos de Química Geral (conteúdo original).
+        └── chemistry-detective.js    # Módulo 25 — jogo de identificação de cátions (química analítica qualitativa).
 ```
 
 **Ordem de carregamento:** os `<script>` em `index.html` seguem estritamente a ordem de dependência (dados → motores centrais → renderização → módulos de execução → `js/app.js` por último, que registra os eventos globais do CLI e dispara `renderHome()` ao final do boot). Como são scripts clássicos (não ES Modules), todos compartilham o mesmo escopo global — o comportamento é **idêntico** ao arquivo único anterior, apenas fisicamente separado em arquivos menores e coesos.
@@ -74,7 +78,7 @@ Depois é só acessar `http://localhost:8080`.
 
 ---
 
-## 3. ESPECIFICAÇÃO DOS MÓDULOS (1 AO 23)
+## 3. ESPECIFICAÇÃO DOS MÓDULOS (1 AO 25)
 
 ### Módulo 1: Balanciador Real de Equações Químicas (Álgebra Linear)
 * **Função:** Determinar os coeficientes estequiométricos inteiros mínimos para equações químicas complexas.
@@ -206,6 +210,20 @@ $$
 * **Pedagogia:** O volume de equivalência teórico **não é revelado** de antemão — o aluno só descobre comparando, ao final, o ponto de viragem que ele mesmo observou (limitado pela faixa de cor do indicador escolhido) contra o valor calculado, com erro absoluto e percentual explicitados. Isso ilustra de forma concreta por que a escolha do indicador certo importa em Química Analítica.
 * **Saída:** Gráfico de titulação construído ponto a ponto pelos dados que o próprio aluno registrou (reaproveitando o motor de gráficos interativos do Módulo 16/18), tabela de dados, campo de conclusão livre, e relatório formatado para impressão/exportação em PDF (via impressão nativa do navegador).
 
+### Módulo 24: [LIV] Fundamentos de Química Geral (Guia de Estudos)
+* **Função:** Revisão de base para quem precisa relembrar os fundamentos de Química Geral antes de usar os módulos mais avançados do site — **15 tópicos**: Matéria e Medidas, Estrutura Atômica, Tabela Periódica, Ligações Químicas, Reações Químicas, O Mol e Estequiometria, Gases, Soluções, Ácidos/Bases, Termoquímica, Configuração Eletrônica e Orbitais, Nomenclatura Química, Oxirredução (Redox), Equilíbrio Químico e Le Chatelier, e Forças Intermoleculares.
+* **Formato por tópico:** diagrama SVG (nos tópicos mais visuais — estados da matéria, estrutura atômica, tendências periódicas), notas resumidas, fórmula-chave (quando aplicável), um mnemônico, **dois exemplos resolvidos** (crescente em dificuldade), um mini-glossário de termos-chave, links diretos ("Praticar") para o módulo prático correspondente, e um **mini-quiz de 5 perguntas** de múltipla escolha com feedback imediato — a ordem das perguntas é embaralhada a cada tentativa.
+* **Glossário geral:** agrega todos os termos-chave de todos os tópicos numa lista única, pesquisável por palavra.
+* **Progresso salvo:** ao completar o quiz de um tópico, a pontuação fica salva em `localStorage` (mesmo mecanismo de preferências já usado para tema/som) e reaparece como selo no menu do módulo em sessões futuras.
+* **Sobre o conteúdo:** Todo o texto deste módulo é **material original**, escrito especificamente para o CHEM.OS. Não é uma transcrição nem paráfrase de nenhum livro-texto específico — o formato de "caderno de estudos" (notas + mnemônico + exemplos + quiz) é um estilo pedagógico comum a vários guias de estudo, mas o conteúdo, os mnemônicos, os exemplos e as perguntas aqui foram redigidos para este projeto.
+
+### Módulo 25: [DET] Detetive Químico (Identificação de Cátions)
+* **Função:** Jogo de investigação baseado em **química analítica qualitativa real** (a "marcha analítica" simplificada). O aluno recebe uma amostra com um cátion metálico desconhecido — sorteado entre 8 opções (Na⁺, K⁺, Ca²⁺, Sr²⁺, Ba²⁺, Cu²⁺, Fe³⁺, Pb²⁺) — e precisa identificá-lo usando testes de bancada genuínos: cor da solução, teste de chama (cores reais: sódio = amarelo intenso, estrôncio = vermelho-carmim, bário = verde-amarelada etc.) e reações de precipitação com quatro reagentes clássicos (NaOH, Na₂CO₃, H₂SO₄ diluído, HCl diluído).
+* **Jogabilidade:** Cada teste só pode ser rodado uma vez por caso (como na bancada real, onde repetir o mesmo teste não traz informação nova), incentivando o aluno a pensar em qual teste é mais diagnóstico antes de gastar reagente. Ao registrar o veredito, uma ficha do caso é gerada — mostrando quais testes foram (e não foram) realizados, e uma explicação de como identificar aquele cátion com segurança, mesmo quando o palpite está errado.
+* **Progresso:** taxa de acerto e "reputação de detetive" (Estagiário → Novato → Experiente → Mestre) salvas em `localStorage`, acumulando entre sessões.
+* **Validação:** os 8 cátions foram desenhados para serem sempre distinguíveis de forma única a partir apenas da cor da solução + reações de precipitação, mesmo sem o teste de chama (que, de propósito, não é confiável para todo cátion — ex: Fe³⁺ não tem cor de chama característica, um fato real que o próprio jogo ensina).
+* **Impressão:** a ficha do caso pode ser impressa/exportada em PDF pelo mesmo mecanismo de impressão nativa usado no Módulo 23.
+
 ---
 
 ## 4. INTEGRAÇÃO DE APIs EXTERNAS
@@ -274,10 +292,12 @@ Além dos botões interativos, o painel do CLI (`#cli-input`) aceita comandos di
 
 ### Comandos Suportados:
 
-* `1` a `23`: Navegação direta para o módulo correspondente.
+* `1` a `25`: Navegação direta para o módulo correspondente.
 * `estrutura` | `editor`: Abre o editor de estruturas químicas (Módulo 21).
 * `simulacao` | `md`: Abre a simulação molecular de teoria cinética dos gases (Módulo 22).
 * `experimento` | `lab`: Abre o laboratório virtual de experimentos guiados (Módulo 23).
+* `estudar` | `guia`: Abre o guia de estudos de Química Geral (Módulo 24).
+* `detetive` | `caso`: Abre o Detetive Químico (Módulo 25).
 * `home` | `menu` | `cls` | `exit`: Retorna à tela inicial / limpa visualização.
 * `ajuda` | `help`: Abre o modal interativo com instruções detalhadas.
 * `test`: Executa imediatamente a suíte de testes automatizados (Módulo 20).

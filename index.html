@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CHEM.OS v7.0 — Enterprise Laboratory Engine (23 MÓDULOS + TESTES)</title>
+    <title>CHEM.OS v7.0 — Enterprise Laboratory Engine (25 MÓDULOS + TESTES)</title>
 
 
     <link rel="icon" type="image/png" href="https://i.ibb.co/Xx9rGDbt/logo-chem-os.png">
@@ -23,40 +23,43 @@
 </head>
 <body id="app-body" class="h-full flex flex-col crt p-2 md:p-3 select-text">
 
-    <header class="dos-border p-2 mb-2 flex flex-wrap justify-between items-center text-xs md:text-sm bg-black/40">
-        <div class="font-bold tracking-wider">CHEM.OS v7.0 [23 MÓDULOS + SUÍTE DE TESTES]</div>
-        <div>SYS: <span class="animate-pulse text-green-400">ONLINE</span></div>
-        <div>AUDIO: <button id="sound-btn" onclick="toggleSound()" class="underline">[OFF]</button></div>
-        <div>CRT: <button onclick="toggleCRT()" class="underline">[TOGGLE]</button></div>
-        <div id="clock">00:00:00</div>
+    <a href="#cli-input" class="skip-link">Pular para o campo de comando</a>
+
+    <header class="dos-border p-2 mb-2 flex flex-wrap justify-between items-center text-xs md:text-sm bg-black/40" role="banner">
+        <div class="font-bold tracking-wider">CHEM.OS v7.0 [25 MÓDULOS + SUÍTE DE TESTES]</div>
+        <div>SYS: <span id="sys-status" class="animate-pulse text-green-400">ONLINE</span></div>
+        <div>AUDIO: <button id="sound-btn" onclick="toggleSound()" class="underline" aria-pressed="false" aria-label="Ativar ou desativar sons da interface">[OFF]</button></div>
+        <div>CRT: <button onclick="toggleCRT()" class="underline" aria-label="Ativar ou desativar o efeito visual CRT">[TOGGLE]</button></div>
+        <div id="clock" aria-hidden="true">00:00:00</div>
     </header>
 
-    <main id="viewport" class="dos-border flex-grow p-3 md:p-4 overflow-y-auto flex flex-col justify-between relative bg-black/20">
+    <main id="viewport" class="dos-border flex-grow p-3 md:p-4 overflow-y-auto flex flex-col justify-between relative bg-black/20" role="main" aria-label="Conteúdo do módulo selecionado">
         <div id="screen-content" class="w-full"></div>
         <div class="mt-4 pt-2 border-t border-current flex items-center text-lg">
-            <span class="mr-2 font-bold text-xl">&gt;</span>
+            <span class="mr-2 font-bold text-xl" aria-hidden="true">&gt;</span>
+            <label for="cli-input" class="sr-only">Linha de comando: digite um número de módulo (1 a 25) ou um comando</label>
             <input type="text" id="cli-input" class="w-full bg-transparent outline-none tracking-wider"
-                   placeholder="Digite um número (1-23), 'ajuda' ou 'test' para rodar a suíte..."
+                   placeholder="Digite um número (1-25), 'ajuda' ou 'test' para rodar a suíte..."
                    autofocus autocomplete="off">
         </div>
     </main>
 
-    <footer class="dos-border mt-2 p-1 text-xs flex flex-wrap justify-between items-center bg-black/40">
+    <footer class="dos-border mt-2 p-1 text-xs flex flex-wrap justify-between items-center bg-black/40" role="contentinfo">
         <div class="flex gap-3 flex-wrap">
-            <span><strong class="px-1 border border-current cursor-pointer" onclick="showHelp()">F1</strong> Ajuda</span>
+            <span><strong class="px-1 border border-current cursor-pointer" onclick="showHelp()" role="button" tabindex="0" onkeydown="if(event.key==='Enter')showHelp()">F1</strong> Ajuda</span>
             <span><strong class="px-1 border border-current">F2</strong> PubChem API</span>
             <span><strong class="px-1 border border-current">F3</strong> Balanciador</span>
-            <span><strong class="px-1 border border-current cursor-pointer" onclick="renderTool(20)">F4</strong> Testes</span>
+            <span><strong class="px-1 border border-current cursor-pointer" onclick="renderTool(20)" role="button" tabindex="0" onkeydown="if(event.key==='Enter')renderTool(20)">F4</strong> Testes</span>
             <span><strong class="px-1 border border-current">ESC</strong> Menu</span>
         </div>
-        <div class="flex gap-1">
+        <div class="flex gap-1" role="group" aria-label="Escolha de tema de cor">
             <button onclick="setTheme('green')" class="px-1 border border-current hover:bg-current hover:text-black">VERDE</button>
             <button onclick="setTheme('amber')" class="px-1 border border-current hover:bg-current hover:text-black">ÂMBAR</button>
             <button onclick="setTheme('blue')" class="px-1 border border-current hover:bg-current hover:text-black">AZUL</button>
         </div>
     </footer>
 
-    <div id="modal" class="hidden fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-4">
+    <div id="modal" class="hidden fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-hidden="true">
         <div class="dos-border bg-black p-5 max-w-2xl w-full max-h-[85vh] overflow-y-auto">
             <div id="modal-title" class="text-xl font-bold border-b border-current pb-2 mb-3">SISTEMA</div>
             <div id="modal-body" class="text-sm space-y-2"></div>
@@ -67,6 +70,7 @@
     </div>
 
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="js/data/periodic-table-data.js"></script>
     <script src="js/core/formula-engine.js"></script>
     <script src="js/core/api-utils.js"></script>
@@ -82,6 +86,8 @@
     <script src="js/modules/molecular-simulation.js"></script>
     <script src="js/core/chart-engine.js"></script>
     <script src="js/modules/guided-experiments.js"></script>
+    <script src="js/modules/general-chemistry-guide.js"></script>
+    <script src="js/modules/chemistry-detective.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>

@@ -89,6 +89,54 @@
                 name: "Solubilidade: PbCl2, Kps=1,6e-5, p=1,q=2 → s≈0,01587 mol/L",
                 run: () => Math.pow(1.6e-5 / (Math.pow(1,1) * Math.pow(2,2)), 1/3),
                 expected: 0.01587, tolerance: 0.0005
+            },
+
+            /* ---------- Módulo 23 (Laboratório Guiado): testes de consistência ----------
+               O laboratório guiado reimplementa, ponto a ponto, a mesma matemática já
+               usada pelas calculadoras dos Módulos 6/18/19 (em vez de chamar as funções
+               de curva completa, que foram desenhadas para plotar um gráfico inteiro de
+               uma vez). Estes testes existem para pegar qualquer divergência futura
+               entre as duas implementações — ex.: alguém corrige um bug num dos lados
+               e esquece do outro. */
+            {
+                name: "Lab. Guiado (Mód.23): pH no meio da equivalência = pKa (Henderson-Hasselbalch, fraco+forte)",
+                run: () => geComputePHWeakStrong(0.0025, 0.00125, 0.0375, 1.8e-5),
+                expected: 4.745, tolerance: 0.01
+            },
+            {
+                name: "Lab. Guiado (Mód.23): pH na equivalência bate com a hidrólise do Módulo 18 (fraco+forte)",
+                run: () => geComputePHWeakStrong(0.0025, 0.0025, 0.05, 1.8e-5),
+                expected: 8.722, tolerance: 0.01
+            },
+            {
+                name: "Lab. Guiado (Mód.23): titulação forte+forte dá pH=7,00 exatamente na equivalência",
+                run: () => geComputePH(0.0025, 0.0025, 0.05),
+                expected: 7.00, tolerance: 0.001
+            },
+            {
+                name: "Lab. Guiado (Mód.23): solubilidade em água pura bate com o Módulo 19 (PbCl2)",
+                run: () => geSolubilityPureWater(1, 2, 1.6e-5),
+                expected: 0.01587, tolerance: 0.0005
+            },
+            {
+                name: "Lab. Guiado (Mód.23): efeito do íon comum bate com o Newton-Raphson do Módulo 19 (PbCl2 + Cl⁻ 0,05M)",
+                run: () => geComputeSolubility(1, 2, 1.6e-5, 0.05, "anion"),
+                expected: 0.0045735, tolerance: 0.0001
+            },
+            {
+                name: "Lab. Guiado (Mód.23): efeito do íon comum bate com o Newton-Raphson do Módulo 19 (AgCl + Cl⁻ 0,01M)",
+                run: () => geComputeSolubility(1, 1, 1.8e-10, 0.01, "anion"),
+                expected: 1.8e-8, tolerance: 1e-9
+            },
+            {
+                name: "Lab. Guiado (Mód.23): base fraca+ácido forte — meio-equivalência dá pH=14-pKb (espelho do fraco+forte)",
+                run: () => geComputePHWeakBaseStrongAcid(0.0025, 0.00125, 0.0375, 1.8e-5),
+                expected: 9.255, tolerance: 0.01
+            },
+            {
+                name: "Lab. Guiado (Mód.23): base fraca+ácido forte — equivalência ácida bate com hidrólise do cátion conjugado",
+                run: () => geComputePHWeakBaseStrongAcid(0.0025, 0.0025, 0.05, 1.8e-5),
+                expected: 5.278, tolerance: 0.01
             }
         ];
 
