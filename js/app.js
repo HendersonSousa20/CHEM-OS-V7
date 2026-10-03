@@ -17,8 +17,14 @@
                 else if (cmd === "simulacao" || cmd === "simulação" || cmd === "md") { renderTool(22); }
                 else if (cmd === "experimento" || cmd === "laboratorio" || cmd === "lab") { renderTool(23); }
                 else if (cmd === "estudar" || cmd === "guia") { renderTool(24); }
+                else if (cmd === "formula" || cmd === "fórmula") { renderTool(27); }
+                else if (cmd === "ligacao" || cmd === "ligação" || cmd === "en") { renderTool(31); }
+                else if (cmd === "nox" || cmd === "oxidacao" || cmd === "oxidação") { renderTool(30); }
+                else if (cmd === "mol") { renderTool(29); }
+                else if (cmd === "quiz") { renderTool(28); }
+                else if (cmd === "conversor" || cmd === "conv") { renderTool(26); }
                 else if (cmd === "detetive" || cmd === "caso") { renderTool(25); }
-                else if (!isNaN(cmd) && cmd >= 1 && cmd <= 25) renderTool(parseInt(cmd));
+                else if (!isNaN(cmd) && cmd >= 1 && cmd <= 31) renderTool(parseInt(cmd));
                 else if (cmd.startsWith("pubchem ")) { renderTool(2); document.getElementById("pubchem-input").value = cmd.substring(8); runPubChemSearch(); }
                 else if (cmd.startsWith("balance ")) { renderTool(1); document.getElementById("eq-input").value = raw.substring(8); runBalancer(); }
                 else if (cmd.startsWith("resolve ")) { renderTool(13); document.getElementById("resolver-input").value = raw.substring(8); runNameResolver(); }

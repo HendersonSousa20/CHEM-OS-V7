@@ -2,6 +2,23 @@
            9. MÓDULO 20 — SUÍTE DE TESTES AUTOMATIZADOS
            ========================================================================== */
         const TEST_CASES = [
+            { name: "ΔEN do NaCl = 2,23 (iônica)", run: () => ChemBond.analyze("Na", "Cl").delta, expected: 2.23, tolerance: 0.001 },
+            { name: "ΔEN do HCl = 0,96 (covalente polar)", run: () => ChemBond.analyze("H", "Cl").delta, expected: 0.96, tolerance: 0.001 },
+            { name: "Tipo de ligação O–O = Covalente apolar", run: () => ChemBond.analyze("O", "O").type, expected: "Covalente apolar" },
+            { name: "Configuração eletrônica do Fe = [Ar] 3d6 4s2", run: () => ChemConfig.config(26).text, expected: "[Ar] 3d6 4s2" },
+            { name: "Configuração eletrônica do Cu (exceção) = [Ar] 3d10 4s1", run: () => ChemConfig.config(29).text, expected: "[Ar] 3d10 4s1" },
+            { name: "NOX do Mn no KMnO4 = +7", run: () => ChemOx.analyze("KMnO4", "0").value, expected: 7, tolerance: 0.0001 },
+            { name: "NOX do Cr no Cr2O7 (2−) = +6", run: () => ChemOx.analyze("Cr2O7", "2-").value, expected: 6, tolerance: 0.0001 },
+            { name: "NOX do N no NH3 = −3", run: () => ChemOx.analyze("NH3", "0").value, expected: -3, tolerance: 0.0001 },
+            { name: "Mol: 18,015 g de H2O = 1 mol", run: () => ChemMole.compute("H2O", 18.015).mols, expected: 1, tolerance: 0.001 },
+            { name: "Composição: %O em H2O ≈ 88,81 %", run: () => ChemMole.compute("H2O", 1).rows.find(r => r.el === "O").pct, expected: 88.81, tolerance: 0.05 },
+            { name: "Fórmula molecular da glicose (40 % C, 6,71 % H, 53,29 % O; M = 180) = C6H12O6", run: () => ChemTools.empirical("C 40\nH 6.71\nO 53.29", 180).molecular, expected: "C6H12O6" },
+            { name: "Fórmula empírica do etano (C 79,89 %, H 20,11 %) = CH3", run: () => ChemTools.empirical("C 79.89\nH 20.11").empirical, expected: "CH3" },
+            { name: "Conversor: 1 atm = 760 mmHg", run: () => ChemUnits.convert("Pressão", 1, "atm", "mmHg"), expected: 760, tolerance: 0.001 },
+            { name: "Conversor: 25 °C = 298,15 K", run: () => ChemUnits.convert("Temperatura", 25, "°C", "K"), expected: 298.15, tolerance: 0.001 },
+            { name: "Conversor: 100 °C = 212 °F", run: () => ChemUnits.convert("Temperatura", 100, "°C", "°F"), expected: 212, tolerance: 0.001 },
+            { name: "Conversor: 1 kcal = 4,184 kJ", run: () => ChemUnits.convert("Energia", 1, "kcal", "kJ"), expected: 4.184, tolerance: 0.0001 },
+            { name: "Entrada com vírgula decimal: \"0,25\" → 0.25", run: () => parseFloat("0,25"), expected: 0.25, tolerance: 0.000001 },
             {
                 name: "Massa molar: H2O ≈ 18,015 g/mol",
                 run: () => parseFormula("H2O").totalMass,

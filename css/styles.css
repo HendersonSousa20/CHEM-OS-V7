@@ -13,8 +13,8 @@
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: var(--bg-color); border: 1px solid var(--border-color); }
         ::-webkit-scrollbar-thumb { background: var(--text-color); }
-        .test-pass { color: #00FF66; }
-        .test-fail { color: #FF4444; }
+        .test-pass { color: var(--ok-color, #00FF66); }
+        .test-fail { color: var(--err-color, #FF4444); }
 
         /* ==========================================================================
            MOTION DESIGN — transições, microinterações e feedback visual
@@ -164,3 +164,119 @@
             #ge-report-print, #cd-report-print { position: absolute; left: 0; top: 0; width: 100%; color: #000 !important; background: #fff !important; }
             #ge-report-print *, #cd-report-print * { color: #000 !important; background: #fff !important; border-color: #000 !important; }
         }
+
+/* ==========================================================================
+   MELHORIAS v7.1 — menu categorizado, toast, mobile, impressão
+   ========================================================================== */
+:root { color-scheme: dark; }
+html { scrollbar-gutter: stable; }
+.menu-heading { font-weight: 700; font-size: .85rem; letter-spacing: .12em; opacity: .75; border-bottom: 1px dashed var(--border-color); margin-bottom: 4px; padding-bottom: 2px; }
+.menu-item { text-align: left; padding: 4px 6px; border: 1px solid transparent; }
+.menu-item:hover, .menu-item:focus-visible { border-color: currentColor; background: currentColor; }
+.menu-item:hover, .menu-item:focus-visible { color: #000; }
+.menu-item.yellow { color: #fde047; border-color: #facc15; } .menu-item.yellow:hover { background: #facc15; color: #000; }
+.menu-item.cyan { color: #67e8f9; border-color: #22d3ee; } .menu-item.cyan:hover { background: #22d3ee; color: #000; }
+.menu-item:hover { background: var(--text-color); }
+.menu-num { display: inline-block; min-width: 2ch; font-weight: 700; opacity: .8; }
+#menu-filter { padding: 4px 2px; }
+#toast { position: fixed; left: 50%; bottom: 18px; transform: translate(-50%, 20px); opacity: 0; pointer-events: none; z-index: 60; background: var(--bg-color); color: var(--text-color); border: 2px solid var(--border-color); padding: 6px 12px; max-width: 92vw; transition: opacity .2s, transform .2s; }
+#toast.show { opacity: 1; transform: translate(-50%, 0); }
+@media (max-width: 640px) {
+  body { font-size: 1.1rem; }
+  .dos-btn, #screen-content button, header button, footer button { min-height: 36px; }
+  input, select, textarea { font-size: 16px; } /* evita zoom automático no iOS */
+}
+@media print {
+  .crt::before, header, footer, #cli-input, .skip-link, #toast { display: none !important; }
+  body { background: #fff; color: #000; } .dos-border { border-color: #000; }
+  #viewport { overflow: visible !important; }
+}
+
+/* v7.2 */
+.menu-item.hidden { display: none; }
+#fav-toggle[aria-pressed="true"] { background: var(--text-color); color: var(--bg-color); }
+
+/* v7.3 */
+.pal-sel { background: var(--text-color); color: var(--bg-color); }
+@media print { #screen-content .dos-btn, #screen-content > div.mb-2 { display: none !important; } }
+
+/* ==========================================================================
+   v8 — tema PAPEL (claro) para sala de aula e impressão
+   ========================================================================== */
+.theme-paper { --bg-color: #f6f2e7; --text-color: #1b1b1b; --accent-color: #0b6b3a; --border-color: #1b1b1b; --ok-color: #0a6b2f; --err-color: #b00020; --warn-color: #b00020; color-scheme: light; }
+.theme-paper.crt::before { display: none; }
+.theme-paper .bg-black\/40, .theme-paper .bg-black\/20 { background-color: rgba(255,255,255,.55); }
+.theme-paper #modal { background-color: rgba(246,242,231,.9); }
+.theme-paper #modal .bg-black, .theme-paper select.bg-black { background-color: #fff; }
+.theme-paper .text-yellow-300, .theme-paper .menu-item.yellow { color: #7a5c00; border-color: #7a5c00; }
+.theme-paper .text-cyan-300, .theme-paper .menu-item.cyan { color: #0b5a73; border-color: #0b5a73; }
+.theme-paper .text-green-400 { color: #0b6b3a; }
+.theme-paper .menu-item:hover, .theme-paper .menu-item.yellow:hover, .theme-paper .menu-item.cyan:hover { color: #fff; background: #1b1b1b; }
+.theme-paper .chem-img { filter: none; mix-blend-mode: multiply; }
+select.dos-input { background-color: var(--bg-color); color: var(--text-color); }
+
+/* v8.1 — validação de campos */
+.field-warn { display: block; color: var(--warn-color, #ff6b6b); font-size: .85rem; margin-top: 2px; }
+[aria-invalid="true"] { border-bottom-color: #ff6b6b !important; }
+
+/* v8.6 — tabela periódica */
+#pt-legend [aria-pressed="true"] { background: var(--text-color); color: var(--bg-color); }
+
+/* v8.7 — impressão da tabela periódica com cores */
+@media print { #ptable-grid [onclick] { -webkit-print-color-adjust: exact; print-color-adjust: exact; } #ptable-grid { overflow: visible !important; } }
+
+/* v8.14 — acessibilidade */
+:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+[role="button"][data-kb]:focus-visible { outline-offset: -2px; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  .crt::before { display: none; }
+}
+
+/* v8.15 — contraste (verificado por tests/contrast.js) */
+body .opacity-60 { opacity: .72; }
+.theme-blue .text-red-400, .theme-blue .text-red-500 { color: #ff9a9a; }
+.theme-paper .text-red-400, .theme-paper .text-red-500 { color: #b00020; }
+.theme-paper .text-yellow-400 { color: #7a5c00; }
+.theme-paper .text-cyan-400 { color: #0b5a73; }
+
+/* ==========================================================================
+   v9.0 — UX: trilhas, ajuda por módulo, barra inferior, modo leitura, rede
+   ========================================================================== */
+.menu-desc { font-size: .78rem; opacity: .8; line-height: 1.25; font-weight: 400; }
+.track { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin-bottom: 6px; font-size: .85rem; }
+.track strong { min-width: 9.5rem; }
+.track-step { padding: 2px 8px; }
+.mod-desc { opacity: .88; }
+.live-flag { border: 1px solid currentColor; padding: 0 5px; font-size: .75rem; white-space: nowrap; }
+.mod-help summary { cursor: pointer; font-weight: 700; padding: 2px 0; }
+.mod-help[open] { border-left: 3px solid currentColor; padding-left: 8px; }
+abbr.gloss { text-decoration: underline dotted; cursor: help; }
+.bar-more { display: inline; }
+.bar-more-toggle { display: none; }
+#net-bar { position: fixed; top: 8px; left: 50%; transform: translateX(-50%); z-index: 70; display: none; gap: 8px; align-items: center; background: var(--bg-color); color: var(--text-color); border: 2px solid var(--border-color); padding: 4px 10px; max-width: 94vw; }
+#mobile-nav { display: none; }
+html.reading-mode body { font-family: 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace; font-size: 1.05rem; line-height: 1.65; letter-spacing: .01em; }
+html.reading-mode .crt::before { display: none; }
+html.reading-mode #screen-content .dos-border { padding: .75rem; }
+/* consistência entre módulos */
+#screen-content .dos-btn { padding: 4px 10px; min-height: 34px; }
+#screen-content .dos-input { min-height: 34px; }
+#screen-content .text-xl { margin-bottom: .5rem; line-height: 1.25; }
+@media (max-width: 640px) {
+  footer { display: none; }
+  body { padding-bottom: calc(64px + env(safe-area-inset-bottom)) !important; }
+  #mobile-nav { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; background: var(--bg-color); border-top: 2px solid var(--border-color); padding-bottom: env(safe-area-inset-bottom); }
+  #mobile-nav button { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0; padding: 6px 2px; min-height: 52px; color: var(--text-color); font-size: 1.3rem; line-height: 1.1; }
+  #mobile-nav button span { font-size: .7rem; letter-spacing: .05em; }
+  .bar-more { display: none; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+  .bar-more.open { display: flex; }
+  .bar-more-toggle { display: inline-block; }
+  .track strong { min-width: 100%; }
+}
+@media print { #mobile-nav, #net-bar, .mod-help { display: none !important; } }
+
+/* v9.6 — conversor de unidade por campo e navegação da trilha */
+.unit-btn { font-size: .72rem; padding: 0 6px !important; min-height: 24px !important; margin-top: 3px; display: inline-block; opacity: .9; }
+.track-nav { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 1.25rem; padding-top: .6rem; border-top: 1px dashed var(--border-color); font-size: .85rem; }
+@media print { .unit-btn, .track-nav { display: none !important; } }

@@ -9,16 +9,9 @@
         function renderHomeInner() {
             const screen = document.getElementById("screen-content");
             screen.innerHTML = `
-<pre class="font-bold leading-none text-xs md:text-sm mb-3 hidden sm:block">
- ██████╗██╗  ██╗███████╗███╗   ███╗  ██████╗ ███████╗   ██╗   ██╗██████╗ 
-██╔════╝██║  ██║██╔════╝████╗ ████║  ██╔══██╗██╔════╝   ██║   ██║██╔══██╗
-██║     ███████║█████╗  ██╔████╔██║  ██║  ██║███████╗   ██║   ██║██████╔╝
-██║     ██╔══██║██╔══╝  ██║╚██╔╝██║  ██║  ██║╚════██║   ╚██╗ ██╔╝██╔═══╝ 
-╚██████╗██║  ██║███████╗██║ ╚═╝ ██║  ██████╔╝███████║    ╚████╔╝ ██║     
- ╚═════╝╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝  ╚═════╝ ╚══════╝     ╚═══╝  ╚═╝     
-</pre>
+<div class="font-bold leading-none text-5xl md:text-7xl mb-3 tracking-wider" aria-hidden="true">CHEM.OS <span class="opacity-70">V10</span></div>
 <div class="border-b border-current pb-2 mb-3">
-    <div class="text-xl font-bold">CHEM.OS v7.0 Enterprise Laboratory Engine [25 MÓDULOS]</div>
+    <div class="text-xl font-bold">CHEM.OS v10 Enterprise Laboratory Engine [31 MÓDULOS]</div>
     <div class="text-xs opacity-80">Pressione F1 para o guia de uso, ou F4 / digite "test" para validar todos os motores de cálculo.</div>
 </div>
 
@@ -47,7 +40,13 @@
     <button onclick="renderTool(22)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">22. [SIM] Simulação Molecular (Teoria Cinética dos Gases)</button>
     <button onclick="renderTool(23)" class="text-left p-1 border border-cyan-400 hover:bg-cyan-400 hover:text-black text-cyan-300 font-bold">23. [LAB] Experimentos Guiados (Laboratório Virtual — 4 experimentos)</button>
     <button onclick="renderTool(24)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">24. [LIV] Fundamentos de Química Geral (Guia de Estudos)</button>
-    <button onclick="renderTool(25)" class="text-left p-1 border border-cyan-400 hover:bg-cyan-400 hover:text-black text-cyan-300 font-bold">25. [DET] Detetive Químico (Identificação de Cátions) — NOVO</button>
+    <button onclick="renderTool(25)" class="text-left p-1 border border-cyan-400 hover:bg-cyan-400 hover:text-black text-cyan-300 font-bold">25. [DET] Detetive Químico (Identificação de Cátions)</button>
+    <button onclick="renderTool(26)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">26. [UNI] Conversor de Unidades</button>
+    <button onclick="renderTool(27)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">27. [FRM] Fórmula Empírica e Molecular</button>
+    <button onclick="renderTool(28)" class="text-left p-1 border border-cyan-400 hover:bg-cyan-400 hover:text-black text-cyan-300 font-bold">28. [QUIZ] Quiz da Tabela Periódica</button>
+    <button onclick="renderTool(29)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">29. [MOL] Mol, Massa e Composição Percentual</button>
+    <button onclick="renderTool(30)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">30. [NOX] Número de Oxidação (Regras e Cálculo)</button>
+    <button onclick="renderTool(31)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">31. [LIG] Eletronegatividade e Tipo de Ligação — NOVO</button>
 </div>
 `;
             screenAnimateIn();

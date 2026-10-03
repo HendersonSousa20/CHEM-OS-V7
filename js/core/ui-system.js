@@ -119,8 +119,8 @@
         function maybeShowOnboardingTour() {
             const prefs = loadPrefs();
             if (prefs.onboardingSeen) return;
-            openModal("BEM-VINDO AO CHEM.OS v7.0", `
-                <div class="text-sm mb-3">Este é um laboratório de química com 24 módulos — de calculadoras rápidas a um laboratório virtual guiado. Não sabe por onde começar? Algumas sugestões:</div>
+            openModal("BEM-VINDO AO CHEM.OS v10", `
+                <div class="text-sm mb-3">Este é um laboratório de química com 31 módulos — de calculadoras rápidas a um laboratório virtual guiado. Não sabe por onde começar? Algumas sugestões:</div>
                 <div class="space-y-2 text-xs mb-3">
                     <div class="dos-border p-2"><strong>Precisa revisar a base primeiro?</strong> O módulo <strong>24 — Guia de Estudos</strong> resume os fundamentos de Química Geral (mol, pH, ligações, gases...) com mnemônicos e mini-quiz.</div>
                     <div class="dos-border p-2"><strong>Novo por aqui?</strong> Comece pelo módulo <strong>3</strong> (massa molar) ou <strong>1</strong> (balanciador) — são os mais diretos.</div>
@@ -225,5 +225,5 @@
                     <strong>Sobre a precisão dos dados:</strong> este software usa APIs públicas gratuitas e uma base termodinâmica local limitada. Não substitui uma FISPQ/SDS oficial nem validação em laboratório. Use para fins didáticos.
                 </div>
             `;
-            openModal("AJUDA — CHEM.OS v7.0", body);
+            openModal("AJUDA — CHEM.OS v10", body);
         }

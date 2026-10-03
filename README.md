@@ -1,3 +1,149 @@
+# CHEM.OS v10 — Refinamento de UI/UX
+
+* **Início sem "pulo":** focar a linha de comando não rola mais a página para o fim; cada troca de tela volta ao topo.
+* **Cartões de módulo** com realce, brilho e barra lateral ao passar o mouse/focar; botões com estado pressionado e foco bem visível.
+* **Campos** com brilho ao focar; **resultados** piscam suavemente quando mudam; tabelas largas rolam dentro do próprio bloco.
+* **Cabeçalho e linha de comando fixos** (com desfoque), botão **↑ voltar ao topo**.
+* **Celular:** cabeçalho enxuto, alvos de toque de 44 px, rodapé sem atalhos de teclado.
+* **Enter calcula:** em qualquer módulo, Enter num campo aciona o botão da própria linha (ex.: BUSCAR) ou o botão principal (CALCULAR...).
+* **Foco automático** no primeiro campo ao abrir um módulo (computador) e **seleção do valor** ao focar, para digitar por cima.
+* **Legibilidade:** textos pequenos têm tamanho mínimo maior; resultados ganham barra lateral e fundo próprio.
+* Textos desatualizados corrigidos (boas-vindas "v7.0 / 24 módulos" → v10 / 31 módulos).
+
+* Estilos novos em `css/ui-v10.css` e `js/core/ui-v10.js`. Depois de editar qualquer `css/*.css`, rode `node build-inline.js` (ou `npm run build:inline`) para atualizar o CSS embutido no `index.html`.
+
+# CHEM.OS v9.6 — Novidades
+
+* **Conversor de unidade ao lado dos campos (⇄):** 30 campos (volume em mL ou L, pressão em atm, temperatura em K, concentração em mol/L) têm um botão que converte de outra unidade (mmHg, kPa, °C, °F, mL, µL, mmol/L...) e escreve o valor no campo.
+* **Trilhas:** no fim de cada módulo, botões para o módulo anterior e o próximo da trilha.
+* **Balanceador:** passo a passo com a conferência de átomos de cada elemento nos dois lados.
+* Atalho **?** abre a ajuda.
+
+## v9.5 — Novidades
+
+* **Vírgula decimal padronizada:** os resultados dos cálculos agora aparecem com vírgula (pt-BR), igual ao passo a passo. Em Ajustes dá para voltar a "como vem do módulo". Fórmulas (CuSO4.5H2O), nomes IUPAC e os módulos PubChem/Nomenclatura não são alterados.
+
+## v9.4 — Novidades
+
+* **Passo a passo na estequiometria (módulo 8):** mols de cada reagente, divisão pelos coeficientes, reagente limitante e massa teórica dos produtos — 15 módulos no total.
+* **"Sobre e limitações"** (Ajustes → Sobre, ou Ctrl+K): de onde vêm os dados, o que é aproximado e o que ainda não foi revisado por um professor.
+
+## v9.3 — Novidades
+
+* **Passo a passo em mais três módulos:** massa molar (3), termoquímica (9, o passo ΔG° = ΔH° − T·ΔS°) e constante de equilíbrio Kc (15) — agora são 14 módulos.
+* **Roteiro de teste de usabilidade** em `docs/ROTEIRO-TESTE-USABILIDADE.md`: tarefas, folha de registro, perguntas finais e questionário SUS.
+
+## v9.2 — Novidades
+
+* **Passo a passo em mais cinco módulos:** cinética (14), titulação forte-forte (16), Beer-Lambert (17), titulação de ácido fraco (18) e solubilidade/Kps (19) — agora são 11 módulos com passo a passo conferido contra o resultado do módulo.
+
+## v9.1 — Novidades
+
+* **Passo a passo dos resultados** nos módulos 4 (preparo), 5 (diluição), 6 (ácido fraco), 10 (tampão), 11 (gases) e 12 (Nernst): fórmula, substituição com os seus números e unidades. O passo a passo é recalculado de forma independente e **só aparece se concordar (±1 %) com o resultado do módulo**.
+
+## v9.0 — Novidades (UX)
+
+* **Início:** descrição de uma linha em cada módulo (também pesquisável), **trilhas sugeridas** com ✓ nos módulos já visitados, botão "Continuar" e caixa de boas-vindas na primeira visita.
+* **Em cada módulo:** descrição + painel "Teoria, fórmula e glossário" (com termos como Ka, pKa e Kps explicados ao passar o mouse).
+* **Cálculo ao vivo** (⚡) em 17 módulos: o resultado aparece ao abrir e atualiza ao digitar; liga/desliga em Ajustes. **Casas decimais** configuráveis (2, 3, 4, 6 ou automático).
+* **Celular:** barra inferior (Menu, Buscar, Favoritos, Ajustes), ações do módulo recolhidas em "⋯ MAIS" e painel de **Ajustes** com tema, texto, efeitos e backup.
+* **Modo leitura:** fonte mais legível, espaçamento maior e sem efeito CRT.
+* **Internet:** indicador "Consultando servidor…", botão **CANCELAR** e mensagem clara quando está offline.
+* **Favoritos e progresso:** painel único com módulos visitados, favoritos, recentes, histórico e quiz.
+* Botões e campos padronizados em todos os módulos.
+
+## v8.17
+
+* **Editor de estruturas:** nova ferramenta **MOVER** — arraste átomos com mouse, toque ou caneta para reposicionar a estrutura (o desfazer/refazer acompanha cada movimento).
+* **Tabela periódica:** o contraste do texto sobre as cores de fundo das células agora é verificado nos 5 temas e 4 famílias de modos de cor (`npm run test:contrast`); a intensidade da cor nos modos de propriedade foi reduzida de 40 % para 30 % para o tema âmbar passar de 4,5:1.
+
+## v8.16
+
+* **Editor de estruturas (Módulo 21):** botão e atalho **Refazer** (Ctrl+Y ou Ctrl+Shift+Z), **11 modelos prontos** (água, amônia, metano, etano, eteno, etino, metanol, etanol, CO₂, ácido acético, benzeno), **aviso de valência excedida** (anel vermelho no átomo e mensagem), aviso de **partes desconectadas** e **grau de insaturação** calculado a partir da fórmula.
+
+## v8.15
+
+* **Contraste WCAG nos 5 temas** (verde, âmbar, azul, mono, papel), conferido por `npm run test:contrast`: texto base, textos esmaecidos, cores de OK/erro/aviso e as cores Tailwind de texto usadas. Corrigidos: erros e avisos ilegíveis no tema PAPEL (verde-limão e vermelho claro sobre fundo creme), vermelho no tema AZUL e texto auxiliar muito apagado.
+
+## v8.14
+
+* **Acessibilidade (auditada em todos os módulos com `npm run test:a11y`):** todos os campos têm nome para leitores de tela; os controles clicáveis (como as células da tabela periódica) funcionam com Tab, Enter e Espaço; os gráficos têm rótulo; a troca de módulo é anunciada; o diálogo modal prende o foco, devolve o foco ao fechar e tem papel de diálogo; animações e o efeito CRT são desligados para quem pede "reduzir movimento" no sistema.
+
+## v8.13
+
+* **Simulação molecular:** sub-passos automáticos quando as partículas são rápidas (evita que atravessem umas às outras) e **8 gases novos** (He, Ne, Ar, CH₄, CO₂, Cl₂, Kr, Xe).
+* **Laboratório virtual:** o relatório agora desenha o **gráfico da derivada** (inclinação × volume) com o ponto estimado e o teórico.
+
+## v8.12
+
+* **Laboratório virtual (Módulo 23):** o relatório ganhou a **análise pela 1ª derivada** (estima o ponto de equivalência pelo máximo de ΔLeitura/ΔV, compara com o valor teórico e avisa se faltam pontos perto do salto) e **exportação CSV** dos dados (separador `;`, vírgula decimal, abre direto no Excel pt-BR).
+* **Atalhos na bancada:** A (+1 mL), S (+0,1 mL), D (+0,05 mL), Z (desfazer), R (registrar ponto), V (marcar viragem).
+* `npm run test:lab` confere a derivada com uma curva de titulação calculada.
+
+## v8.11
+
+* **Simulação molecular:** passo de tempo fixo (1/60 s) — a velocidade agora é a mesma em monitores de 60, 120 ou 144 Hz. Novo controle de **volume da caixa** (pistão): reduzir o volume aumenta a pressão e **P × A fica ≈ constante** (lei de Boyle). O teste `npm run test:sim` verifica essa relação.
+
+## v8.10
+
+* **Simulação molecular (Módulo 22):** velocidade 0,25×/0,5×/1× (câmera lenta), partículas coloridas pela velocidade (azul lenta → vermelha rápida) e **pressão relativa nas paredes**, medida pelo impulso das colisões — dobrar N ou T dobra a pressão (P ∝ N·T). `npm run test:sim` verifica isso.
+
+## v8.9
+
+* **Tabela Periódica:** novos modos de cor **1ª energia de ionização (eV)** e **raio atômico (pm)**, com legenda e valores no painel de detalhes (dados em `js/data/periodic-properties.js`).
+* **Editor de estruturas (Módulo 21):** Ctrl/Cmd+Z desfaz a última ação.
+* **Testes numéricos dos módulos de cálculo:** `npm run test:calc` confere pH de ácido fraco, tampão, diluição, gás ideal, preparo de solução, titulação e Nernst pela própria interface.
+
+## v8.8
+
+* **Módulo 31 — Eletronegatividade e tipo de ligação:** ΔEN de Pauling entre dois elementos → apolar / polar / iônica, caráter iônico percentual, direção do dipolo (δ+ → δ−) e exemplos prontos. Dados locais (Z = 1–92, sem He, Ne, Ar). Comando: `ligacao`.
+* **Tabela Periódica:** novo modo de cor "Eletronegatividade (Pauling)" e o valor no painel de detalhes.
+
+## v8.7
+
+* **Tabela Periódica — modos de cor:** além de Categoria, agora dá para colorir por **massa atômica** (gradiente), **período** ou **bloco s/p/d/f**, com legenda própria. A impressão (botão PDF) mantém as cores.
+
+## v8.6
+
+* **Tabela Periódica (Módulo 7):** células coloridas por categoria, legenda clicável que destaca uma família (combina com a busca) e bloco "DADOS LOCAIS" ao clicar num elemento — massa, grupo, período, bloco e **configuração eletrônica calculada** (Madelung + 19 exceções), tudo offline. A busca salva também é reaplicada ao reabrir o módulo.
+
+## v8.5
+
+* **Módulo 30 — Número de oxidação (NOX):** calcula o NOX do elemento sem regra fixa (KMnO4 → Mn +7; Cr2O7 com carga 2- → Cr +6; Fe3O4 → +8/3), aceita íons e mostra a tabela de regras aplicadas. Comando: `nox`.
+* **Links com valores:** o botão LINK copia um endereço (`#/m/4?p-conc=0.5&...`) que reabre o módulo com os campos preenchidos e já calcula.
+* **Ajuda (F1):** nova seção com os atalhos e comandos da v8.
+
+## v8.4
+
+* **Módulo 29 — Mol, massa e composição percentual:** fórmula + massa (ou mols) → massa molar, mols, unidades-fórmula, átomos de cada elemento e % em massa com barras. Comando: `mol`.
+* **Balanceador (Módulo 1):** lista de 8 reações prontas para carregar e balancear com um clique.
+* **Quiz:** modo "Revisar meus erros" — os elementos errados ficam salvos e voltam até você acertar.
+
+## v8.3
+
+* **Módulo 27 — Fórmula empírica e molecular:** a partir de % em massa (ou gramas) de cada elemento, mostra mols, razões, fórmula empírica e, se informada a massa molar, a molecular. Comando: `formula`.
+* **Módulo 28 — Quiz da Tabela Periódica:** 10 perguntas em 4 modos (símbolo, nome, nº atômico, família) e 3 faixas de elementos, com teclas 1–4 e recorde salvo. Comando: `quiz`.
+
+## v8.2
+
+* **Fontes locais:** VT323 e IBM Plex Mono agora ficam em `fonts/` (licença OFL) e são carregadas por `css/fonts.css`. O Google Fonts foi removido: sem conexões externas para o visual, sem atraso de fonte e 100 % offline.
+* **Suíte de testes ampliada (Módulo 20):** casos para o conversor de unidades e para a leitura de vírgula decimal.
+
+## v8.1
+
+* **CSS compilado:** o Tailwind via CDN foi removido. O visual agora vem de `css/tailwind.css` (local), então carrega mais rápido e funciona 100% offline. Para regerar após mudar classes: `npm install && npm run build:css`.
+* **Validação de campos:** valores impossíveis (negativos, pureza > 100 %, nº de elétrons não inteiro) são sinalizados na hora, sem bloquear o cálculo.
+
+## v8.0
+
+* **Módulo 26 — Conversor de unidades** (pressão, energia, volume, massa, temperatura), ao vivo, com vírgula ou ponto decimal.
+* **Tema PAPEL (claro)** e controle de tamanho do texto (A− / A+), lembrados entre sessões.
+* **Backup e restauração** de favoritos, histórico, campos e progresso (paleta Ctrl+K → "Exportar backup").
+* Menu categorizado com busca, paleta de comandos (Ctrl+K), links por módulo (`#/m/N`), favoritos e recentes.
+* Campos lembrados por módulo, histórico de cálculos (`historico`), copiar/TXT/PDF dos resultados, vírgula decimal global.
+* Instalável e offline (PWA) em https ou localhost. Código das melhorias em `js/core/ux-extras*.js`, `v8-extras.js` e `js/modules/unit-converter.js`.
+
+---
 
 # DOCUMENTAÇÃO TÉCNICA E FUNCIONAL — CHEM.OS v7.0
 **Enterprise Laboratory Engine & Chemical Computation Suite**

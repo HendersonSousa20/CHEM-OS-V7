@@ -1,0 +1,36 @@
+/* v9.0 — Ajuda por módulo: [descrição curta, fórmula-chave, explicação, nome curto] + glossário (mostrado como dica ao passar o mouse). */
+window.MODULE_HELP = {
+  1: ["Balanceia equações químicas resolvendo um sistema linear.", "Σ(coef × átomos de X) nos reagentes = Σ(coef × átomos de X) nos produtos", "Cada elemento gera uma equação; o módulo acha os menores coeficientes inteiros que conservam a massa. Escolha um exemplo pronto ou digite a sua.", "Balanceador"],
+  2: ["Busca propriedades, segurança (GHS) e resumo de um composto na internet.", "Fonte: PubChem (NIH) e Wikipédia", "Digite o nome ou a fórmula. Precisa de internet e pode levar alguns segundos; use CANCELAR se demorar.", "PubChem"],
+  3: ["Calcula a massa molar de qualquer fórmula, inclusive hidratos.", "M = Σ (nᵢ × Mᵢ)", "Multiplique a massa atômica de cada elemento pela sua quantidade e some. Aceita (), [] e hidratos como CuSO4.5H2O.", "Massa molar"],
+  4: ["Mostra quanto soluto pesar para preparar uma solução.", "m = C × V × M ÷ (pureza/100)", "C em mol/L, V em L e M é a massa molar. Para líquidos concentrados, a densidade permite converter massa em volume.", "Preparo de soluções"],
+  5: ["Calcula volume ou concentração numa diluição.", "C₁ · V₁ = C₂ · V₂", "O número de mols do soluto não muda ao diluir. Deixe vazio o campo que você quer descobrir.", "Diluição"],
+  6: ["pH de um ácido fraco a partir de Ka e concentração.", "Ka = x² ÷ (C − x)  →  pH = −log x", "x é a [H⁺] no equilíbrio, obtida pela equação quadrática. Quanto menor o Ka, menor a ionização e maior o pH.", "pH de ácido fraco"],
+  7: ["Explore os elementos com cores por família, massa, eletronegatividade e mais.", "Z = nº de prótons · grupo = coluna · período = linha", "Clique num elemento para ver dados e configuração eletrônica. Use a legenda para destacar famílias.", "Tabela periódica"],
+  8: ["Acha o reagente limitante e o rendimento de uma reação.", "n = m ÷ M · limitante = menor (n ÷ coeficiente)", "Converta as massas em mols, divida pelo coeficiente da equação balanceada e compare: o menor valor limita a reação.", "Estequiometria"],
+  9: ["Calcula ΔH, ΔS e ΔG de uma reação.", "ΔG = ΔH − T · ΔS", "ΔG negativo indica reação espontânea naquela temperatura. Use T em kelvin.", "Termoquímica"],
+  10: ["pH de uma solução-tampão.", "pH = pKa + log([base] ÷ [ácido])", "Quando [base] = [ácido], o pH é igual ao pKa. O tampão resiste a pequenas adições de ácido ou base.", "Tampões"],
+  11: ["Lei dos gases ideal e combinada.", "PV = nRT  ·  P₁V₁ ÷ T₁ = P₂V₂ ÷ T₂", "Use T em kelvin. R = 0,082057 L·atm/(mol·K). Deixe vazio o que quer calcular.", "Gases"],
+  12: ["Potencial de uma pilha fora das condições padrão.", "E = E° − (RT ÷ nF) · ln Q", "A 298 K equivale a E° − (0,0592 ÷ n) · log Q. Q é o quociente de reação.", "Nernst"],
+  13: ["Converte um nome IUPAC em estrutura (OPSIN/CACTUS).", "nome → SMILES / fórmula", "Precisa de internet. Nomes sistemáticos dão melhores resultados.", "Nomenclatura"],
+  14: ["Cinética de ordem 0, 1 ou 2 e meia-vida.", "ordem 1: ln[A] = ln[A]₀ − k·t  ·  t½ = ln 2 ÷ k", "A unidade de k depende da ordem. Na ordem 1, a meia-vida não depende da concentração.", "Cinética"],
+  15: ["Calcula a constante de equilíbrio.", "Kc = Π[produtos]^coef ÷ Π[reagentes]^coef", "Use as concentrações no equilíbrio. Sólidos e líquidos puros não entram na expressão.", "Equilíbrio (Kc)"],
+  16: ["Curva de pH de um ácido forte titulado com base forte.", "pH = 7 no ponto de equivalência (25 °C)", "Antes do equivalente sobra ácido; depois, sobra base. O salto de pH marca o equivalente.", "Titulação forte-forte"],
+  17: ["Lei de Beer-Lambert e conversões entre λ, ν e energia.", "A = ε · b · c  ·  E = h · c ÷ λ", "A é a absorbância, ε a absortividade molar, b o caminho óptico e c a concentração.", "Espectroscopia"],
+  18: ["Curva de um ácido fraco titulado com base forte.", "pH = pKa na metade do caminho até o equivalente", "Resolve as espécies de forma exata, sem aproximações. No equivalente o pH fica acima de 7.", "Titulação ácido fraco"],
+  19: ["Solubilidade a partir do Kps e efeito do íon comum.", "Kps = [Aᵖ⁺]ᵖ · [Bᵠ⁻]ᵠ", "Um íon comum diminui a solubilidade. Se Q > Kps, há precipitação.", "Solubilidade (Kps)"],
+  20: ["Verifica os motores de cálculo com casos de valor conhecido.", "—", "Rode para confirmar que os cálculos batem com os valores de referência.", "Testes"],
+  21: ["Desenhe moléculas e veja a fórmula e a massa molar.", "Valências: C 4 · N 3 · O 2 · H 1 · halogênios 1", "Os hidrogênios são completados pela valência. Use MOVER para reposicionar e os modelos prontos para começar.", "Editor"],
+  22: ["Teoria cinética dos gases com partículas em movimento.", "P ∝ N · T  ·  v_rms = √(3kT ÷ m)", "Mude T, N e o volume e observe a pressão e a distribuição de velocidades.", "Simulação"],
+  23: ["Titulações e solubilidade passo a passo, como no laboratório.", "no equivalente: n(ácido) = n(base)", "Adicione titulante, registre pontos e veja o relatório com a análise pela derivada.", "Laboratório"],
+  24: ["Resumo de Química Geral com exercícios.", "—", "Estude os tópicos e responda aos exercícios.", "Guia de estudos"],
+  25: ["Identifique cátions por testes de reação.", "reagente + cátion → precipitado ou cor característica", "Escolha reagentes, observe o resultado e deduza o cátion.", "Detetive"],
+  26: ["Converte pressão, energia, volume, massa e temperatura.", "K = °C + 273,15", "Escolha a grandeza e as unidades; o resultado atualiza ao digitar.", "Conversor"],
+  27: ["Acha a fórmula empírica e a molecular.", "n = massa ÷ M · razão = n ÷ menor n", "Divida os mols pelo menor valor e multiplique até obter números inteiros.", "Fórmula empírica"],
+  28: ["Treine símbolos, nomes e famílias dos elementos.", "—", "São 10 perguntas; os erros ficam salvos para o modo de revisão.", "Quiz"],
+  29: ["Converte massa, mols e partículas e mostra a % em massa.", "n = m ÷ M  ·  N = n × 6,022×10²³", "A composição percentual de cada elemento é (n · M do elemento) ÷ M total × 100.", "Mol e massa"],
+  30: ["Calcula números de oxidação (NOX).", "Σ NOX = carga da espécie", "Aplique as regras fixas (F −1, O −2, H +1...) e resolva o elemento que sobra.", "NOX"],
+  31: ["Prevê o tipo de ligação pela diferença de eletronegatividade.", "ΔEN = |EN₁ − EN₂|", "Abaixo de 0,4: apolar. De 0,4 a 1,7: polar. Acima de 1,7: iônica (regra prática).", "Tipo de ligação"]
+};
+window.GLOSSARY = { "pH": "−log[H⁺]: mede a acidez da solução.", "pKa": "−log Ka: quanto menor, mais forte o ácido.", "Ka": "Constante de ionização do ácido.", "Kps": "Produto de solubilidade de um sal pouco solúvel.", "Kc": "Constante de equilíbrio em concentrações.", "mol": "6,022×10²³ entidades (átomos, moléculas...).", "ΔH": "Variação de entalpia: calor trocado a pressão constante.", "ΔG": "Energia livre: negativa = processo espontâneo.", "ΔS": "Variação de entropia (desordem).", "ΔEN": "Diferença de eletronegatividade entre dois átomos.", "NOX": "Número de oxidação: carga aparente de um átomo.", "Q": "Quociente de reação: como Kc, mas fora do equilíbrio.", "ε": "Absortividade molar na lei de Beer-Lambert.", "[H⁺]": "Concentração de íons hidrogênio, em mol/L." };
+window.TRACKS = [["Primeiros passos", [3, 29, 26, 1]], ["Soluções e pH", [4, 5, 10, 6, 16]], ["Gases e energia", [11, 9, 22]], ["Estudar e praticar", [24, 28, 25, 23]]];

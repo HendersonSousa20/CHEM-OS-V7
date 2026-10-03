@@ -10,6 +10,9 @@
         let simCanvas = null, simCtx = null, simHistCanvas = null, simHistCtx = null;
         let simParticles = [];             // { x, y, vx, vy }  (vx, vy em px/frame, unidades de tela)
         let simRunning = true;
+        let simSpeed = 1, simColorBySpeed = true, simWallImpulse = 0, simStatFrames = 0, simPressAvg = 0, simBoxFrac = 1, simLast = null, simAcc = 0; // v8.10/8.11
+        const SIM_DT = 1000 / 60; // passo fixo de 1/60 s: a velocidade não depende da taxa de quadros do monitor
+        function simBoxW() { return Math.max(40, simCanvas.width * simBoxFrac); }
         let simRafId = null;
         let simMolarMass = 28.01;          // g/mol (padrão: N2)
         let simTempK = 298;
@@ -95,7 +98,7 @@
             const massKg = (simMolarMass * 1e-3) / SIM_N_A;
             const sigma = Math.sqrt(SIM_K_B * simTempK / massKg); // desvio-padrão de velocidade por dimensão (m/s)
 
-            const w = simCanvas.width, h = simCanvas.height;
+            const w = simBoxW(), h = simCanvas.height;
             simParticles = [];
             for (let i = 0; i < n; i++) {
                 const vxReal = sigma * simRandNormal();
@@ -117,10 +120,25 @@
             if (simRunning && !simRafId) simRafId = requestAnimationFrame(simLoop);
         }
 
-        function simLoop() {
+        // v8.13: se uma partícula andaria mais que ~0,8 raio por passo, divide o passo em k sub-passos (evita atravessar outras partículas)
+        function simAdvance() {
+            const base = simSpeed; let vmax = 0;
+            for (const p of simParticles) { const v = Math.hypot(p.vx, p.vy) * base; if (v > vmax) vmax = v; }
+            const k = Math.min(8, Math.max(1, Math.ceil(vmax / (SIM_RADIUS * 0.8))));
+            simSpeed = base / k;
+            try { for (let i = 0; i < k; i++) simStep(); } finally { simSpeed = base; }
+        }
+
+        function simLoop(ts) {
             if (!simCanvas || !document.body.contains(simCanvas)) { simRafId = null; return; }
+            const now = ts === undefined ? performance.now() : ts;
+            const dt = simLast === null ? SIM_DT : Math.min(now - simLast, 100);
+            simLast = now;
             if (simRunning) {
-                simStep();
+                simAcc += dt;
+                let steps = 0;
+                while (simAcc >= SIM_DT && steps < 6) { simAdvance(); simAcc -= SIM_DT; steps++; }
+                if (steps === 6) simAcc = 0;
                 simDrawFrame();
                 if (simFrameCounter % 6 === 0) simUpdateStats();
                 simFrameCounter++;
@@ -130,17 +148,18 @@
         let simFrameCounter = 0;
 
         function simStep() {
-            const w = simCanvas.width, h = simCanvas.height;
+            const w = simBoxW(), h = simCanvas.height;
             const r = SIM_RADIUS;
+            simStatFrames += simSpeed;
 
             // Movimento + colisão elástica com as paredes (reflexão especular, sem perda de energia)
             simParticles.forEach(p => {
-                p.x += p.vx;
-                p.y += p.vy;
-                if (p.x < r) { p.x = r; p.vx = Math.abs(p.vx); }
-                if (p.x > w - r) { p.x = w - r; p.vx = -Math.abs(p.vx); }
-                if (p.y < r) { p.y = r; p.vy = Math.abs(p.vy); }
-                if (p.y > h - r) { p.y = h - r; p.vy = -Math.abs(p.vy); }
+                p.x += p.vx * simSpeed;
+                p.y += p.vy * simSpeed;
+                if (p.x < r) { p.x = r; simWallImpulse += Math.abs(p.vx); p.vx = Math.abs(p.vx); }
+                if (p.x > w - r) { p.x = w - r; simWallImpulse += Math.abs(p.vx); p.vx = -Math.abs(p.vx); }
+                if (p.y < r) { p.y = r; simWallImpulse += Math.abs(p.vy); p.vy = Math.abs(p.vy); }
+                if (p.y > h - r) { p.y = h - r; simWallImpulse += Math.abs(p.vy); p.vy = -Math.abs(p.vy); }
             });
 
             // Colisões elásticas partícula-partícula (esferas rígidas de massa igual)
@@ -177,7 +196,12 @@
             simCtx.fillStyle = bgColor;
             simCtx.fillRect(0, 0, w, h);
             simCtx.fillStyle = textColor;
+            if (simBoxFrac < 1) { // pistão: região fora da caixa esmaecida e parede móvel
+                const bw = simBoxW(); simCtx.globalAlpha = 0.18; simCtx.fillRect(bw, 0, w - bw, h); simCtx.globalAlpha = 1; simCtx.fillRect(bw - 2, 0, 3, h);
+            }
+            const sg = Math.sqrt(SIM_K_B * simTempK / ((simMolarMass * 1e-3) / SIM_N_A)) * SIM_SCALE;
             simParticles.forEach(p => {
+                if (simColorBySpeed) simCtx.fillStyle = `hsl(${Math.round(220 - 220 * Math.min(1, Math.hypot(p.vx, p.vy) / (3 * sg)))} 85% 55%)`;
                 simCtx.beginPath();
                 simCtx.arc(p.x, p.y, SIM_RADIUS, 0, Math.PI * 2);
                 simCtx.fill();
@@ -207,6 +231,13 @@
             document.getElementById("sim-vrms-sim").textContent = vrmsSim.toFixed(1);
             document.getElementById("sim-vrms-theory").textContent = vrmsTheory.toFixed(1);
             document.getElementById("sim-tinst").textContent = tInst.toFixed(0);
+
+            // Pressão relativa: impulso médio transferido às paredes por quadro, por px de perímetro (u.a.). Em 2D, P ∝ N·T.
+            const imp = simWallImpulse, fr = Math.max(simStatFrames, 1e-6); simWallImpulse = 0; simStatFrames = 0;
+            const pNow = (2 * massKg * (imp / SIM_SCALE) / fr) / (2 * (simBoxW() + simCanvas.height)) * 1e24;
+            simPressAvg = simPressAvg ? 0.8 * simPressAvg + 0.2 * pNow : pNow;
+            const pEl = document.getElementById("sim-press"); if (pEl) pEl.textContent = simPressAvg.toFixed(2);
+            const paEl = document.getElementById("sim-pa"); if (paEl) paEl.textContent = (simPressAvg * simBoxW() * simCanvas.height / 1000).toFixed(0);
 
             simDrawHistogram(speedsReal, mKg);
         }
