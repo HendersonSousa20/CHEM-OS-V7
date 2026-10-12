@@ -1,4 +1,33 @@
-# CHEM.OS v10 — Refinamento de UI/UX
+# CHEM.OS v11
+
+Laboratório de química no navegador: **34 módulos** (balanceador de equações, massa molar, soluções e pH, titulação, termoquímica, cinética, eletroquímica, gases, tabela periódica, PubChem, laboratório virtual, guia de estudos e mais), numa interface de terminal retrô. Funciona **offline** depois da primeira visita e pode ser **instalado como aplicativo**.
+
+## Como usar
+Abra `index.html` por um servidor estático (o recomendado é `npx serve .` ou `python3 -m http.server`). Não há build obrigatório nem dependências em tempo de execução. Digite o número de um módulo na linha de comando, use **Ctrl+K** para buscar ou **F1** para a ajuda.
+
+## Desenvolvimento
+| Comando | O que faz |
+|---|---|
+| `npm install` | instala as dependências de teste (jsdom) |
+| `node build-inline.js` | regenera o CSS embutido no `index.html` a partir de `css/*.css` (rode após editar CSS) |
+| `npm run build:css` | recompila o Tailwind |
+| `node tests/smoke.js` `a11y.js` `ux.js` `calc.js` `contrast.js` `audit.js` | testes (com um servidor estático em `localhost:8080`; rode uma suíte por vez) |
+
+### Convenções ao criar módulos
+- **Canvas:** use `hidpiFit(canvas, estado)` (`js/core/hidpi.js`) e desenhe com `ctx.setTransform(estado.dpr, 0, 0, estado.dpr, 0, 0)` usando as dimensões lógicas `estado.lw`/`estado.lh`, para o desenho ficar nítido em telas 2x/3x.
+- **Números:** vírgula decimal e **sem separador de milhar** (`7200`, não `7.200`). O pós-processador `js/core/ux-v9.js` reescreve "dígitos.dígitos" em campos `*-result`; um milhar com ponto viraria um decimal. Use `toLocaleString("pt-BR", { useGrouping: false })`.
+- **Sinal negativo:** o site usa "−" (U+2212) na exibição; testes devem normalizá-lo.
+- **Registro de um módulo novo:** `index.html` (script), `sw.js` (cache), `js/render/screens.js` (botão), `js/data/module-help.js`, `js/app.js` (comando), faixas "1–N" em `ux-extras*.js`, `share.js` e `ui-system.js`, e os loops dos testes.
+
+## Estrutura
+`index.html` · `css/` (Tailwind, `styles.css`, `ui-v10.css`, `ui-v11.css`) · `js/core` (sistema, UX, motores) · `js/modules` (um arquivo por módulo) · `js/data` (tabelas locais) · `icons/` · `sw.js` (cache offline: rede primeiro) · `docs/`.
+
+## Privacidade e limitações
+Sem conta, anúncios ou rastreamento: tudo fica no navegador. Apenas os módulos de consulta online enviam o nome do composto digitado a PubChem/OPSIN/CACTUS/Wikipédia. Os cálculos são para **estudo e conferência**; veja "Sobre e limitações" dentro do app.
+
+---
+
+## Novidades das v10 e v11 (UI/UX, ensino e robustez)
 
 * **Início sem "pulo":** focar a linha de comando não rola mais a página para o fim; cada troca de tela volta ao topo.
 * **Cartões de módulo** com realce, brilho e barra lateral ao passar o mouse/focar; botões com estado pressionado e foco bem visível.
@@ -10,6 +39,10 @@
 * **Legibilidade:** textos pequenos têm tamanho mínimo maior; resultados ganham barra lateral e fundo próprio.
 * Textos desatualizados corrigidos (boas-vindas "v7.0 / 24 módulos" → v10 / 31 módulos).
 
+* **Teclado no início:** ↓ no campo de filtro entra na lista; setas ←↑↓→ movem entre os cartões de módulo. Cartões entram com animação suave (desligada em "reduzir movimento").
+* **Módulo 24 PLUS (`js/modules/gc-plus.js`):** painel de domínio geral e **sequência diária**; **próximo tópico recomendado**; status por tópico (NOVO / REFORÇAR / DOMINADO / REVISAR se passou de 14 dias — revisão espaçada); **filtro** de tópicos; **Simulado Geral** de 20 questões mistas com **diagnóstico por tópico** e atalhos para revisar os pontos fracos; **Flashcards** dos termos-chave (Espaço vira, → sei, ← ainda não); tempo de leitura e navegação anterior/próximo em cada tópico.
+* **Módulo 24 — conteúdo ampliado (`js/data/gc-extra.js`):** cada um dos 15 tópicos ganhou "Aprofunde-se" (erros comuns, no mundo real, para ir além) e 2 perguntas extras (banco total: 105). Novo modo **Revisão do dia** (10 questões dos tópicos que mais precisam). Fatos conferidos em fontes oficiais (SI 2019 para o mol; IUPAC 2021 para massas atômicas).
+* **Robustez e acessibilidade:** botões que consultam a internet mostram um indicador de carregamento; erros inesperados viram um aviso claro (sem travar a tela); aviso de nova versão; botão **[INSTALAR]** (PWA) no cabeçalho quando o navegador permite; resultados anunciados automaticamente por leitores de tela (`aria-live`).
 * Estilos novos em `css/ui-v10.css` e `js/core/ui-v10.js`. Depois de editar qualquer `css/*.css`, rode `node build-inline.js` (ou `npm run build:inline`) para atualizar o CSS embutido no `index.html`.
 
 # CHEM.OS v9.6 — Novidades

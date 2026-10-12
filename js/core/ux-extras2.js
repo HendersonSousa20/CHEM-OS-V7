@@ -3,7 +3,7 @@
   const K_FAV = "chemos-fav", K_REC = "chemos-recent";
   const get = k => { try { return JSON.parse(localStorage.getItem(k)) || []; } catch (e) { return []; } };
   const set = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
-  const BASE = "CHEM.OS v9.6 — Laboratório Químico no Navegador";
+  const BASE = "CHEM.OS v11 — Laboratório Químico no Navegador";
   let route = "";
   window.__bootHash = location.hash; // o boot chama renderHome() e apagaria o hash antes do evento load
 
@@ -46,11 +46,11 @@
   window.addEventListener("hashchange", () => {
     if (location.hash === route) return;
     const m = location.hash.match(/^#\/m\/(\d+)(?:\?.*)?$/);
-    if (m && +m[1] >= 1 && +m[1] <= 31) renderTool(+m[1]); else renderHome();
+    if (m && +m[1] >= 1 && +m[1] <= 34) renderTool(+m[1]); else renderHome();
   });
   window.addEventListener("load", () => {
     const m = (window.__bootHash || location.hash).match(/^#\/m\/(\d+)(?:\?.*)?$/);
-    if (m && +m[1] >= 1 && +m[1] <= 31) renderTool(+m[1]);
+    if (m && +m[1] >= 1 && +m[1] <= 34) renderTool(+m[1]);
   });
 
   // Instalação como app (PWA)

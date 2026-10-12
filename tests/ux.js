@@ -14,18 +14,18 @@ const BP = w => {
 let ok = 0, bad = 0; const check = (n, c, info = "") => { c ? ok++ : bad++; console.log(c ? "OK   " : "FALHA", n, info); };
 (async () => {
   const dom = await JSDOM.fromURL(BASE + "index.html", { runScripts: "dangerously", resources: "usable", pretendToBeVisual: true, virtualConsole: new VirtualConsole(), beforeParse: BP });
-  await sleep(3000);
+  for (let i = 0; i < 80 && !(dom.window.document.getElementById("menu-filter") || dom.window.document.querySelector(".menu-item")); i++) await sleep(250); await sleep(400);
   const w = dom.window, d = w.document, sc = () => d.getElementById("screen-content"), txt = id => ((d.getElementById(id) || {}).textContent || "").replace(/\s+/g, " ").trim();
   // início
   w.renderHome(); await sleep(50);
-  check("home: trilhas", d.querySelectorAll(".track").length === 4, d.querySelectorAll(".track").length + " trilhas");
-  check("home: descrição em todos os módulos", d.querySelectorAll("#menu-groups .menu-desc").length >= 31, d.querySelectorAll("#menu-groups .menu-desc").length + " descrições");
+  check("home: trilhas", d.querySelectorAll(".track").length === 5, d.querySelectorAll(".track").length + " trilhas");
+  check("home: descrição em todos os módulos", d.querySelectorAll("#menu-groups .menu-desc").length >= 34, d.querySelectorAll("#menu-groups .menu-desc").length + " descrições");
   check("home: boas-vindas na primeira visita", !!d.getElementById("welcome-box"));
   const f = d.getElementById("menu-filter"); f.value = "equilíbrio químico"; f.dispatchEvent(new w.Event("input", { bubbles: true }));
   check("busca encontra por descrição (ex.: 'constante de equilíbrio')", (f.value = "constante de equilíbrio", f.dispatchEvent(new w.Event("input", { bubbles: true })), d.querySelectorAll("#menu-groups .menu-item:not(.hidden)").length >= 1));
   // ajuda por módulo
-  let missing = []; for (let n = 1; n <= 31; n++) { w.renderTool(n); if (!sc().querySelector(".mod-desc") || !sc().querySelector(".mod-help")) missing.push(n); }
-  check("ajuda (descrição + teoria) em todos os 31 módulos", !missing.length, missing.join(",") || "");
+  let missing = []; for (let n = 1; n <= 34; n++) { w.renderTool(n); if (!sc().querySelector(".mod-desc") || !sc().querySelector(".mod-help")) missing.push(n); }
+  check("ajuda (descrição + teoria) em todos os 34 módulos", !missing.length, missing.join(",") || "");
   w.renderTool(6); check("glossário: Ka com dica", !!sc().querySelector("abbr.gloss"));
   // cálculo ao vivo: resultado ao abrir
   const init = {}; for (const n of [3, 5, 9, 10, 12, 14, 16, 18, 19, 27, 29, 30, 31]) { w.renderTool(n); await sleep(120); const r = [...d.querySelectorAll('#screen-content [id$="-result"]')].map(e => e.textContent).join(" ").replace(/\s+/g, " ").trim(); init[n] = r; }

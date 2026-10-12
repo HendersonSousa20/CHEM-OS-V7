@@ -7,6 +7,8 @@
         const SE_HIT_R = 22;        // raio de detecção de toque/clique (maior que o desenhado, facilita o dedo em telas de toque)
         const SE_BOND_HIT_THRESH = 10; // tolerância para tocar/clicar numa ligação
 
+        const SEC = {};
+
         let seCanvas = null, seCtx = null;
         let seAtoms = [];              // { id, x, y, el }
         let seBonds = [];              // { id, a, b, order }
@@ -25,7 +27,7 @@
             seAtoms = []; seBonds = []; seNextId = 1; sePendingBondAtom = null; seHistory = [];
             seTool = "atom"; seSelectedElement = "C";
 
-            seCanvas.width = seCanvas.clientWidth;
+            hidpiFit(seCanvas, SEC);
             seCanvas.onclick = handleEditorClick;
             seCanvas.addEventListener("touchend", handleEditorTouch, { passive: false });
             window.addEventListener("resize", seResizeHandler);
@@ -41,7 +43,7 @@
                 window.removeEventListener("resize", seResizeHandler);
                 return;
             }
-            seCanvas.width = seCanvas.clientWidth;
+            hidpiFit(seCanvas, SEC);
             drawEditor();
         }
 
@@ -227,7 +229,8 @@
 
         function drawEditor() {
             if (!seCtx) return;
-            const w = seCanvas.width, h = seCanvas.height;
+            const w = SEC.lw, h = SEC.lh;
+            seCtx.setTransform(SEC.dpr || 1, 0, 0, SEC.dpr || 1, 0, 0);
             const styles = getComputedStyle(document.body);
             const textColor = styles.getPropertyValue('--text-color').trim() || '#00FF66';
             const bgColor = styles.getPropertyValue('--bg-color').trim() || '#000000';

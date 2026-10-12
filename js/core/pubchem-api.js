@@ -37,7 +37,7 @@
                 if (!result.ok) return null;
                 const json = result.data;
 
-                let results = { hazards: [], density: null, meltingPoint: null, boilingPoint: null, pka: null };
+                let results = { hazards: [], signal: null, pictograms: [], density: null, meltingPoint: null, boilingPoint: null, pka: null };
 
                 function searchSections(section) {
                     if (!section) return;
@@ -45,6 +45,13 @@
 
                     if (heading === 'GHS Classification' && section.Information) {
                         section.Information.forEach(info => {
+                            if (info.Name === 'Signal' && info.Value && info.Value.StringWithMarkup) {
+                                const v = info.Value.StringWithMarkup[0] && info.Value.StringWithMarkup[0].String;
+                                if (v && (!results.signal || /danger/i.test(v))) results.signal = v;
+                            }
+                            if (info.Name === 'Pictogram(s)' && info.Value && info.Value.StringWithMarkup) {
+                                info.Value.StringWithMarkup.forEach(sm => (sm.Markup || []).forEach(m => { if (m.Extra && !results.pictograms.includes(m.Extra)) results.pictograms.push(m.Extra); }));
+                            }
                             if (info.Name === 'GHS Hazard Statements' && info.Value && info.Value.StringWithMarkup) {
                                 info.Value.StringWithMarkup.forEach(s => {
                                     if(s.String && !results.hazards.includes(s.String)) results.hazards.push(s.String);

@@ -1,0 +1,80 @@
+/* ===== CHEM.OS v11.4 — camada visual (carrega depois de ui-v10.css) ===== */
+/* Variáveis derivadas do tema: os temas definem --text-color no <body>, então elas precisam ser recalculadas ali
+   (calculadas no :root, ficavam presas ao verde padrão em todos os outros temas). */
+body { --glow: color-mix(in srgb, var(--text-color) 55%, transparent); --tint: color-mix(in srgb, var(--text-color) 7%, transparent); --tint2: color-mix(in srgb, var(--text-color) 14%, transparent); }
+
+/* Fundo com malha de pontos discreta (profundidade sem poluir a leitura) */
+body { background-image: radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--text-color) 7%, transparent) 1px, transparent 0); background-size: 22px 22px; }
+
+/* ---- Herói ---- */
+.hero-title { letter-spacing: .06em; text-shadow: 0 0 22px var(--glow), 0 0 3px var(--text-color); }
+body.theme-paper .hero-title { text-shadow: none; }
+.hero-title::after { content: "▌"; margin-left: .12em; font-size: .8em; animation: v11blink 1.1s steps(1) infinite; }
+@keyframes v11blink { 50% { opacity: 0; } }
+.hero-ribbon { display: flex; flex-wrap: wrap; gap: 6px 10px; margin: 2px 0 12px; font-size: .95rem; }
+.hero-ribbon > span { border: 1px dashed color-mix(in srgb, var(--text-color) 55%, transparent); padding: 1px 9px; background: var(--tint); }
+.hero-ribbon > span::before { content: "◆"; margin-right: 6px; font-size: .7em; vertical-align: .12em; opacity: .85; }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+.hero-actions .dos-btn { font-size: .95rem; }
+.hero-actions kbd { margin-left: 8px; opacity: .85; }
+#welcome-box { border-left-width: 6px; }
+
+/* ---- Trilhas como "pipeline" ---- */
+.track { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 6px; }
+.track > strong { flex: 0 0 9.5rem; }
+.track > span { opacity: .7; }
+.track-step { padding: 3px 10px !important; }
+@media (max-width: 640px) { .track > strong { flex-basis: 100%; } .hero-ribbon > span:nth-child(n+4) { display: none; } }
+
+/* ---- Títulos de seção: ícone, linha e contagem ---- */
+h2.menu-heading { display: flex; align-items: center; gap: 10px; letter-spacing: .12em; }
+h2.menu-heading::before { content: "▣"; opacity: .9; }
+h2.menu-heading::after { content: ""; flex: 1; border-top: 1px dashed color-mix(in srgb, var(--text-color) 45%, transparent); order: 2; }
+.menu-count { order: 3; font-size: .85em; border: 1px solid currentColor; padding: 0 7px; opacity: .9; letter-spacing: 0; }
+
+/* ---- Cartões de módulo: selo numérico + título + descrição ---- */
+.menu-item { display: grid; grid-template-columns: auto 1fr; column-gap: 12px; align-items: start; text-align: left; }
+.menu-item .menu-num { grid-row: 1 / span 2; min-width: 2.5em; text-align: center; border: 1px solid currentColor; padding: 1px 4px; margin: 1px 0 0; background: var(--tint); transition: background .14s, color .14s; }
+.menu-item .menu-title { grid-column: 2; min-width: 0; }
+.menu-item small { grid-column: 2; opacity: .82; }
+.menu-item:hover .menu-num, .menu-item:focus-visible .menu-num { background: var(--text-color); color: var(--bg-color); text-shadow: none; }
+.chip-new { display: inline-block; margin-left: .55em; padding: 0 .4em; font-size: .72em; letter-spacing: .1em; vertical-align: .12em; background: var(--text-color); color: var(--bg-color); text-shadow: none; animation: v11pulse 2.2s ease-in-out infinite; }
+@keyframes v11pulse { 50% { opacity: .65; } }
+
+/* ---- Molduras com cantos de painel (HUD) nas caixas de conteúdo ---- */
+#screen-content .dos-border:not(.grid > *):not(button) { background-image:
+  linear-gradient(var(--text-color), var(--text-color)), linear-gradient(var(--text-color), var(--text-color)), linear-gradient(var(--text-color), var(--text-color)), linear-gradient(var(--text-color), var(--text-color)),
+  linear-gradient(var(--text-color), var(--text-color)), linear-gradient(var(--text-color), var(--text-color)), linear-gradient(var(--text-color), var(--text-color)), linear-gradient(var(--text-color), var(--text-color));
+  background-size: 14px 4px, 4px 14px, 14px 4px, 4px 14px, 14px 4px, 4px 14px, 14px 4px, 4px 14px;
+  background-position: left top, left top, right top, right top, left bottom, left bottom, right bottom, right bottom;
+  background-repeat: no-repeat; background-origin: border-box; }
+
+/* ---- Caminho de navegação nas telas de módulo ---- */
+.crumb { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin: 8px 0 2px; font-size: .9rem; letter-spacing: .08em; opacity: .9; }
+.crumb button { background: none; border: 0; color: inherit; padding: 2px 0; min-height: 0 !important; min-width: 0 !important; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.crumb button:hover { background: var(--text-color); color: var(--bg-color); text-decoration: none; }
+.crumb .sep { opacity: .6; }
+.crumb .here { font-weight: 700; }
+
+@media (prefers-reduced-motion: reduce) { .hero-title::after, .chip-new { animation: none; } }
+@media print { body { background-image: none !important; } .hero-ribbon, .hero-actions, .crumb { display: none !important; } }
+
+/* ===== Mais espaço de tela ===== */
+/* Rolagem: o contêiner que rola é o #viewport; o foco/âncoras não podem ficar atrás da barra de comando fixa */
+#viewport { scroll-padding-bottom: 76px; }
+#screen-content { padding-bottom: 10px; }
+/* Celular (toque): a barra de comando e o rodapé de temas saem da frente; busca = ícone da navegação inferior; temas = Ajustes */
+@media (max-width: 640px) and (pointer: coarse) {
+  footer[role=contentinfo], #viewport > div:last-child { display: none !important; }
+  #viewport { scroll-padding-bottom: 12px; }
+}
+
+/* ===== Tabela periódica: rótulos de grupos, períodos e blocos ===== */
+.pt-label { display: grid; place-items: center; font-size: .8rem; opacity: .85; user-select: none; }
+.pt-label.pt-block { border-bottom: 2px solid var(--text-color); letter-spacing: .15em; font-weight: 700; margin-bottom: 2px; }
+.pt-label.pt-group { border-bottom: 1px dashed color-mix(in srgb, var(--text-color) 45%, transparent); padding-bottom: 2px; }
+.pt-label.pt-period { justify-items: start; padding-right: 6px; font-weight: 700; }
+
+/* Dicas dos gráficos: versão para mouse e para toque */
+.hint-touch { display: none; }
+@media (pointer: coarse) { .hint-mouse { display: none; } .hint-touch { display: inline; } }

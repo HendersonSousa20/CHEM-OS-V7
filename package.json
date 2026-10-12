@@ -1,8 +1,8 @@
 {
   "name": "chem-os",
-  "version": "9.6.0",
+  "version": "11.5.0",
   "private": true,
-  "description": "CHEM.OS — laboratório químico no navegador",
+  "description": "CHEM.OS — 34 módulos de química no navegador: cálculos, simulações, laboratório virtual e guia de estudos. Funciona offline.",
   "scripts": {
     "build:inline": "node build-inline.js",
     "build:css": "tailwindcss -c tailwind.config.js -i src/input.css -o css/tailwind.css --minify",
@@ -13,7 +13,8 @@
     "test:lab": "node tests/lab.js",
     "test:a11y": "node tests/a11y.js",
     "test:contrast": "node tests/contrast.js",
-    "test:ux": "node tests/ux.js"
+    "test:ux": "node tests/ux.js",
+    "test:audit": "node tests/audit.js"
   },
   "devDependencies": {
     "jsdom": "^26.1.0",

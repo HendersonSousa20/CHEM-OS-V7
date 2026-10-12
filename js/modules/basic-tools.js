@@ -82,15 +82,7 @@
                 const imgUrl = `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${encodeURIComponent(data.CID)}/PNG?image_size=250x250`;
                 const queryTimestamp = new Date().toLocaleString('pt-BR');
 
-                let hazardsHTML = "";
-                if (pugView && pugView.hazards && pugView.hazards.length > 0) {
-                    hazardsHTML = `<div class="mt-2 pt-2 border-t border-current"><strong class="text-red-400">ALERTAS GHS:</strong>
-                        ${ghsPictogramsHTML(pugView.hazards)}
-                        <ul class="list-disc pl-4 text-xs opacity-90">` +
-                        pugView.hazards.slice(0, 4).map(h => `<li>${escapeHTML(h)}</li>`).join('') + `</ul>
-                        <div class="text-[10px] text-yellow-400 mt-1">[!] Fonte: PubChem GHS Classification. Pictogramas são uma aproximação didática por palavra-chave. NÃO substitui a FISPQ/SDS oficial do fabricante — consulte-a antes de manusear qualquer substância.</div>
-                        </div>`;
-                }
+                let hazardsHTML = ghsPanelHTML(pugView);
 
                 let physHTML = "";
                 if (pugView) {

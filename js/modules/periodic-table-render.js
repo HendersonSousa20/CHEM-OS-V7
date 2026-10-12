@@ -8,7 +8,7 @@
 
             if (isMobile) {
                 const matches = ELEMENTS_DB.filter(e =>
-                    !filter || e.name.toLowerCase().includes(filter) || e.sym.toLowerCase().includes(filter) || String(e.num) === filter
+                    !filter || chemMatch(e.name, filter) || e.sym.toLowerCase().includes(filter) || String(e.num) === filter
                 );
                 const list = filter ? matches : ELEMENTS_DB.slice(0, 20);
 
@@ -28,7 +28,7 @@
 
             let html = '<div class="grid grid-cols-18 gap-1 min-w-[700px] text-center text-xs">';
             ELEMENTS_DB.forEach(e => {
-                const match = !filter || e.name.toLowerCase().includes(filter) || e.sym.toLowerCase().includes(filter) || String(e.num) === filter;
+                const match = !filter || chemMatch(e.name, filter) || e.sym.toLowerCase().includes(filter) || String(e.num) === filter;
                 const opacity = match ? 'opacity-100' : 'opacity-20';
                 html += `<div onclick="showElementDetails(${e.num})" class="dos-border p-1 cursor-pointer hover:bg-current hover:text-black ${opacity}">
                     <div class="text-[10px] opacity-75">${e.num}</div>

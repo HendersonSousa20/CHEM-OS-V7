@@ -92,3 +92,61 @@ body, header, footer, main, .dos-border, .dos-btn { transition: background-color
 /* Dica de atalho: Enter calcula */
 .enter-hint { font-size: .85rem; opacity: .65; margin-top: 6px; }
 @media (hover: none) { .enter-hint { display: none; } }
+
+/* ===== Rodada 3: entrada animada e estado de restauração ===== */
+@keyframes cardIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+#screen-content .menu-item { animation: cardIn .32s ease-out both; }
+#screen-content .menu-item:nth-child(2) { animation-delay: .03s; } #screen-content .menu-item:nth-child(3) { animation-delay: .06s; }
+#screen-content .menu-item:nth-child(4) { animation-delay: .09s; } #screen-content .menu-item:nth-child(n+5) { animation-delay: .12s; }
+@media (prefers-reduced-motion: reduce) { #screen-content .menu-item { animation: none; } }
+
+/* ===== Módulo 24 PLUS ===== */
+.gcp-bar { height: 8px; border: 1px solid var(--text-color); margin-top: 6px; }
+.gcp-bar > i { display: block; height: 100%; background: var(--text-color); transition: width .4s ease; }
+.gcp-card:hover, .gcp-card:focus-visible { transform: translateY(-2px); box-shadow: 0 0 14px var(--glow); }
+.gcp-ok { background: var(--text-color) !important; color: var(--bg-color) !important; opacity: 1 !important; }
+.gcp-bad { text-decoration: line-through; opacity: .6; border-style: dashed; }
+.gcp-flash { min-height: 160px; cursor: pointer; display: block; }
+#gcp-filter { background: transparent !important; color: var(--text-color); border: 0; border-bottom: 2px solid var(--text-color); padding: 8px 4px; -webkit-appearance: none; appearance: none; }
+
+/* ===== Rodada 4: botão ocupado ===== */
+@keyframes spin { to { transform: rotate(360deg); } }
+.is-busy { pointer-events: none; opacity: .75; }
+.is-busy::after { content: ""; display: inline-block; width: .8em; height: .8em; margin-left: .5em; vertical-align: -.1em; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin .7s linear infinite; }
+@media (prefers-reduced-motion: reduce) { .is-busy::after { animation: none; border-right-color: currentColor; } }
+#pwa-install { white-space: nowrap; }
+
+/* ===== Acabamento profissional ===== */
+/* Medida de leitura confortável para parágrafos longos */
+#screen-content p, #screen-content li { max-width: 78ch; }
+#screen-content .grid p, #screen-content .dos-border p { max-width: none; }
+/* Hierarquia tipográfica consistente */
+#screen-content h1, #screen-content h2 { letter-spacing: .04em; }
+#screen-content h2 { margin-top: 1.25rem; margin-bottom: .5rem; }
+/* Tabelas legíveis: cabeçalho destacado, zebra e células com respiro */
+#screen-content table { border-collapse: collapse; margin: .5rem 0; }
+#screen-content th { text-align: left; font-weight: 700; border-bottom: 2px solid var(--text-color); padding: 6px 10px; white-space: nowrap; }
+#screen-content td { padding: 5px 10px; border-bottom: 1px solid color-mix(in srgb, var(--text-color) 22%, transparent); }
+#screen-content tbody tr:nth-child(even) { background: var(--tint); }
+#screen-content tbody tr:hover { background: var(--tint2); }
+/* Links reconhecíveis */
+#screen-content a { text-decoration: underline; text-underline-offset: 3px; }
+#screen-content a:hover { background: var(--text-color); color: var(--bg-color); text-shadow: none; }
+/* Detalhes/sanfonas com alvo de clique claro */
+#screen-content summary { cursor: pointer; padding: 4px 0; }
+#screen-content details[open] > summary { margin-bottom: 6px; }
+/* Texto selecionável em resultados (para copiar) */
+#screen-content [id^="res"], #screen-content [id$="-result"] { user-select: text; }
+/* Impressão limpa: fundo branco, sem cromo de interface */
+@media print {
+  header, footer, #cli-input, #to-top, nav, .dos-btn[onclick*="renderHome"] { display: none !important; }
+  html, body { background: #fff !important; color: #000 !important; text-shadow: none !important; }
+  #screen-content * { color: #000 !important; border-color: #000 !important; background: transparent !important; text-shadow: none !important; box-shadow: none !important; animation: none !important; }
+}
+.pt-marker { display: grid; place-items: center; font-size: .8rem; opacity: .7; border: 1px dashed var(--text-color); }
+
+/* ===== Auditoria mobile: alvos de toque confortáveis (≥ 40 px) ===== */
+@media (max-width: 640px), (pointer: coarse) {
+  #screen-content summary { display: list-item; padding-block: 11px; min-height: 44px; box-sizing: border-box; }
+  #screen-content .unit-btn, #screen-content [id^="se-el-"], #screen-content button { min-height: 40px !important; min-width: 40px; }
+}

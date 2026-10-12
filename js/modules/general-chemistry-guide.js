@@ -98,7 +98,7 @@
                 diagram: GC_SVG.tendencias,
                 notes: [
                     "Os elementos são organizados por número atômico crescente, em linhas (<strong>períodos</strong>) e colunas (<strong>grupos/famílias</strong>).",
-                    "Elementos do mesmo grupo têm o mesmo número de elétrons de valência → propriedades químicas parecidas (ex: metais alcalinos, grupo 1, todos muito reativos).",
+                    "Elementos do mesmo grupo principal (1, 2 e 13–18) têm o mesmo número de elétrons de valência → propriedades químicas parecidas (ex: metais alcalinos, grupo 1, todos muito reativos).",
                     "Tendências periódicas: <strong>raio atômico</strong> diminui da esquerda p/ direita e aumenta de cima p/ baixo; <strong>eletronegatividade</strong> e <strong>energia de ionização</strong> fazem o oposto.",
                     "Metais (maioria à esquerda/centro) tendem a <em>perder</em> elétrons; não metais (à direita) tendem a <em>ganhar</em> elétrons."
                 ],
@@ -214,12 +214,12 @@
                 key: "acidosbases", icon: "[PH]", title: "9. Ácidos, Bases e pH",
                 notes: [
                     "Ácidos liberam H⁺ (ou aceitam pares de elétrons, na definição de Lewis); bases liberam OH⁻ (ou doam pares de elétrons).",
-                    "A escala de <strong>pH</strong> vai de 0 a 14: pH &lt; 7 é ácido, pH = 7 é neutro, pH &gt; 7 é básico. Cada unidade de pH representa uma mudança de <strong>10×</strong> na concentração de H⁺.",
+                    "A escala de <strong>pH</strong> usual vai de 0 a 14 (soluções muito concentradas podem sair dessa faixa): pH &lt; 7 é ácido, pH = 7 é neutro, pH &gt; 7 é básico. Cada unidade de pH representa uma mudança de <strong>10×</strong> na concentração de H⁺.",
                     "Ácidos/bases <strong>fortes</strong> se ionizam completamente em água; <strong>fracos</strong> se ionizam só parcialmente (por isso têm uma constante de equilíbrio, Ka ou Kb).",
                     "Um <strong>indicador</strong> ácido-base muda de cor numa faixa específica de pH — é assim que se percebe visualmente quando uma titulação chega perto do ponto de equivalência."
                 ],
                 formula: "pH = −log[H⁺]",
-                mnemonic: "\"pH baixo, ácido dá show\" — quanto menor o pH, mais forte o caráter ácido.",
+                mnemonic: "\"pH baixo, ácido dá show\" — quanto menor o pH, mais ácida é a solução.",
                 glossary: [
                     { term: "Ka", def: "Constante de dissociação de um ácido fraco — quanto maior, mais forte o ácido." },
                     { term: "Indicador ácido-base", def: "Substância que muda de cor numa faixa específica de pH." }
@@ -307,7 +307,7 @@
                     { problem: "No Zn(s) + Cu²⁺(aq) → Zn²⁺(aq) + Cu(s), quem é oxidado e quem é reduzido?", solution: "Zn perde 2 elétrons (0→+2): é oxidado. Cu²⁺ ganha 2 elétrons (+2→0): é reduzido." },
                     { problem: "No mesmo exemplo, qual é o agente oxidante?", solution: "Cu²⁺ — é quem \"rouba\" os elétrons do zinco, causando sua oxidação (e, nesse processo, ele mesmo se reduz)." }
                 ],
-                links: [{ id: 12, label: "Módulo 12 · Nernst" }]
+                links: [{ id: 30, label: "Módulo 30 · NOX" }, { id: 32, label: "Módulo 32 · Pilhas" }, { id: 12, label: "Módulo 12 · Nernst" }]
             },
             {
                 key: "equilibrio", icon: "[EQL]", title: "14. Equilíbrio Químico e Le Chatelier",
@@ -354,7 +354,7 @@
         const GC_QUIZZES = {
             materia: [
                 { q: "Qual propriedade NÃO muda dependendo do tamanho da amostra?", options: ["Massa", "Volume", "Densidade", "Peso"], correct: 2, explain: "Densidade é uma propriedade intensiva: 1 g ou 1 kg da mesma substância pura têm a mesma densidade." },
-                { q: "Em qual estado físico as partículas têm forma E volume variáveis?", options: ["Sólido", "Líquido", "Gasoso", "Plasma"], correct: 2, explain: "No estado gasoso, as partículas se movem livremente e ocupam todo o espaço disponível." },
+                { q: "Em qual estado físico as partículas têm forma E volume variáveis?", options: ["Sólido", "Líquido", "Gasoso", "Sólido amorfo"], correct: 2, explain: "No estado gasoso, as partículas se movem livremente e ocupam todo o espaço disponível." },
                 { q: "Uma mistura de água e óleo (que se separam visivelmente) é uma mistura...", options: ["Homogênea", "Heterogênea", "Substância pura", "Composto"], correct: 1, explain: "Como dá para distinguir as duas fases a olho nu, é uma mistura heterogênea." },
                 { q: "O zero em \"2,50 g\" é significativo porque:", options: ["Todo zero é sempre significativo", "Foi medido/registrado deliberadamente", "Está no início do número", "Nunca é significativo"], correct: 1, explain: "Um zero final após a vírgula, quando registrado, indica precisão real do instrumento." },
                 { q: "Uma substância pura formada por dois ou mais elementos diferentes é chamada de:", options: ["Elemento", "Composto", "Mistura homogênea", "Mistura heterogênea"], correct: 1, explain: "Composto é uma substância pura com átomos de mais de um elemento, numa proporção fixa." }
@@ -433,7 +433,7 @@
                 { q: "Qual o nome do composto KBr?", options: ["Brometo de potássio", "Bromato de potássio", "Boreto de potássio", "Óxido de potássio"], correct: 0, explain: "K⁺ (potássio) + Br⁻ (brometo, terminação -eto do ânion bromo)." },
                 { q: "HCl (sem oxigênio) é chamado de ácido...", options: ["clórico", "clorídrico", "cloroso", "hipocloroso"], correct: 1, explain: "Ácidos sem oxigênio recebem a terminação '-ídrico'." },
                 { q: "O prefixo 'tri' em compostos moleculares indica quantos átomos?", options: ["1", "2", "3", "4"], correct: 2, explain: "Prefixos gregos indicam quantidade: mono=1, di=2, tri=3, tetra=4." },
-                { q: "Fe³⁺ é chamado de:", options: ["ferro(I)", "ferro(II)", "ferro(III)", "ferro trivalente apenas em inglês"], correct: 2, explain: "O algarismo romano indica a carga do cátion: +3 = ferro(III)." },
+                { q: "Fe³⁺ é chamado de:", options: ["ferro(I)", "ferro(II)", "ferro(III)", "ferro(IV)"], correct: 2, explain: "O algarismo romano indica a carga do cátion: +3 = ferro(III)." },
                 { q: "A fórmula do dióxido de enxofre é:", options: ["SO", "SO₂", "SO₃", "S₂O"], correct: 1, explain: "'Dióxido' indica 2 átomos de oxigênio ligados a 1 de enxofre: SO₂." }
             ],
             redox: [
@@ -637,7 +637,7 @@
             const list = document.getElementById("gc-glossary-list");
             if (!list) return;
             const filtered = allTerms.filter(g =>
-                !gcGlossaryFilter || g.term.toLowerCase().includes(gcGlossaryFilter) || g.def.toLowerCase().includes(gcGlossaryFilter)
+                !gcGlossaryFilter || chemMatch(g.term, gcGlossaryFilter) || chemMatch(g.def, gcGlossaryFilter)
             );
             list.innerHTML = filtered.length
                 ? filtered.map(g => `

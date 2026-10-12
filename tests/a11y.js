@@ -1,4 +1,4 @@
-/* Auditoria de acessibilidade (jsdom): percorre os 31 módulos e conta campos sem nome, botões sem texto, controles que só funcionam com mouse, etc.
+/* Auditoria de acessibilidade (jsdom): percorre os 34 módulos e conta campos sem nome, botões sem texto, controles que só funcionam com mouse, etc.
    Uso: npm run serve (outro terminal) e npm run test:a11y   (falha se houver problemas) */
 const { JSDOM, VirtualConsole } = require("jsdom");
 const BASE = process.env.CHEMOS_BASE || "http://localhost:8080/", sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -20,10 +20,10 @@ function nameOf(el, d) {
 }
 (async () => {
   const dom = await JSDOM.fromURL(BASE + "index.html", { runScripts: "dangerously", resources: "usable", pretendToBeVisual: true, virtualConsole: new VirtualConsole(), beforeParse: BP });
-  await sleep(3000);
+  for (let i = 0; i < 80 && !(dom.window.document.getElementById("menu-filter") || dom.window.document.querySelector(".menu-item")); i++) await sleep(250); await sleep(400);
   const w = dom.window, d = w.document, tot = { semNome: 0, botaoVazio: 0, soMouse: 0, imgSemAlt: 0, canvasSemRotulo: 0 }, ex = [];
   const snippet = el => `${el.tagName.toLowerCase()}${el.id ? "#" + el.id : ""}${el.className && typeof el.className === "string" ? "." + el.className.split(" ")[0] : ""}`;
-  for (let n = 1; n <= 31; n++) {
+  for (let n = 1; n <= 34; n++) {
     try { w.renderTool(n); } catch (e) { continue; }
     if (n === 7) await sleep(50);
     const sc = d.getElementById("screen-content");

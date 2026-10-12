@@ -119,8 +119,8 @@
         function maybeShowOnboardingTour() {
             const prefs = loadPrefs();
             if (prefs.onboardingSeen) return;
-            openModal("BEM-VINDO AO CHEM.OS v10", `
-                <div class="text-sm mb-3">Este é um laboratório de química com 31 módulos — de calculadoras rápidas a um laboratório virtual guiado. Não sabe por onde começar? Algumas sugestões:</div>
+            openModal("BEM-VINDO AO CHEM.OS v11", `
+                <div class="text-sm mb-3">Este é um laboratório de química com 34 módulos — de calculadoras rápidas a um laboratório virtual guiado. Não sabe por onde começar? Algumas sugestões:</div>
                 <div class="space-y-2 text-xs mb-3">
                     <div class="dos-border p-2"><strong>Precisa revisar a base primeiro?</strong> O módulo <strong>24 — Guia de Estudos</strong> resume os fundamentos de Química Geral (mol, pH, ligações, gases...) com mnemônicos e mini-quiz.</div>
                     <div class="dos-border p-2"><strong>Novo por aqui?</strong> Comece pelo módulo <strong>3</strong> (massa molar) ou <strong>1</strong> (balanciador) — são os mais diretos.</div>
@@ -217,7 +217,7 @@
                         <div><strong>21.</strong> Editor de estruturas químicas — desenhe átomos e ligações em uma tela 2D; a fórmula e a massa molar são calculadas automaticamente.</div>
                         <div><strong>22.</strong> Simulação molecular — teoria cinética dos gases: partículas em movimento amostradas da distribuição de Maxwell-Boltzmann, com histograma de velocidades em tempo real.</div>
                         <div><strong>23.</strong> <strong class="text-cyan-300">Experimentos guiados (laboratório virtual)</strong> — conduza uma titulação passo a passo numa bancada virtual (bureta, frasco com indicador que muda de cor), registre seus próprios dados e gere um relatório imprimível comparando o que você observou com o valor teórico.</div>
-                        <div><strong>24.</strong> Fundamentos de Química Geral (guia de estudos) — 15 tópicos (matéria, átomos, tabela periódica, ligações, reações, mol, gases, soluções, ácidos/bases, termoquímica, config. eletrônica, nomenclatura, redox, equilíbrio/Le Chatelier, forças intermoleculares), cada um com diagrama, mnemônico, 2 exemplos resolvidos e mini-quiz de 5 perguntas. Inclui glossário geral pesquisável e progresso salvo entre sessões.</div>
+                        <div><strong>24.</strong> Fundamentos de Química Geral (guia de estudos) — 16 tópicos (matéria, átomos, tabela periódica, ligações, reações, mol, gases, soluções, ácidos/bases, termoquímica, config. eletrônica, nomenclatura, redox, equilíbrio/Le Chatelier, forças intermoleculares), cada um com diagrama, mnemônico, 2 exemplos resolvidos e mini-quiz de 5 perguntas. Inclui glossário geral pesquisável e progresso salvo entre sessões.</div>
                         <div><strong>25.</strong> <strong class="text-cyan-300">Detetive Químico</strong> — identifique um cátion metálico desconhecido usando cor da solução, teste de chama e reações de precipitação com 4 reagentes clássicos (química analítica qualitativa de verdade). Gera uma ficha do caso imprimível, mesmo quando você erra.</div>
                     </div>
                 </div>
@@ -225,5 +225,5 @@
                     <strong>Sobre a precisão dos dados:</strong> este software usa APIs públicas gratuitas e uma base termodinâmica local limitada. Não substitui uma FISPQ/SDS oficial nem validação em laboratório. Use para fins didáticos.
                 </div>
             `;
-            openModal("AJUDA — CHEM.OS v10", body);
+            openModal("AJUDA — CHEM.OS v11", body);
         }

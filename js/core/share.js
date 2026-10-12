@@ -33,7 +33,7 @@
     const b = document.getElementById("modal-body");
     if (b) b.insertAdjacentHTML("beforeend", `<div class="border-t border-current pt-2 mt-3 text-sm"><strong>ATALHOS v8</strong>
       <div>Ctrl+K — paleta de comandos · / — foca a linha de comando · Enter — executa o cálculo no campo</div>
-      <div>Comandos: historico · conversor · formula · quiz · mol · ? ajuda · nox · ligacao · 1–31</div>
+      <div>Comandos: historico · conversor · formula · quiz · mol · ? ajuda · nox · ligacao · pilha · eletrolise · previsao · 1–34</div>
       <div>Cada módulo tem link próprio (#/m/N). O botão LINK copia o endereço com os valores preenchidos.</div></div>`);
   };
 })();

@@ -9,9 +9,9 @@
         function renderHomeInner() {
             const screen = document.getElementById("screen-content");
             screen.innerHTML = `
-<div class="font-bold leading-none text-5xl md:text-7xl mb-3 tracking-wider" aria-hidden="true">CHEM.OS <span class="opacity-70">V10</span></div>
+<div class="font-bold leading-none text-5xl md:text-7xl mb-3 tracking-wider" aria-hidden="true">CHEM.OS <span class="opacity-70">V11</span></div>
 <div class="border-b border-current pb-2 mb-3">
-    <div class="text-xl font-bold">CHEM.OS v10 Enterprise Laboratory Engine [31 MÓDULOS]</div>
+    <div class="text-xl font-bold">CHEM.OS v11 Enterprise Laboratory Engine [34 MÓDULOS]</div>
     <div class="text-xs opacity-80">Pressione F1 para o guia de uso, ou F4 / digite "test" para validar todos os motores de cálculo.</div>
 </div>
 
@@ -46,7 +46,10 @@
     <button onclick="renderTool(28)" class="text-left p-1 border border-cyan-400 hover:bg-cyan-400 hover:text-black text-cyan-300 font-bold">28. [QUIZ] Quiz da Tabela Periódica</button>
     <button onclick="renderTool(29)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">29. [MOL] Mol, Massa e Composição Percentual</button>
     <button onclick="renderTool(30)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">30. [NOX] Número de Oxidação (Regras e Cálculo)</button>
-    <button onclick="renderTool(31)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">31. [LIG] Eletronegatividade e Tipo de Ligação — NOVO</button>
+    <button onclick="renderTool(31)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">31. [LIG] Eletronegatividade e Tipo de Ligação</button>
+    <button onclick="renderTool(32)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">32. [PIL] Pilhas e Potenciais-Padrão (Série Eletroquímica)</button>
+    <button onclick="renderTool(33)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">33. [ELE] Eletrólise e Leis de Faraday</button>
+    <button onclick="renderTool(34)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">34. [PRE] Previsão do Produto na Eletrólise — NOVO</button>
 </div>
 `;
             screenAnimateIn();
@@ -268,7 +271,7 @@
                         <div class="flex flex-wrap items-center gap-2 mt-1 text-[10px] opacity-70">
                             <button onclick="kineticsChart && kineticsChart.resetView()" class="dos-btn text-xs">RESETAR ZOOM</button>
                             <button onclick="kineticsChart && kineticsChart.exportPNG('cinetica.png')" class="dos-btn text-xs">EXPORTAR PNG</button>
-                            <span>Arraste para mover • roda do mouse para zoom • passe o cursor para ver [A] exata em cada instante</span>
+                            <span class="hint-mouse">Arraste para mover • roda do mouse para zoom • passe o cursor para ver [A] exata em cada instante</span><span class="hint-touch">Toque na curva para ver [A] exata em cada instante</span>
                         </div>
                         <div class="text-xs opacity-60 mt-2">Unidades de k variam com a ordem: ordem 0 → mol/(L·s); ordem 1 → 1/s; ordem 2 → L/(mol·s). Ajuste conforme sua unidade de tempo.</div>
                     `;
@@ -300,7 +303,7 @@
                         <div class="flex flex-wrap items-center gap-2 mt-1 text-[10px] opacity-70">
                             <button onclick="titrationChart && titrationChart.resetView()" class="dos-btn text-xs">RESETAR ZOOM</button>
                             <button onclick="titrationChart && titrationChart.exportPNG('titulacao-forte-forte.png')" class="dos-btn text-xs">EXPORTAR PNG</button>
-                            <span>Arraste para mover • roda do mouse para zoom • passe o cursor sobre a curva para ver pH exato</span>
+                            <span class="hint-mouse">Arraste para mover • roda do mouse para zoom • passe o cursor sobre a curva para ver pH exato</span><span class="hint-touch">Toque na curva para ver o pH exato</span>
                         </div>
                         <div id="titration-result" class="dos-border p-3 text-sm mt-2">Aguardando cálculo...</div>
                     `;
@@ -345,7 +348,7 @@
                         <div class="flex flex-wrap items-center gap-2 mt-1 text-[10px] opacity-70">
                             <button onclick="titrationWeakChart && titrationWeakChart.resetView()" class="dos-btn text-xs">RESETAR ZOOM</button>
                             <button onclick="titrationWeakChart && titrationWeakChart.exportPNG('titulacao-fraco-forte.png')" class="dos-btn text-xs">EXPORTAR PNG</button>
-                            <span>Arraste para mover • roda do mouse para zoom • passe o cursor sobre a curva para ver pH exato</span>
+                            <span class="hint-mouse">Arraste para mover • roda do mouse para zoom • passe o cursor sobre a curva para ver pH exato</span><span class="hint-touch">Toque na curva para ver o pH exato</span>
                         </div>
                         <div id="titration-weak-result" class="dos-border p-3 text-sm mt-2">Aguardando cálculo...</div>
                         <div class="text-[10px] opacity-50 mt-2">Modelo: reação de neutralização completa por região + equilíbrio ácido/base fraco via equação quadrática (Kw desprezado exceto no ponto de equivalência, onde a hidrólise de A⁻ é calculada via Kb=Kw/Ka).</div>
@@ -496,7 +499,7 @@
                 case 24:
                     screen.innerHTML = `
                         <div class="text-xl font-bold border-b border-current pb-1 mb-3">24. [LIV] FUNDAMENTOS DE QUÍMICA GERAL (GUIA DE ESTUDOS)</div>
-                        <p class="text-xs mb-3 opacity-80">15 tópicos de Química Geral, no formato de caderno de estudos: diagrama, notas resumidas, fórmula-chave, macete para lembrar, dois exemplos resolvidos, glossário e um mini-quiz de 5 perguntas (ordem embaralhada a cada tentativa) — para aproveitar melhor as ferramentas mais avançadas do site. Seu progresso fica salvo entre sessões.</p>
+                        <p class="text-xs mb-3 opacity-80">16 tópicos de Química Geral, no formato de caderno de estudos: diagrama, notas resumidas, fórmula-chave, macete para lembrar, dois exemplos resolvidos, glossário e um mini-quiz de 5 perguntas (ordem embaralhada a cada tentativa) — para aproveitar melhor as ferramentas mais avançadas do site. Seu progresso fica salvo entre sessões.</p>
                         <div id="gc-content"></div>
                     `;
                     gcInit();

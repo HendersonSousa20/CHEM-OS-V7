@@ -12,7 +12,8 @@
         let simRunning = true;
         let simSpeed = 1, simColorBySpeed = true, simWallImpulse = 0, simStatFrames = 0, simPressAvg = 0, simBoxFrac = 1, simLast = null, simAcc = 0; // v8.10/8.11
         const SIM_DT = 1000 / 60; // passo fixo de 1/60 s: a velocidade não depende da taxa de quadros do monitor
-        function simBoxW() { return Math.max(40, simCanvas.width * simBoxFrac); }
+        const SIMC = {}, SIMH = {};
+        function simBoxW() { return Math.max(40, SIMC.lw * simBoxFrac); }
         let simRafId = null;
         let simMolarMass = 28.01;          // g/mol (padrão: N2)
         let simTempK = 298;
@@ -30,8 +31,8 @@
             if (!simCanvas || !simHistCanvas) return;
             simCtx = simCanvas.getContext("2d");
             simHistCtx = simHistCanvas.getContext("2d");
-            simCanvas.width = simCanvas.clientWidth;
-            simHistCanvas.width = simHistCanvas.clientWidth;
+            hidpiFit(simCanvas, SIMC);
+            hidpiFit(simHistCanvas, SIMH);
 
             document.getElementById("sim-gas").addEventListener("change", simOnGasChange);
             document.getElementById("sim-gas-custom").addEventListener("change", resetSim);
@@ -54,8 +55,8 @@
                 window.removeEventListener("resize", simResizeHandler);
                 return;
             }
-            simCanvas.width = simCanvas.clientWidth;
-            simHistCanvas.width = simHistCanvas.clientWidth;
+            hidpiFit(simCanvas, SIMC);
+            hidpiFit(simHistCanvas, SIMH);
         }
 
         function simOnGasChange() {
@@ -98,7 +99,7 @@
             const massKg = (simMolarMass * 1e-3) / SIM_N_A;
             const sigma = Math.sqrt(SIM_K_B * simTempK / massKg); // desvio-padrão de velocidade por dimensão (m/s)
 
-            const w = simBoxW(), h = simCanvas.height;
+            const w = simBoxW(), h = SIMC.lh;
             simParticles = [];
             for (let i = 0; i < n; i++) {
                 const vxReal = sigma * simRandNormal();
@@ -148,7 +149,7 @@
         let simFrameCounter = 0;
 
         function simStep() {
-            const w = simBoxW(), h = simCanvas.height;
+            const w = simBoxW(), h = SIMC.lh;
             const r = SIM_RADIUS;
             simStatFrames += simSpeed;
 
@@ -188,7 +189,8 @@
 
         function simDrawFrame() {
             if (!simCtx) return;
-            const w = simCanvas.width, h = simCanvas.height;
+            const w = SIMC.lw, h = SIMC.lh;
+            simCtx.setTransform(SIMC.dpr || 1, 0, 0, SIMC.dpr || 1, 0, 0);
             const styles = getComputedStyle(document.body);
             const textColor = styles.getPropertyValue('--text-color').trim() || '#00FF66';
             const bgColor = styles.getPropertyValue('--bg-color').trim() || '#000000';
@@ -234,17 +236,18 @@
 
             // Pressão relativa: impulso médio transferido às paredes por quadro, por px de perímetro (u.a.). Em 2D, P ∝ N·T.
             const imp = simWallImpulse, fr = Math.max(simStatFrames, 1e-6); simWallImpulse = 0; simStatFrames = 0;
-            const pNow = (2 * massKg * (imp / SIM_SCALE) / fr) / (2 * (simBoxW() + simCanvas.height)) * 1e24;
+            const pNow = (2 * massKg * (imp / SIM_SCALE) / fr) / (2 * (simBoxW() + SIMC.lh)) * 1e24;
             simPressAvg = simPressAvg ? 0.8 * simPressAvg + 0.2 * pNow : pNow;
             const pEl = document.getElementById("sim-press"); if (pEl) pEl.textContent = simPressAvg.toFixed(2);
-            const paEl = document.getElementById("sim-pa"); if (paEl) paEl.textContent = (simPressAvg * simBoxW() * simCanvas.height / 1000).toFixed(0);
+            const paEl = document.getElementById("sim-pa"); if (paEl) paEl.textContent = (simPressAvg * simBoxW() * SIMC.lh / 1000).toFixed(0);
 
             simDrawHistogram(speedsReal, mKg);
         }
 
         function simDrawHistogram(speedsReal, mKg) {
             if (!simHistCtx) return;
-            const w = simHistCanvas.width, h = simHistCanvas.height;
+            const w = SIMH.lw, h = SIMH.lh;
+            simHistCtx.setTransform(SIMH.dpr || 1, 0, 0, SIMH.dpr || 1, 0, 0);
             const styles = getComputedStyle(document.body);
             const textColor = styles.getPropertyValue('--text-color').trim() || '#00FF66';
             const bgColor = styles.getPropertyValue('--bg-color').trim() || '#000000';

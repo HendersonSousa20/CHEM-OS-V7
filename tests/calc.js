@@ -11,7 +11,7 @@ const BP = w => {
 const nums = t => (t.replace(/(\d),(\d)/g, "$1.$2").match(/-?\d+(?:\.\d+)?(?:e[+-]?\d+)?/gi) || []).map(Number);
 (async () => {
   const dom = await JSDOM.fromURL(BASE + "index.html", { runScripts: "dangerously", resources: "usable", pretendToBeVisual: true, virtualConsole: new VirtualConsole(), beforeParse: BP });
-  await sleep(3000);
+  for (let i = 0; i < 80 && !(dom.window.document.getElementById("menu-filter") || dom.window.document.querySelector(".menu-item")); i++) await sleep(250); await sleep(400);
   const w = dom.window, d = w.document; let ok = 0, fail = 0;
   const find = id => { for (let n = 1; n <= 19; n++) { w.renderTool(n); if (d.getElementById(id)) return n; } throw new Error("campo não encontrado: " + id); };
   async function t(name, field, vals, run, expected, tol) {

@@ -46,7 +46,7 @@
     let sel = 0, shown = [];
     const draw = () => {
       const k = q.value.trim().toLowerCase();
-      shown = items.filter(i => i.label.toLowerCase().includes(k)).slice(0, 8);
+      shown = items.filter(i => chemMatch(i.label, k)).slice(0, 8);
       sel = Math.min(sel, Math.max(0, shown.length - 1));
       list.innerHTML = shown.map((i, x) => `<button role="option" aria-selected="${x === sel}" data-i="${x}" class="menu-item w-full ${x === sel ? "pal-sel" : ""}">${i.label.replace(/</g, "&lt;")}</button>`).join("") || "<div class='opacity-70'>Nada encontrado.</div>";
     };

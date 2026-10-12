@@ -64,6 +64,16 @@
                 padding: { left: 54, right: 14, top: (options && options.title) ? 26 : 10, bottom: 34 }
             };
 
+            /* v11.5 — HiDPI: tamanho LÓGICO (px CSS) separado do buffer do canvas (× densidade da tela), para o gráfico não ficar borrado em celular. */
+            chart.lh = +canvas.dataset.lh || canvas.height; canvas.dataset.lh = chart.lh;
+            chart.lw = canvas.clientWidth || canvas.width; chart.dpr = 1;
+            function fit() {
+                const dpr = Math.min(window.devicePixelRatio || 1, 3), lw = canvas.clientWidth || chart.lw;
+                chart.lw = lw; chart.dpr = dpr;
+                canvas.width = Math.round(lw * dpr); canvas.height = Math.round(chart.lh * dpr);
+                canvas.style.width = "100%"; canvas.style.height = chart.lh + "px";
+            }
+
             function computeFullDomain() {
                 let xs = [], ys = [];
                 chart.series.forEach(s => s.points.forEach(p => { xs.push(p.x); ys.push(p.y); }));
@@ -82,7 +92,7 @@
             }
 
             function toPx(x, y) {
-                const w = canvas.width, h = canvas.height;
+                const w = chart.lw, h = chart.lh;
                 const { left, right, top, bottom } = chart.padding;
                 const plotW = w - left - right, plotH = h - top - bottom;
                 const { xMin, xMax, yMin, yMax } = chart.view;
@@ -93,7 +103,7 @@
             }
 
             function toData(px, py) {
-                const w = canvas.width, h = canvas.height;
+                const w = chart.lw, h = chart.lh;
                 const { left, right, top, bottom } = chart.padding;
                 const plotW = w - left - right, plotH = h - top - bottom;
                 const { xMin, xMax, yMin, yMax } = chart.view;
@@ -104,7 +114,7 @@
             }
 
             function resetView() {
-                canvas.width = canvas.clientWidth;
+                fit();
                 computeFullDomain();
                 chart.view = Object.assign({}, chart.fullDomain);
                 render();
@@ -112,7 +122,8 @@
 
             function render() {
                 if (!chart.view) return;
-                const w = canvas.width, h = canvas.height;
+                const w = chart.lw, h = chart.lh;
+                ctx.setTransform(chart.dpr, 0, 0, chart.dpr, 0, 0);
                 const styles = getComputedStyle(document.body);
                 const textColor = styles.getPropertyValue("--text-color").trim() || "#00FF66";
                 const bgColor = styles.getPropertyValue("--bg-color").trim() || "#000000";
@@ -263,7 +274,7 @@
                     const dx = chart.mouse.x - chart.dragStart.px;
                     const dy = chart.mouse.y - chart.dragStart.py;
                     const { left, right, top, bottom } = chart.padding;
-                    const plotW = canvas.width - left - right, plotH = canvas.height - top - bottom;
+                    const plotW = chart.lw - left - right, plotH = chart.lh - top - bottom;
                     const { xMin, xMax, yMin, yMax } = chart.dragStart.view;
                     const dxData = -dx / plotW * (xMax - xMin);
                     const dyData = dy / plotH * (yMax - yMin);
@@ -314,6 +325,16 @@
                 link.href = canvas.toDataURL("image/png");
                 link.click();
             };
+
+            /* Redesenha ao girar o celular / redimensionar a janela */
+            if (window.ResizeObserver && canvas.parentElement) {
+                let rt; new ResizeObserver(() => { clearTimeout(rt); rt = setTimeout(() => { if (canvas.isConnected && canvas.clientWidth && Math.abs(canvas.clientWidth - chart.lw) > 1 && chart.view) { fit(); render(); } }, 120); }).observe(canvas.parentElement);
+            }
+            /* Toque: mostra o valor sob o dedo (sem bloquear a rolagem da página) */
+            const touchPos = e => { const t = e.touches[0], r = canvas.getBoundingClientRect(); chart.mouse = { x: t.clientX - r.left, y: t.clientY - r.top }; render(); };
+            canvas.addEventListener("touchstart", touchPos, { passive: true });
+            canvas.addEventListener("touchmove", touchPos, { passive: true });
+            canvas.addEventListener("touchend", () => { chart.mouse = null; render(); }, { passive: true });
 
             resetView();
             return chart;
