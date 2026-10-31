@@ -218,8 +218,9 @@
         }
 
         async function runNameResolver() {
-            const query = document.getElementById("resolver-input").value;
-            const resDiv = document.getElementById("resolver-result");
+            const inputEl = document.getElementById("resolver-input"), resDiv = document.getElementById("resolver-result");
+            if (!inputEl || !resDiv) return; // a tela mudou antes da chamada
+            const query = inputEl.value;
             resDiv.innerHTML = "<span class='animate-pulse'>Consultando OPSIN (com fallback automático) e CACTUS...</span>";
 
             let html = "";

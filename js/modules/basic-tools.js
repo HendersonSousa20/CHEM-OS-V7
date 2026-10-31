@@ -59,8 +59,9 @@
         }
 
         function runMolarMass() {
-            const input = document.getElementById("molar-input").value;
-            const resDiv = document.getElementById("molar-result");
+            const inputEl = document.getElementById("molar-input"), resDiv = document.getElementById("molar-result");
+            if (!inputEl || !resDiv) return; // a tela mudou antes da chamada
+            const input = inputEl.value;
             const res = parseFormula(input);
 
             if (!res.totalMass) {

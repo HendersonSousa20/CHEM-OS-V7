@@ -1,5 +1,96 @@
 # Changelog
 
+## 17.0 — Nova camada visual
+- **Bug de CSS corrigido (antigo):** em `ui-v11.css` havia um `@media (prefers-reduced-motion: reduce) { @media print { … }` com uma chave sem fechar. Todo o CSS seguinte ficava preso dentro da regra de movimento reduzido e só valia para quem pede isso no sistema. Com a correção, voltam a valer os rótulos de grupo, período e bloco da tabela periódica, a rolagem sob a barra de comando e, no celular, o ocultamento do rodapé de temas e da barra de comando (que já existe na navegação inferior). A auditoria passou a verificar que as chaves de todos os `css/*.css` estão balanceadas.
+- **Tipografia com papéis claros:** VT323 para título, rótulos e controles; IBM Plex Mono para texto, campos, resultados e tabelas (antes tudo era VT323 em tamanho muito pequeno). Texto de leitura com 78 caracteres no máximo por linha e entrelinha de 1,6.
+- **Marcador de célula nos módulos:** o título de cada módulo abre com o número em um bloco no formato das células da tabela periódica (a etiqueta [TAG], quando existe, aparece como símbolo). O número continua no texto para leitores de tela.
+- **Hierarquia de ações:** a ação principal de cada tela (CALCULAR, COMEÇAR, ANALISAR etc.) é preenchida; as demais ficam vazadas. Campos, listas e áreas de texto ganham fundo próprio, borda, foco visível e seta nas listas.
+- **Resultados legíveis:** valores-chave em destaque, entrelinha maior e fundo próprio; tabelas com cabeçalho em fonte de pixel, linhas finas e realce ao passar o mouse.
+- **Início:** subtítulo sem repetir o título; etiquetas e botões de atalho refinados; trilhas mais compactas.
+- **Barra de comando opaca:** deixa de sobrepor o conteúdo (cortava o fim das telas).
+- **Temas:** superfícies, linhas e texto atenuado derivados de cada tema (verde, âmbar, azul, mono e papel) por mistura de cores. O texto atenuado mantém contraste mínimo de 5,3:1 em todos os temas (WCAG AA exige 4,5:1). No tema papel, os avisos usam âmbar-escuro.
+- **Celular:** cabeçalho em uma linha, rodapé oculto, botões com altura mínima de 42 px e título proporcional.
+- **Textos corrigidos:** o caminho de navegação ainda mostrava "LABORATÓRIO, ESTUDO E JOGOS" e agora usa os grupos atuais do menu; a descrição do módulo 24 deixou de ser uma lista de 41 nomes.
+- Verificação: os 8 conjuntos de testes passam (auditoria 95/95, UX 50/50, acessibilidade, cálculo 8/8, laboratório 5/5, contraste, simulação e fumaça), a varredura de entradas extremas nos 58 módulos segue sem erros, e as telas foram conferidas em capturas de um navegador real (Chromium) nos 5 temas, em desktop e celular.
+
+## 16.0 — Caderno em todos os módulos, dois módulos novos e três tópicos
+- **Módulo 57 — Carga e pI de Aminoácidos:** carga líquida de 11 aminoácidos em qualquer pH (Henderson-Hasselbalch por grupo ionizável) e pI calculado pelo ponto de carga zero (glicina 5,97; lisina 9,74; glutamato 3,22; histidina 7,59).
+- **Módulo 58 — Velocidades Moleculares:** v_mp, v_méd e v_rms de 8 gases, fração de moléculas acima de uma velocidade (distribuição de Maxwell-Boltzmann, com função erro) e razão de efusão de Graham. N₂ a 298 K: 420,7 / 474,7 / 515,2 m/s.
+- **Guia (módulo 24) de 38 para 41 tópicos:** **39 Termodinâmica estatística** (Boltzmann, partição, equipartição, entropia de mistura), **40 Organometálica e catálise homogênea** (regra dos 18 elétrons, adição oxidativa, ciclos catalíticos) e **41 Eletroquímica aplicada** (baterias, corrosão, proteção catódica, Tafel, Hall-Héroult), com 10 perguntas cada. Banco total: 410.
+- **Caderno em todos os módulos:** os resultados dos módulos 1–34 passam a ser anunciados por leitores de tela (`aria-live`) e ganham o botão **+ CADERNO** ao lado do resultado.
+- Comandos novos: `aminoacidos`, `maxwell`, `velocidades`. Menu com 55 módulos; trilhas atualizadas.
+- **Bugs corrigidos durante o desenvolvimento:** na lista de pKa do módulo 57, `map(fmt)` passava o índice como número de algarismos e mostrava "10" no lugar de 9,6; e a regra "média dos dois menores pKa" dava pI errado para a tirosina (6,14 em vez de 5,6), corrigido com o cálculo pelo ponto de carga zero.
+- Verificação: os 8 conjuntos de testes passam (fumaça, auditoria 94/94, UX 50/50, acessibilidade, cálculo 8/8, laboratório 5/5, contraste e simulação) e a varredura de entradas extremas nos 58 módulos não achou erro nem `NaN`/`Infinity`/`undefined`.
+
+## 15.0 — Cinco ferramentas de bancada, três tópicos, caderno em PDF e histórico de revisão
+- **Módulo 52 — Diluições e Padrões de Calibração:** volumes de estoque para cada padrão (C₁V₁ = C₂V₂) com aviso para pipetagens abaixo de 100 µL, e concentrações, volumes de transferência e diluente de uma diluição seriada.
+- **Módulo 53 — Padronização de Soluções:** NaOH com biftalato, HCl com Na₂CO₃ e KMnO₄ com oxalato; concentração por réplica, média, desvio, RSD, IC 95 % e **teste Q de Dixon** (90 % e 95 %) para valores discrepantes.
+- **Módulo 54 — Massa Atômica Média e Padrão Isotópico:** média ponderada de até 4 isótopos e padrão de picos M, M+2, M+4… para moléculas com Cl e Br (Cl₂ dá 100:64:10; Br₂, 51:100:49).
+- **Módulo 55 — Lei de Hess:** soma até 5 etapas com multiplicadores (inverter = −1) e mostra cada contribuição.
+- **Módulo 56 — Cristais Cúbicos e Bragg:** cela simples, CCC e CFC; densidade a partir da aresta (ou o contrário), raio atômico, fração de empacotamento e espaçamento d pela lei de Bragg (cobre: 8,97 g/cm³ e 127,6 pm).
+- **Guia (módulo 24) de 35 para 38 tópicos:** **36 Sólidos cristalinos** (cela unitária, difração, bandas, defeitos), **37 Soluções reais** (Raoult, azeótropos, Henry, força iônica) e **38 Estereoquímica** (R/S, Fischer, conformações, ciclo-hexano), com 10 perguntas cada. Banco total: 380.
+- **Caderno de laboratório:** novo botão **IMPRIMIR / SALVAR PDF**, que abre uma página formatada e a janela de impressão do navegador.
+- **Revisão inteligente:** a tela inicial mostra o desempenho das últimas 8 rodadas, com barras e a média geral.
+- Comandos novos: `diluicoes`, `padroes`, `padronizacao`, `isotopos`, `hess`, `cristal`. Menu com 53 módulos; trilhas atualizadas.
+- Verificação: os 8 conjuntos de testes passam (fumaça, auditoria 94/94, UX 50/50, acessibilidade, cálculo 8/8, laboratório 5/5, contraste e simulação) e a varredura automática de entradas extremas nos 56 módulos não achou erro nem `NaN`/`Infinity`/`undefined`.
+
+## 14.1 — Correção de bugs
+- **Cálculo ao vivo disparava no módulo errado:** 700 ms depois de digitar, o recálculo automático (`ux-v9.js`) usava o campo que já tinha saído da tela, achava o botão CALCULAR antigo e o acionava no módulo seguinte, gerando erro no console (`runMolarMass` lendo campo `null`). Agora o recálculo é cancelado se o módulo mudou ou o campo não está mais na tela.
+- **Funções frágeis:** `runMolarMass` e `runNameResolver` passam a ignorar a chamada quando a tela mudou, em vez de lançar exceção.
+- **Janela de ajuda (F1) desatualizada:** listava só os módulos 1–25 e dizia "1 a 25". Agora diz 1 a 51, lista os módulos 26–51 (gerados dos dados de ajuda) e os atalhos por nome; os títulos das janelas de ajuda e de boas-vindas diziam "v11" e agora mostram v14.
+- **Terminal aceitava números inválidos:** `3.5` e `1e1` eram tratados como módulo 3 e 10. Agora só inteiros de 1 a 51 são aceitos (`07` continua abrindo o 7).
+- **Vírgula decimal nas listas (módulos 40 e 41):** valores como `0,5 1,0` eram partidos na vírgula e davam média e regressão erradas. Agora a vírgula é decimal e os valores se separam por espaço ou `;`.
+- **Cache offline incompleto:** `favicon-32.png` e `apple-touch-icon.png` não estavam no cache do service worker (cache `chemos-v14.1`).
+- **Desempenho:** o observador que coloca o botão + CADERNO agora roda no máximo uma vez a cada 60 ms (antes rodava a cada atualização da tela, inclusive durante a simulação molecular).
+- **Testes:** `tests/sim.js` calculava pressão NaN porque não preenchia as dimensões HiDPI (`SIMC`/`SIMH`) que a simulação passou a usar; corrigido. O teste de temperatura instantânea falhava por acaso (20 % de tolerância com amostras de 120 partículas) e agora usa a média de 5 execuções (±12 %).
+- Verificação: os 8 conjuntos de testes passam (fumaça, auditoria 94/94, UX 50/50, acessibilidade, cálculo 8/8, laboratório 5/5, contraste e simulação 7/7 em 6 execuções seguidas). Uma varredura automática abriu os 51 módulos com entradas vazias, 0, negativas, texto, 1e400 e só espaços, acionando todos os botões e selecionando todas as opções, sem erro de execução nem `NaN`/`Infinity`/`undefined` nas telas.
+
+## 14.0 — Revisão inteligente, três ferramentas novas e guia com 35 tópicos
+- **Módulo 49 — Revisão Inteligente:** sorteia perguntas dos 35 tópicos do guia (ou de um só), com peso maior nas que você já errou; mostra os tópicos mais errados, tem modo **SÓ OS QUE ERREI**, explicação após cada resposta, resultado final com os tópicos a rever e botão para zerar o histórico. Histórico apenas no navegador.
+- **Módulo 50 — Ordem de Reação por Regressão:** a partir de tempos e concentrações, ajusta [A], ln[A] e 1/[A] contra t, compara os R², indica a ordem, o k e o t½, e avisa quando os dados não distinguem as ordens.
+- **Módulo 51 — Calibração do Eletrodo de pH:** calibração em 2 pontos com correção pela temperatura: inclinação, eficiência frente a 59,16 mV/pH, potencial de assimetria e pH da amostra, com avisos de extrapolação.
+- **Guia (módulo 24) de 32 para 35 tópicos:** **33 Eletroanalítica** (potenciometria, condutimetria, voltametria, coulometria), **34 Catálise e química de superfícies** (fisissorção e quimissorção, Langmuir, BET, Eley-Rideal, TOF) e **35 Química orgânica II** (carbonila, Grignard, saponificação, aldólica, aromaticidade e SEAr). 10 perguntas cada; banco total: 350.
+- Comandos novos: `revisao`, `ordem`, `eletrodo`. Menu com 48 módulos; trilhas atualizadas ("Estudar e praticar" inclui a revisão).
+- Verificação: auditoria 94/94 (inclui 10 perguntas íntegras em cada um dos 35 tópicos), UX 50/50, cálculo 8/8, laboratório 5/5, acessibilidade sem pendências, contraste ok e fumaça sem erros. O teste de simulação molecular (`tests/sim.js`) continua acusando falhas no ambiente de teste, como antes.
+
+## 13.1 — Caderno em todos os módulos e 10 perguntas por tópico
+- **Caderno de Laboratório (módulo 48) em todos os 47 módulos:** além do botão **+ CADERNO** em cada resultado dos módulos 35–47, a barra superior de qualquer módulo ganhou **+ CADERNO**, que guarda uma captura da tela (entradas e resultados, até 1200 caracteres).
+- **Banco de perguntas completo:** os tópicos 17–32 passam de 8 para 10 perguntas cada (+32), com 4 alternativas distintas e explicação. Total: 320 perguntas em 32 tópicos. O teste de auditoria voltou a exigir 10 por tópico em todos.
+- Verificação: auditoria 94/94, UX 50/50, cálculo 8/8, laboratório 5/5, acessibilidade sem pendências e fumaça sem erros.
+
+## 13.0 — Maior atualização: 6 módulos, 6 tópicos, caderno e correções
+- **Guia (módulo 24) de 26 para 32 tópicos:** **27 Mecânica quântica do átomo** (Bohr, Rydberg, de Broglie, orbitais, números quânticos, Pauli, Hund), **28 Mecanismos orgânicos** (SN1, SN2, E1, E2), **29 Métodos de separação e cromatografia**, **30 Polímeros e materiais**, **31 Bioquímica essencial** (aminoácidos, pI, enzimas, ATP, DNA) e **32 Química ambiental e verde** (efeito estufa, ozônio, chuva ácida, DBO/DQO, economia atômica). Cada um com notas, mnemônico, glossário, 3 exemplos resolvidos, erros comuns, aplicação real, aprofundamento e 8 perguntas (banco total: 280, depois 320 na 13.1).
+- **Módulo 43 — Propagação de Incertezas:** soma, subtração, produto, quociente, potência e log, com arredondamento correto e incerteza expandida (k = 2).
+- **Módulo 44 — Cromatografia:** k, α, N, H, R_s e R_f, com avisos de retenção e resolução.
+- **Módulo 45 — Configuração Eletrônica:** átomos e íons (símbolo, nome ou Z), configuração completa e abreviada, desemparelhados, paramagnetismo e números quânticos do último elétron, com as exceções experimentais.
+- **Módulo 46 — Entalpia por Energias de Ligação:** tabela com 21 ligações e 4 exemplos prontos (combustão do metano, HCl, Haber, hidrogenação).
+- **Módulo 47 — Receitas de Tampão:** massas a pesar para acetato, fosfato, TRIS e carbonato em qualquer pH, concentração e volume.
+- **Módulo 48 — Caderno de Laboratório:** botão **+ CADERNO** em todos os resultados dos módulos 35–47; lista, remoção e download em .txt. Dados só no navegador (localStorage).
+- **Correção:** os comandos do terminal adicionados nas versões 22 e 12 (`concentracao`, `ph`, `nuclear` etc.) mostravam "comando desconhecido"; agora todos funcionam. Comandos novos: `incerteza`, `cromatografia`, `hplc`, `configuracao`, `cfg`, `receita`, `caderno`.
+- Menu com 45 módulos em 6 grupos; trilhas novas "Laboratório analítico" e "Estrutura da matéria" (9 trilhas no total). Testes antigos ajustados para ler os dados reais (faixa de módulos 1–48, nº de trilhas, perguntas por tópico).
+- Verificação: auditoria 94/94, UX 50/50, cálculo 8/8, laboratório 5/5, acessibilidade sem pendências, contraste ok e fumaça sem erros. O `tests/sim.js` (simulação molecular) acusa 5 falhas no ambiente de teste (jsdom), as mesmas que já ocorriam na v22.
+
+## 12.1 — Mais ferramentas de bancada e guia com 26 tópicos
+- **Guia (módulo 24) de 21 para 26 tópicos:** **22 Espectroscopia** (UV-Vis, IV, RMN, MS), **23 Gases reais, fases e pressão de vapor**, **24 Química analítica** (erros, volumetria, gravimetria, calibração), **25 Química nuclear** e **26 Inorgânica descritiva e compostos de coordenação** (campo cristalino, série espectroquímica, nomenclatura). Cada um com notas, mnemônico, glossário, 3 exemplos resolvidos, erros comuns, aplicação real, aprofundamento e 8 perguntas (banco total: 232).
+- **Módulo 39 — pH Universal:** resolve o balanço de carga completo para ácido/base forte, ácido/base fraca, sais e ácido diprótico, correto também em soluções muito diluídas (HCl 10⁻⁸ mol/L → pH 6,98), com frações das espécies.
+- **Módulo 40 — Estatística e Calibração:** média, desvio-padrão, RSD e IC 95 % (t de Student); regressão linear, R², LOD/LOQ e concentração da amostra, com alerta de extrapolação e de R² baixo.
+- **Módulo 41 — Gases Reais e Pressão de Vapor:** gás ideal × van der Waals (8 gases), fator Z e Clausius-Clapeyron.
+- **Módulo 42 — Radioatividade:** quantidade restante, datação, atividade (Bq, Ci) e energia de Δm (MeV).
+- Comandos novos: `ph`, `calibracao`, `estatistica`, `vdw`, `vapor`, `radioatividade`, `decaimento`, `nuclear`. Faixa numérica 1–42; menu com 39 módulos e trilhas atualizadas.
+
+## 12.0 — Guia de fundamentos aprofundado e Arrhenius/Van't Hoff
+- **Módulo 24 com 21 tópicos (eram 16):** novos tópicos **17 Orgânica** (funções, IUPAC, isomeria, acidez, reações), **18 Termodinâmica** (Hess, entropia, ΔG, K, Van't Hoff), **19 Cinética** (leis integradas, Arrhenius, mecanismos, catálise), **20 Equilíbrio iônico** (ácidos fracos, tampões, hidrólise, polipróticos, Kps) e **21 Estrutura molecular** (VSEPR, hibridização, polaridade, orbitais moleculares). Cada um tem notas em 6 níveis, mnemônico, glossário, 3 exemplos resolvidos, erros comuns, aplicação real, aprofundamento e 8 perguntas com explicação (banco total: 192).
+- **Módulo 38 — Arrhenius e Van't Hoff:** calcula Ea a partir de dois pontos (k, T), prevê k em outra temperatura e K em outra temperatura a partir de ΔH°. Comandos `arrhenius`, `vanthoff`. Entra na trilha "Gases e energia".
+- Versão v12 construída sobre a v22 (todos os módulos anteriores mantidos); faixa de comandos 1–38; menu com 35 módulos.
+
+## 22.0 — Química pura e ferramentas de bancada
+- **Foco em química:** Quiz da Tabela Periódica (28), Detetive Químico (25) e Suíte de Testes (20) saíram do menu; continuam acessíveis pelos comandos `quiz`, `detetive` e `test`. Removidos o cursor piscante do título e o pulso da etiqueta NOVO. Menu reorganizado em seis grupos, com o novo "Soluções e bancada".
+- **Módulo 35 — Concentrações e Reagentes Concentrados:** de HCl 37 %, HNO₃ 65 %, H₂SO₄ 98 % e outros (ou valores próprios), calcula mol/L, g/L, molalidade e fração molar, e diz quantos mL pipetar para preparar um volume e uma concentração desejados. Conversor entre mol/L, g/L, % m/v e ppm. Comandos `concentracao`, `reagente`.
+- **Módulo 36 — Referência Rápida:** 10 indicadores ácido-base (com busca por pH), pKa de 15 ácidos e tampões e regras gerais de solubilidade. Comandos `referencia`, `indicador`.
+- **Módulo 37 — Propriedades Coligativas:** ΔTf, ΔTb e pressão osmótica (água, benzeno, ácido acético; fator de van't Hoff). Comandos `coligativas`, `crioscopia`.
+- Versão unificada v22 (cabeçalho, título, manifesto, `package.json`, cache `chemos-v22.0`). Faixa de comandos numéricos 1–37; novas trilhas "Propriedades das soluções" e Soluções e pH com o módulo 35.
+- Conferido: HCl 37 % (d = 1,19) dá 12,08 mol/L e 41,4 mL para 500 mL de 1 mol/L.
+
 ## 11.5 — Espaço de tela, gráficos nítidos e tabela periódica rotulada
 - **Gráficos nítidos em celular:** o motor de gráficos (cinética, titulações e laboratório) e os canvases da simulação molecular e do editor de estruturas agora compensam a densidade da tela (2x/3x). Antes eram desenhados em baixa resolução e esticados, ficando borrados. Também redesenham ao girar o celular ou redimensionar a janela, e a exportação PNG sai em resolução maior. Novo auxiliar `js/core/hidpi.js`.
 - **Toque nos gráficos:** tocar na curva mostra o valor exato (antes só havia mouse); a dica na tela muda conforme o dispositivo.

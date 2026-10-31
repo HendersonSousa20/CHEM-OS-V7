@@ -1,7 +1,7 @@
 {
   "name": "CHEM.OS — Laboratório Químico",
   "short_name": "CHEM.OS",
-  "description": "34 módulos de química no navegador, com modo offline.",
+  "description": "55 módulos de química no navegador, com modo offline.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

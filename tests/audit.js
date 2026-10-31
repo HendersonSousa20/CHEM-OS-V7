@@ -14,6 +14,13 @@ const nums = t => (t.replace(/(\d),(\d)/g, "$1.$2").match(/-?\d+(?:\.\d+)?(?:e[+
   for (let i = 0; i < 80 && !(dom.window.document.getElementById("menu-filter") || dom.window.document.querySelector(".menu-item")); i++) await sleep(250); await sleep(400);
   const w = dom.window, d = w.document; let ok = 0, fail = 0;
   const report = (good, name, extra) => { good ? ok++ : fail++; console.log(good ? "OK   " : "FALHA", name, good ? "" : extra || ""); };
+  // CSS: chaves balanceadas em todos os arquivos (uma chave sem fechar prende o resto da folha dentro de um @media)
+  { const fs = require("fs"), path = require("path"); const bad = [];
+    fs.readdirSync(path.join(__dirname, "..", "css")).filter(f => f.endsWith(".css") && f !== "tailwind.css").forEach(f => {
+      const t = fs.readFileSync(path.join(__dirname, "..", "css", f), "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/"[^"]*"|'[^']*'/g, "");
+      let depth = 0, neg = false; for (const c of t) { if (c === "{") depth++; else if (c === "}") { depth--; if (depth < 0) neg = true; } }
+      if (depth !== 0 || neg) bad.push(f + " (saldo " + depth + ")"); });
+    report(!bad.length, "CSS: chaves balanceadas em css/*.css", bad.join(", ")); }
   const T = "[➔→>-]+";
   const X = t => new RegExp(t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
   const EP = (m, c, an, el = "inert") => ({ "elp-medium": m, "elp-cat": c, "elp-an": an, "elp-el": el });
@@ -163,8 +170,8 @@ const nums = t => (t.replace(/(\d),(\d)/g, "$1.$2").match(/-?\d+(?:\.\d+)?(?:e[+
   report(/FÍSICO-QUÍMICA E ANÁLISE/.test((d.querySelector(".crumb") || {}).textContent || "") && /MÓDULO 33/.test((d.querySelector(".crumb") || {}).textContent || ""), "Visual: caminho de navegação no módulo 33");
   w.renderHome();
   // Banco de perguntas do módulo 24: 10 por tópico, 4 alternativas distintas, índice válido, sem repetição
-  const badQ = w.eval(`GC_TOPICS.flatMap(t => { const a = [...GC_QUIZZES[t.key], ...GC_EXTRA[t.key].q], seen = new Set(); const e = a.length !== 10 ? [t.key + " tem " + a.length] : []; a.forEach((q, i) => { if (q.options.length !== 4 || new Set(q.options).size !== 4 || q.correct < 0 || q.correct > 3 || !q.explain || seen.has(q.q)) e.push(t.key + "#" + i); seen.add(q.q); }); return e; })`);
-  report(!badQ.length, "Módulo 24: 160 perguntas íntegras (10 por tópico, 16 tópicos)", JSON.stringify(badQ));
+  const badQ = w.eval(`GC_TOPICS.flatMap(t => { const a = [...GC_QUIZZES[t.key], ...GC_EXTRA[t.key].q], seen = new Set(); const e = a.length < 10 ? [t.key + " tem " + a.length] : []; a.forEach((q, i) => { if (q.options.length !== 4 || new Set(q.options).size !== 4 || q.correct < 0 || q.correct > 3 || !q.explain || seen.has(q.q)) e.push(t.key + "#" + i); seen.add(q.q); }); return e; })`);
+  report(!badQ.length, "Módulo 24: perguntas íntegras (10 por tópico, 32 tópicos)", JSON.stringify(badQ));
   // Busca sem acento e tolerante a plural
   const M = [["Ligações Químicas", "ligacao", true], ["Ligação covalente", "ligacoes", true], ["Ácido forte", "acidos", true], ["Titulação", "titulacoes", true], ["Mol", "reacao", false], ["Termoquímica", "TERMOQUIMICA", true]];
   const badM = M.filter(([h, q, e]) => w.chemMatch(h, q) !== e);

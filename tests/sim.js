@@ -5,7 +5,7 @@ const ctx = { window: { addEventListener() {}, removeEventListener() {} }, docum
 vm.createContext(ctx);
 new vm.Script(fs.readFileSync(__dirname + "/../js/modules/molecular-simulation.js", "utf8") + `
 function __run(T, N, steps, frac) {
-  simCanvas = { width: 600, height: 300, clientWidth: 600 }; simHistCanvas = { width: 600, height: 110 };
+  simCanvas = { width: 600, height: 300, clientWidth: 600 }; simHistCanvas = { width: 600, height: 110 }; Object.assign(SIMC, { lw: 600, lh: 300, dpr: 1 }); Object.assign(SIMH, { lw: 600, lh: 110, dpr: 1 });
   simCtx = new Proxy({}, { get: (t, k) => () => {}, set: () => true }); simHistCtx = simCtx;
   document.getElementById("sim-gas").value = "28.01"; document.getElementById("sim-temp").value = String(T); document.getElementById("sim-n").value = String(N);
   simSpeed = 1; simBoxFrac = frac || 1; simPressAvg = 0; simWallImpulse = 0; simStatFrames = 0; resetSim(); simPressAvg = 0; simWallImpulse = 0; simStatFrames = 0;
@@ -20,6 +20,7 @@ const norm = (x, N) => x.p / (N * x.tinst);
 const base = r(298, 40), dT = r(596, 40), dN = r(298, 80), half = r(298, 40, 0.5), big = r(298, 120);
 const ratioT = norm(dT, 40) / norm(base, 40), ratioN = norm(dN, 80) / norm(base, 40);
 const ratioP = half.p / (base.p * half.tinst / base.tinst), ratioPA = ratioP * 0.5;
+const meanT = [big, r(298, 120), r(298, 120), r(298, 120), r(298, 120)].reduce((t, x) => t + x.tinst, 0) / 5;
 const check = (name, ok, info) => { console.log(ok ? "OK   " : "FALHA", name, info); return ok; };
 const vth = T => Math.sqrt(2 * 1.380649e-23 * T / (28.01e-3 / 6.02214076e23));
 const res = [
@@ -27,12 +28,12 @@ const res = [
   check("P/(N·T) constante ao dobrar N (razão ≈ 1)", ratioN > 0.8 && ratioN < 1.25, ratioN.toFixed(2)),
   check("Boyle: volume pela metade → pressão ≈ 2× (a mesma T)", ratioP > 1.6 && ratioP < 2.8, ratioP.toFixed(2)),
   check("Boyle: P × A ≈ constante (±30 %)", Math.abs(ratioPA - 1) < 0.3, ratioPA.toFixed(2)),
-  check("T instantânea ≈ 298 K com 120 partículas (±20 %)", Math.abs(big.tinst - 298) / 298 < 0.2, big.tinst + " K"),
+  check("T instantânea ≈ 298 K (média de 5 execuções com 120 partículas, ±12 %)", Math.abs(meanT - 298) / 298 < 0.12, meanT.toFixed(0) + " K"),
   check("v_rms 2D ≈ √(2kT/m) para a T real medida (±8 %)", Math.abs(big.vrms - vth(big.tinst)) / big.vrms < 0.08, big.vrms + " m/s")
 ];
 // Sub-passos: com H2 a 1500 K (partículas rápidas), simAdvance deve reduzir sobreposições profundas em relação a simStep puro
 new vm.Script(`function __deep(useAdv) {
-  simCanvas = { width: 300, height: 200, clientWidth: 300 }; simHistCanvas = { width: 300, height: 110 };
+  simCanvas = { width: 300, height: 200, clientWidth: 300 }; simHistCanvas = { width: 300, height: 110 }; Object.assign(SIMC, { lw: 300, lh: 200, dpr: 1 }); Object.assign(SIMH, { lw: 300, lh: 110, dpr: 1 });
   simCtx = new Proxy({}, { get: () => () => {}, set: () => true }); simHistCtx = simCtx;
   document.getElementById("sim-gas").value = "2.016"; document.getElementById("sim-temp").value = "1500"; document.getElementById("sim-n").value = "120";
   simSpeed = 1; simBoxFrac = 1; resetSim(); let deep = 0;

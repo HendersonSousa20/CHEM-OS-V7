@@ -3,7 +3,7 @@
   "use strict";
   var sc = document.getElementById("screen-content"); if (!sc || !window.MutationObserver) return;
   var GROUPS = [["CÁLCULOS BÁSICOS", [1, 3, 4, 5, 8, 11, 26, 27, 29]], ["ÁCIDO-BASE E EQUILÍBRIO", [6, 10, 15, 16, 18, 19]], ["FÍSICO-QUÍMICA E ANÁLISE", [9, 12, 14, 17, 30, 31, 32, 33, 34]], ["DADOS E REFERÊNCIA", [2, 7, 13]], ["LABORATÓRIO, ESTUDO E JOGOS", [23, 24, 25, 28, 21, 22]], ["SISTEMA", [20]]];
-  var groupOf = function (n) { for (var i = 0; i < GROUPS.length; i++) if (GROUPS[i][1].indexOf(n) > -1) return GROUPS[i][0]; return ""; };
+  var groupOf = function (n) { var G = window.CHEM_GROUPS || GROUPS; for (var i = 0; i < G.length; i++) if (G[i][1].indexOf(n) > -1) return G[i][0]; return n === 20 ? "SISTEMA" : (n === 25 || n === 28) ? "ESTUDO" : ""; };
   var key = function (k, o) { document.dispatchEvent(new KeyboardEvent("keydown", Object.assign({ key: k, bubbles: true, cancelable: true }, o || {}))); };
 
   function enhanceHome() {

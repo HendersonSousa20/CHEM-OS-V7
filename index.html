@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CHEM.OS v11 — Laboratório Químico no Navegador</title>
-    <meta name="description" content="34 módulos de química: balanceador de equações, pH, titulação, termoquímica, tabela periódica, PubChem e laboratório virtual. Roda direto no navegador.">
+    <title>CHEM.OS v17 — Laboratório Químico no Navegador</title>
+    <meta name="description" content="55 módulos de química: balanceador de equações, pH, titulação, termoquímica, tabela periódica, PubChem e laboratório virtual. Roda direto no navegador.">
     <meta name="theme-color" content="#000000">
     <meta name="author" content="CHEM.OS">
     <meta name="robots" content="index,follow">
@@ -20,7 +20,7 @@
     <link rel="manifest" href="manifest.webmanifest">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="CHEM.OS">
-    <meta property="og:title" content="CHEM.OS v11 — Laboratório Químico no Navegador">
+    <meta property="og:title" content="CHEM.OS v17 — Laboratório Químico no Navegador">
     <meta property="og:description" content="Calculadoras, simulações e experimentos guiados de química em uma interface retrô de terminal.">
 
 
@@ -542,7 +542,6 @@ body { background-image: radial-gradient(circle at 1px 1px, color-mix(in srgb, v
 /* ---- Herói ---- */
 .hero-title { letter-spacing: .06em; text-shadow: 0 0 22px var(--glow), 0 0 3px var(--text-color); }
 body.theme-paper .hero-title { text-shadow: none; }
-.hero-title::after { content: "▌"; margin-left: .12em; font-size: .8em; animation: v11blink 1.1s steps(1) infinite; }
 @keyframes v11blink { 50% { opacity: 0; } }
 .hero-ribbon { display: flex; flex-wrap: wrap; gap: 6px 10px; margin: 2px 0 12px; font-size: .95rem; }
 .hero-ribbon > span { border: 1px dashed color-mix(in srgb, var(--text-color) 55%, transparent); padding: 1px 9px; background: var(--tint); }
@@ -571,7 +570,7 @@ h2.menu-heading::after { content: ""; flex: 1; border-top: 1px dashed color-mix(
 .menu-item .menu-title { grid-column: 2; min-width: 0; }
 .menu-item small { grid-column: 2; opacity: .82; }
 .menu-item:hover .menu-num, .menu-item:focus-visible .menu-num { background: var(--text-color); color: var(--bg-color); text-shadow: none; }
-.chip-new { display: inline-block; margin-left: .55em; padding: 0 .4em; font-size: .72em; letter-spacing: .1em; vertical-align: .12em; background: var(--text-color); color: var(--bg-color); text-shadow: none; animation: v11pulse 2.2s ease-in-out infinite; }
+.chip-new { display: inline-block; margin-left: .55em; padding: 0 .4em; font-size: .72em; letter-spacing: .1em; vertical-align: .12em; background: var(--text-color); color: var(--bg-color); text-shadow: none;  }
 @keyframes v11pulse { 50% { opacity: .65; } }
 
 /* ---- Molduras com cantos de painel (HUD) nas caixas de conteúdo ---- */
@@ -589,7 +588,6 @@ h2.menu-heading::after { content: ""; flex: 1; border-top: 1px dashed color-mix(
 .crumb .sep { opacity: .6; }
 .crumb .here { font-weight: 700; }
 
-@media (prefers-reduced-motion: reduce) { .hero-title::after, .chip-new { animation: none; } }
 @media print { body { background-image: none !important; } .hero-ribbon, .hero-actions, .crumb { display: none !important; } }
 
 /* ===== Mais espaço de tela ===== */
@@ -612,6 +610,146 @@ h2.menu-heading::after { content: ""; flex: 1; border-top: 1px dashed color-mix(
 .hint-touch { display: none; }
 @media (pointer: coarse) { .hint-mouse { display: none; } .hint-touch { display: inline; } }
 
+/* ==========================================================================
+   CHEM.OS v17 — camada visual.
+   Direção: terminal de fósforo de laboratório, mais calmo e legível.
+   Cor   : os temas existentes (verde, âmbar, azul, mono, papel) + superfícies derivadas por mistura.
+   Tipo  : VT323 para título, rótulos e controles; IBM Plex Mono para leitura, resultados e tabelas.
+   Marca : cada módulo abre com um marcador numérico no formato de célula da tabela periódica.
+   ========================================================================== */
+body {
+  --surface: color-mix(in srgb, var(--text-color) 6%, var(--bg-color));
+  --surface-hi: color-mix(in srgb, var(--text-color) 13%, var(--bg-color));
+  --line: color-mix(in srgb, var(--text-color) 42%, var(--bg-color));
+  --dim: color-mix(in srgb, var(--text-color) 74%, var(--bg-color));
+  --font-ui: 'VT323', 'IBM Plex Mono', monospace;
+  --font-read: 'IBM Plex Mono', ui-monospace, 'Courier New', monospace;
+}
+:root { --vp-pad: .75rem; }
+@media (min-width: 768px) { :root { --vp-pad: 1rem; } }
+
+::selection { background: var(--text-color); color: var(--bg-color); }
+html { scrollbar-color: var(--text-color) var(--bg-color); }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--surface); border: 0; border-left: 1px solid var(--line); }
+::-webkit-scrollbar-thumb { background: var(--line); border: 2px solid var(--surface); }
+::-webkit-scrollbar-thumb:hover { background: var(--text-color); }
+
+/* ---------- Barra de comando: opaca e sem sobreposição ---------- */
+#viewport { padding-bottom: 0 !important; }
+#viewport > div:last-child {
+  background: var(--bg-color) !important; backdrop-filter: none !important;
+  margin: 0 calc(-1 * var(--vp-pad)); padding: 10px var(--vp-pad) 10px !important;
+  border-top: 1px solid var(--line) !important; z-index: 5;
+}
+#cli-input { font-family: var(--font-read); font-size: .95rem; letter-spacing: .01em !important; }
+#cli-input::placeholder { color: var(--dim); opacity: 1; }
+#screen-content { padding-bottom: 28px; }
+
+/* ---------- Cabeçalho e rodapé ---------- */
+header[role=banner] { font-family: var(--font-ui); font-size: 1.1rem !important; letter-spacing: .04em; }
+header[role=banner] #sys-status { animation: none !important; opacity: .85; }
+header[role=banner] #clock { color: var(--dim); }
+footer[role=contentinfo] { font-family: var(--font-ui); font-size: 1.05rem !important; color: var(--dim); }
+footer[role=contentinfo] strong { color: var(--text-color); border-color: var(--line) !important; background: var(--surface); }
+
+/* ---------- Texto de leitura ---------- */
+#screen-content { font-family: var(--font-read); font-size: .9rem; line-height: 1.62; }
+#screen-content .text-sm { font-size: .9rem; line-height: 1.62; }
+#screen-content .text-xs { font-size: .8rem; line-height: 1.55; color: var(--dim); opacity: 1 !important; }
+#screen-content p { max-width: 78ch; }
+#screen-content strong, #screen-content b { font-weight: 600; }
+#screen-content .opacity-80, #screen-content .opacity-70 { opacity: 1 !important; color: var(--dim); }
+#screen-content .mod-desc { color: var(--dim); max-width: 78ch; }
+
+/* Elementos de interface mantêm a fonte de pixel */
+#screen-content button, #screen-content summary, #screen-content kbd, #screen-content .menu-item, #screen-content .menu-heading,
+#screen-content .track, #screen-content .crumb, #screen-content .hero-title, #screen-content .hero-ribbon, #screen-content [class*="pt-"],
+#screen-content h1, #screen-content h2, #screen-content h3, #screen-content .text-xl, #screen-content .text-2xl, #screen-content .text-3xl { font-family: var(--font-ui); }
+
+/* ---------- Título do módulo + marcador de célula ---------- */
+#screen-content .text-xl.mod-title { display: flex; align-items: center; gap: 14px; border-bottom: 0 !important; padding: 8px 0 12px; font-size: 1.9rem; line-height: 1.05; letter-spacing: .02em; text-shadow: 0 0 16px var(--glow, transparent); }
+.mod-tile { position: relative; flex: none; display: inline-grid; place-items: center; min-width: 3rem; height: 3rem; padding: 0 .45rem; border: 2px solid var(--text-color); background: var(--surface-hi); font-family: var(--font-ui); font-size: 1.9rem; line-height: 1; text-shadow: none; box-shadow: 3px 3px 0 var(--line); }
+.mod-tile::before { content: attr(data-n); }
+.mod-tile[data-tag]::after { content: attr(data-tag); position: absolute; right: 3px; bottom: 1px; font-size: .62rem; line-height: 1; letter-spacing: .06em; color: var(--dim); }
+.mod-title-text { min-width: 0; font-size: 1em; }
+#screen-content .mod-title + .mod-desc, #screen-content .mod-title ~ p.mod-desc { margin-top: -2px; }
+#screen-content .crumb { margin: 4px 0 6px; font-size: 1rem; color: var(--dim); }
+
+/* ---------- Teoria (details) ---------- */
+#screen-content details { border: 1px solid var(--line); background: var(--surface); margin: 10px 0 14px; }
+#screen-content details > summary { padding: 8px 12px; cursor: pointer; font-size: 1.2rem; list-style-position: inside; }
+#screen-content details[open] > summary { border-bottom: 1px solid var(--line); background: var(--surface-hi); }
+#screen-content details > :not(summary) { padding-left: 12px; padding-right: 12px; }
+#screen-content details > :last-child { padding-bottom: 12px; }
+
+/* ---------- Campos ---------- */
+#screen-content label:has(> input:not([type=checkbox]):not([type=radio]):not([type=range]), > select, > textarea) { display: flex; flex-direction: column; gap: 5px; color: var(--dim); font-size: .8rem; line-height: 1.35; }
+#screen-content .dos-input, #screen-content input[type=text], #screen-content input[type=number], #screen-content input[type=search], #screen-content select, #screen-content textarea {
+  font-family: var(--font-read); font-size: .92rem; color: var(--text-color); background: var(--surface); border: 1px solid var(--line); border-bottom: 2px solid var(--text-color);
+  border-radius: 0; padding: 8px 10px; min-height: 40px; line-height: 1.3; transition: border-color .15s, background-color .15s;
+}
+#screen-content .dos-input:hover, #screen-content select:hover { background: var(--surface-hi); }
+#screen-content .dos-input:focus, #screen-content input:focus, #screen-content select:focus, #screen-content textarea:focus { outline: 2px solid var(--text-color) !important; outline-offset: 2px; box-shadow: none !important; background: var(--surface-hi); }
+#screen-content select { appearance: none; -webkit-appearance: none; padding-right: 32px; cursor: pointer;
+  background-image: linear-gradient(45deg, transparent 50%, var(--text-color) 50%), linear-gradient(135deg, var(--text-color) 50%, transparent 50%);
+  background-position: calc(100% - 17px) 50%, calc(100% - 12px) 50%; background-size: 5px 5px, 5px 5px; background-repeat: no-repeat; }
+#screen-content select option { background: var(--bg-color); color: var(--text-color); }
+#screen-content input::placeholder, #screen-content textarea::placeholder { color: var(--dim); opacity: 1; }
+#screen-content .grid { gap: 12px !important; }
+#screen-content p + label, #screen-content p + .grid, #screen-content p + div > label { margin-top: 12px; }
+#screen-content label + label { margin-top: 4px; }
+
+/* ---------- Botões: ação principal preenchida ---------- */
+#screen-content .dos-btn { font-size: 1.2rem; padding: 4px 16px; min-height: 38px; border: 1px solid var(--text-color); letter-spacing: .04em; }
+#screen-content .dos-btn.btn-primary { background: var(--text-color) !important; color: var(--bg-color) !important; font-weight: 700; padding-inline: 22px; }
+#screen-content .dos-btn.btn-primary:hover { box-shadow: 0 0 0 2px var(--bg-color), 0 0 0 4px var(--text-color); }
+#screen-content .dos-btn:focus-visible { outline: 2px solid var(--text-color); outline-offset: 3px; }
+#screen-content .dos-btn.text-xs { font-size: 1rem; min-height: 30px; color: var(--text-color); }
+
+/* ---------- Resultados ---------- */
+#screen-content [aria-live="polite"].dos-border { background: var(--surface); padding: 14px 18px !important; line-height: 1.75; font-size: .92rem; border-color: var(--text-color); }
+#screen-content [aria-live="polite"].dos-border strong { font-weight: 600; background: color-mix(in srgb, var(--text-color) 16%, transparent); padding: 0 .35em; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+#screen-content [aria-live="polite"].dos-border .text-yellow-300 { color: var(--warn-color, #FFD24A) !important; }
+body.theme-paper #screen-content [aria-live="polite"].dos-border .text-yellow-300 { color: #8A5A00 !important; }
+
+/* ---------- Tabelas ---------- */
+#screen-content table { border-collapse: collapse; width: 100%; font-family: var(--font-read); font-size: .85rem; }
+#screen-content th { font-family: var(--font-ui); font-size: 1.1rem; font-weight: 400; text-align: left; padding: 6px 12px; border-bottom: 2px solid var(--text-color); white-space: nowrap; }
+#screen-content td { padding: 6px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+#screen-content tbody tr:hover td { background: var(--surface); }
+#screen-content table input { min-height: 32px; padding: 4px 8px; }
+
+/* ---------- Início ---------- */
+.hero-ribbon > span { border: 1px solid var(--line) !important; background: var(--surface); color: var(--dim); font-family: var(--font-ui); font-size: 1.05rem; padding: 1px 10px; }
+.hero-actions .dos-btn { font-size: 1.2rem; }
+.hero-actions kbd { margin-left: .6em; padding: 0 .4em; border: 1px solid var(--line); color: var(--dim); font-size: .9rem; }
+#screen-content .menu-heading { font-size: 1.35rem; letter-spacing: .05em; margin-top: 18px; }
+.track { padding: 5px 0; border-bottom: 1px dotted var(--line); gap: 6px 8px; }
+.track > strong { flex-basis: 10.5rem; font-size: 1.2rem; font-weight: 400; color: var(--dim); }
+.track > span { color: var(--line); opacity: 1; }
+.track-step { background: var(--surface); border: 1px solid var(--line) !important; font-size: 1.1rem; padding: 2px 10px !important; }
+.track-step:hover, .track-step:focus-visible { background: var(--text-color); color: var(--bg-color); border-color: var(--text-color) !important; }
+
+/* ---------- Celular ---------- */
+@media (max-width: 640px) {
+  footer[role=contentinfo] { display: none !important; }
+  header[role=banner] { flex-wrap: nowrap !important; gap: .4rem !important; font-size: 1rem !important; padding: 6px 8px !important; }
+  header[role=banner] > div:nth-child(2), header[role=banner] #clock { display: none !important; }
+  header[role=banner] > div { white-space: nowrap; }
+  #screen-content .dos-btn { padding-inline: 10px; font-size: 1.1rem; }
+  .mod-tile { min-width: 2.5rem; height: 2.5rem; font-size: 1.6rem; }
+  #screen-content .text-xl.font-bold:first-of-type { font-size: 1.5rem; }
+  #screen-content .text-xl.mod-title { gap: 10px; }
+  #screen-content .dos-btn, #screen-content .track-step { min-height: 42px; }
+  #screen-content .grid { gap: 10px !important; }
+  .track > strong { flex-basis: 100%; }
+  #screen-content table { font-size: .8rem; }
+  #screen-content th, #screen-content td { padding: 6px 8px; }
+}
+@media (prefers-reduced-motion: reduce) { .mod-tile { transition: none; } }
+@media print { .mod-tile { box-shadow: none; border-color: #000; background: none; } #screen-content { font-size: 11pt; } }
+
     </style>
     <link rel="stylesheet" href="css/tailwind.css">
 </head>
@@ -621,7 +759,7 @@ h2.menu-heading::after { content: ""; flex: 1; border-top: 1px dashed color-mix(
     <a href="#cli-input" class="skip-link">Pular para o campo de comando</a>
 
     <header class="dos-border p-2 mb-2 flex flex-wrap justify-between items-center text-xs md:text-sm bg-black/40" role="banner">
-        <div class="font-bold tracking-wider flex items-center gap-2"><button onclick="renderHome()" class="dos-btn" aria-label="Voltar ao menu principal">[MENU]</button> CHEM.OS v11</div>
+        <div class="font-bold tracking-wider flex items-center gap-2"><button onclick="renderHome()" class="dos-btn" aria-label="Voltar ao menu principal">[MENU]</button> CHEM.OS v17</div>
         <div>SYS: <span id="sys-status" class="animate-pulse text-green-400">ONLINE</span></div>
         <div>AUDIO: <button id="sound-btn" onclick="toggleSound()" class="underline" aria-pressed="false" aria-label="Ativar ou desativar sons da interface">[OFF]</button></div>
         <div>CRT: <button onclick="toggleCRT()" class="underline" aria-label="Ativar ou desativar o efeito visual CRT">[TOGGLE]</button></div>
@@ -634,7 +772,7 @@ h2.menu-heading::after { content: ""; flex: 1; border-top: 1px dashed color-mix(
             <span class="mr-2 font-bold text-xl" aria-hidden="true">&gt;</span>
             <label for="cli-input" class="sr-only">Linha de comando: digite um número de módulo (1 a 34) ou um comando</label>
             <input type="text" id="cli-input" class="w-full bg-transparent outline-none tracking-wider"
-                   placeholder="Digite um número (1-34), 'ajuda' ou 'test' para rodar a suíte..."
+                   placeholder="Digite um número (1-58), 'ajuda' ou 'test' para rodar a suíte..."
                    autocomplete="off" enterkeyhint="go">
         </div>
     </main>
@@ -688,6 +826,13 @@ h2.menu-heading::after { content: ""; flex: 1; border-top: 1px dashed color-mix(
     <script src="js/data/gc-extra.js"></script>
     <script src="js/data/gc-extra2.js"></script>
     <script src="js/data/gc-eletro.js"></script>
+    <script src="js/data/gc-deep.js"></script>
+    <script src="js/data/gc-deep2.js"></script>
+    <script src="js/data/gc-deep3.js"></script>
+    <script src="js/data/gc-deep4.js"></script>
+    <script src="js/data/gc-deep5.js"></script>
+    <script src="js/data/gc-deep6.js"></script>
+    <script src="js/data/gc-deep7.js"></script>
     <script src="js/modules/gc-plus.js"></script>
     <script src="js/modules/chemistry-detective.js"></script>
     <script src="js/modules/unit-converter.js"></script>
@@ -702,6 +847,14 @@ h2.menu-heading::after { content: ""; flex: 1; border-top: 1px dashed color-mix(
     <script src="js/modules/galvanic-cells.js"></script>
     <script src="js/modules/electrolysis.js"></script>
     <script src="js/modules/electro-predict.js"></script>
+    <script src="js/modules/utility-v22.js"></script>
+    <script src="js/modules/arrhenius-v12.js"></script>
+    <script src="js/modules/tools-v12b.js"></script>
+    <script src="js/modules/tools-v13.js"></script>
+    <script src="js/modules/tools-v14.js"></script>
+    <script src="js/modules/tools-v15.js"></script>
+    <script src="js/modules/tools-v16.js"></script>
+    <script src="js/core/ui-v17.js"></script>
     <script src="js/modules/ptable-plus.js"></script>
     <script src="js/core/net-ui.js"></script>
     <script src="js/core/ux-extras.js"></script>

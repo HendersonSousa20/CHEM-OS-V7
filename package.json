@@ -1,8 +1,8 @@
 {
   "name": "chem-os",
-  "version": "11.5.0",
+  "version": "17.0.0",
   "private": true,
-  "description": "CHEM.OS — 34 módulos de química no navegador: cálculos, simulações, laboratório virtual e guia de estudos. Funciona offline.",
+  "description": "CHEM.OS — 55 módulos de química no navegador: cálculos, simulações, laboratório virtual e guia de estudos. Funciona offline.",
   "scripts": {
     "build:inline": "node build-inline.js",
     "build:css": "tailwindcss -c tailwind.config.js -i src/input.css -o css/tailwind.css --minify",

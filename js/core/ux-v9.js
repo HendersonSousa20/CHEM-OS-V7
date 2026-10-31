@@ -42,7 +42,7 @@
   const quietRun = b => { quiet = true; try { b.click(); } finally { quiet = false; } };
   ["input", "change"].forEach(ev => document.addEventListener(ev, e => {
     if (!S.live || !LIVE.has(cur) || !scEl.contains(e.target) || e.target.closest('[id$="-result"]') || (ev === "input" && e.target.tagName === "SELECT")) return;
-    clearTimeout(liveT); liveT = setTimeout(() => { if (scEl.querySelector('[aria-invalid="true"]')) return; const b = runnerFor(e.target); if (b) quietRun(b); }, 700);
+    const c0 = cur, tgt = e.target; clearTimeout(liveT); liveT = setTimeout(() => { if (cur !== c0 || !scEl.contains(tgt)) return; /* o módulo mudou ou o campo saiu da tela */ if (scEl.querySelector('[aria-invalid="true"]')) return; const b = runnerFor(tgt); if (b) quietRun(b); }, 700);
   }));
 
   // ---------- Módulo: descrição, teoria e barra de ações ----------
@@ -78,7 +78,7 @@
     });
     const seenSet = new Set(ls.get("chemos-visited", [])), last = ls.get("chemos-last", 0);
     const tracks = (window.TRACKS || []).map(([name, ids]) => `<div class="track"><strong>${esc(name)}</strong> ${ids.map((n, i) => `${i ? '<span aria-hidden="true">→</span>' : ""}<button class="dos-btn track-step" onclick="renderTool(${n})">${seenSet.has(n) ? "✓ " : ""}${esc(short(n))}</button>`).join(" ")}</div>`).join("");
-    const welcome = ls.get("chemos-welcome", false) ? "" : `<div class="dos-border p-3 mb-3 text-sm" id="welcome-box"><strong>Bem-vindo ao CHEM.OS!</strong> São ${Object.keys(H).length} módulos de química. Não sabe por onde começar? Siga uma trilha abaixo, use a busca (ou <kbd>Ctrl</kbd>+<kbd>K</kbd>) e abra <em>Teoria, fórmula e glossário</em> dentro de cada módulo.
+    const welcome = ls.get("chemos-welcome", false) ? "" : `<div class="dos-border p-3 mb-3 text-sm" id="welcome-box"><strong>Bem-vindo ao CHEM.OS!</strong> São ${Object.keys(H).length - 3} módulos de química. Não sabe por onde começar? Siga uma trilha abaixo, use a busca (ou <kbd>Ctrl</kbd>+<kbd>K</kbd>) e abra <em>Teoria, fórmula e glossário</em> dentro de cada módulo.
       <div class="mt-2"><button class="dos-btn" onclick="localStorage.setItem('chemos-welcome','true');this.closest('#welcome-box').remove()">ENTENDI</button></div></div>`;
     $("menu-groups").parentElement.insertAdjacentHTML("afterbegin", `${welcome}<section class="mb-3" aria-label="Trilhas sugeridas"><h2 class="menu-heading">TRILHAS SUGERIDAS${last && H[last] ? ` · <button class="dos-btn" onclick="renderTool(${last})">CONTINUAR: ${esc(short(last))}</button>` : ""}</h2>${tracks}</section>`);
   };

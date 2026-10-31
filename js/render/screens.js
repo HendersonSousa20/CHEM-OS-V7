@@ -9,10 +9,10 @@
         function renderHomeInner() {
             const screen = document.getElementById("screen-content");
             screen.innerHTML = `
-<div class="font-bold leading-none text-5xl md:text-7xl mb-3 tracking-wider" aria-hidden="true">CHEM.OS <span class="opacity-70">V11</span></div>
+<div class="font-bold leading-none text-5xl md:text-7xl mb-3 tracking-wider" aria-hidden="true">CHEM.OS <span class="opacity-70">V17</span></div>
 <div class="border-b border-current pb-2 mb-3">
-    <div class="text-xl font-bold">CHEM.OS v11 Enterprise Laboratory Engine [34 MÓDULOS]</div>
-    <div class="text-xs opacity-80">Pressione F1 para o guia de uso, ou F4 / digite "test" para validar todos os motores de cálculo.</div>
+    <div class="text-xl font-bold">Química pura e ferramentas de bancada</div>
+    <div class="text-xs opacity-80">Pressione F1 para o guia de uso e Ctrl+K para buscar um módulo.</div>
 </div>
 
 <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
@@ -49,7 +49,31 @@
     <button onclick="renderTool(31)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">31. [LIG] Eletronegatividade e Tipo de Ligação</button>
     <button onclick="renderTool(32)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">32. [PIL] Pilhas e Potenciais-Padrão (Série Eletroquímica)</button>
     <button onclick="renderTool(33)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">33. [ELE] Eletrólise e Leis de Faraday</button>
-    <button onclick="renderTool(34)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">34. [PRE] Previsão do Produto na Eletrólise — NOVO</button>
+    <button onclick="renderTool(34)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">34. [PRE] Previsão do Produto na Eletrólise</button>
+    <button onclick="renderTool(35)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">35. [CON] Concentrações e Reagentes Concentrados</button>
+    <button onclick="renderTool(36)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">36. [REF] Referência Rápida (indicadores, pKa, solubilidade)</button>
+    <button onclick="renderTool(37)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">37. [COL] Propriedades Coligativas</button>
+    <button onclick="renderTool(38)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">38. [ARR] Arrhenius e Van't Hoff (Temperatura)</button>
+    <button onclick="renderTool(39)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">39. [PH] pH Universal (Solução Exata)</button>
+    <button onclick="renderTool(40)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">40. [EST] Estatística e Curva de Calibração</button>
+    <button onclick="renderTool(41)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">41. [VDW] Gases Reais e Pressão de Vapor</button>
+    <button onclick="renderTool(42)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">42. [RAD] Radioatividade e Decaimento</button>
+    <button onclick="renderTool(43)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">43. [INC] Propagação de Incertezas</button>
+    <button onclick="renderTool(44)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">44. [CRM] Cromatografia (Retenção, Eficiência, Resolução)</button>
+    <button onclick="renderTool(45)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">45. [CFG] Configuração Eletrônica e Números Quânticos</button>
+    <button onclick="renderTool(46)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">46. [BND] Entalpia por Energias de Ligação</button>
+    <button onclick="renderTool(47)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">47. [BUF] Receitas de Tampão (Quanto Pesar)</button>
+    <button onclick="renderTool(48)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">48. [CAD] Caderno de Laboratório</button>
+    <button onclick="renderTool(49)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">49. [REV] Revisão Inteligente (foco nos seus erros)</button>
+    <button onclick="renderTool(50)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">50. [ORD] Ordem de Reação por Regressão</button>
+    <button onclick="renderTool(51)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">51. [ELE] Calibração do Eletrodo de pH</button>
+    <button onclick="renderTool(52)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">52. [DIL] Diluições e Padrões de Calibração</button>
+    <button onclick="renderTool(53)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">53. [PAD] Padronização de Soluções (Teste Q)</button>
+    <button onclick="renderTool(54)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">54. [ISO] Massa Atômica Média e Padrão Isotópico</button>
+    <button onclick="renderTool(55)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">55. [HSS] Lei de Hess (Soma de Etapas)</button>
+    <button onclick="renderTool(56)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">56. [CRI] Cristais Cúbicos e Difração de Bragg</button>
+    <button onclick="renderTool(57)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">57. [AAC] Carga e pI de Aminoácidos</button>
+    <button onclick="renderTool(58)" class="text-left p-1 border border-transparent hover:border-current hover:bg-current hover:text-black">58. [MXB] Velocidades Moleculares (Maxwell-Boltzmann)</button>
 </div>
 `;
             screenAnimateIn();
@@ -499,7 +523,7 @@
                 case 24:
                     screen.innerHTML = `
                         <div class="text-xl font-bold border-b border-current pb-1 mb-3">24. [LIV] FUNDAMENTOS DE QUÍMICA GERAL (GUIA DE ESTUDOS)</div>
-                        <p class="text-xs mb-3 opacity-80">16 tópicos de Química Geral, no formato de caderno de estudos: diagrama, notas resumidas, fórmula-chave, macete para lembrar, dois exemplos resolvidos, glossário e um mini-quiz de 5 perguntas (ordem embaralhada a cada tentativa) — para aproveitar melhor as ferramentas mais avançadas do site. Seu progresso fica salvo entre sessões.</p>
+                        <p class="text-xs mb-3 opacity-80">41 tópicos de Química Geral, no formato de caderno de estudos: diagrama, notas resumidas, fórmula-chave, macete para lembrar, dois exemplos resolvidos, glossário e um mini-quiz de 5 perguntas (ordem embaralhada a cada tentativa) — para aproveitar melhor as ferramentas mais avançadas do site. Seu progresso fica salvo entre sessões.</p>
                         <div id="gc-content"></div>
                     `;
                     gcInit();

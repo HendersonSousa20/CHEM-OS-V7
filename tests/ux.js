@@ -18,13 +18,13 @@ let ok = 0, bad = 0; const check = (n, c, info = "") => { c ? ok++ : bad++; cons
   const w = dom.window, d = w.document, sc = () => d.getElementById("screen-content"), txt = id => ((d.getElementById(id) || {}).textContent || "").replace(/\s+/g, " ").trim();
   // início
   w.renderHome(); await sleep(50);
-  check("home: trilhas", d.querySelectorAll(".track").length === 5, d.querySelectorAll(".track").length + " trilhas");
+  check("home: trilhas", d.querySelectorAll(".track").length === (w.TRACKS || []).length && d.querySelectorAll(".track").length >= 5, d.querySelectorAll(".track").length + " trilhas");
   check("home: descrição em todos os módulos", d.querySelectorAll("#menu-groups .menu-desc").length >= 34, d.querySelectorAll("#menu-groups .menu-desc").length + " descrições");
   check("home: boas-vindas na primeira visita", !!d.getElementById("welcome-box"));
   const f = d.getElementById("menu-filter"); f.value = "equilíbrio químico"; f.dispatchEvent(new w.Event("input", { bubbles: true }));
   check("busca encontra por descrição (ex.: 'constante de equilíbrio')", (f.value = "constante de equilíbrio", f.dispatchEvent(new w.Event("input", { bubbles: true })), d.querySelectorAll("#menu-groups .menu-item:not(.hidden)").length >= 1));
   // ajuda por módulo
-  let missing = []; for (let n = 1; n <= 34; n++) { w.renderTool(n); if (!sc().querySelector(".mod-desc") || !sc().querySelector(".mod-help")) missing.push(n); }
+  let missing = []; for (let n = 1; n <= 58; n++) { w.renderTool(n); if (!sc().querySelector(".mod-desc") || !sc().querySelector(".mod-help")) missing.push(n); }
   check("ajuda (descrição + teoria) em todos os 34 módulos", !missing.length, missing.join(",") || "");
   w.renderTool(6); check("glossário: Ka com dica", !!sc().querySelector("abbr.gloss"));
   // cálculo ao vivo: resultado ao abrir

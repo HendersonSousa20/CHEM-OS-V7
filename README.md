@@ -1,6 +1,6 @@
-# CHEM.OS v11
+# CHEM.OS v17
 
-Laboratório de química no navegador: **34 módulos** (balanceador de equações, massa molar, soluções e pH, titulação, termoquímica, cinética, eletroquímica, gases, tabela periódica, PubChem, laboratório virtual, guia de estudos e mais), numa interface de terminal retrô. Funciona **offline** depois da primeira visita e pode ser **instalado como aplicativo**.
+Laboratório de química no navegador: **37 módulos** (34 no menu) (balanceador de equações, massa molar, soluções e pH, titulação, termoquímica, cinética, eletroquímica, gases, tabela periódica, PubChem, laboratório virtual, guia de estudos e mais), numa interface de terminal retrô. Funciona **offline** depois da primeira visita e pode ser **instalado como aplicativo**.
 
 ## Como usar
 Abra `index.html` por um servidor estático (o recomendado é `npx serve .` ou `python3 -m http.server`). Não há build obrigatório nem dependências em tempo de execução. Digite o número de um módulo na linha de comando, use **Ctrl+K** para buscar ou **F1** para a ajuda.

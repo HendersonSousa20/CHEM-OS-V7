@@ -46,11 +46,11 @@
   window.addEventListener("hashchange", () => {
     if (location.hash === route) return;
     const m = location.hash.match(/^#\/m\/(\d+)(?:\?.*)?$/);
-    if (m && +m[1] >= 1 && +m[1] <= 34) renderTool(+m[1]); else renderHome();
+    if (m && +m[1] >= 1 && +m[1] <= 58) renderTool(+m[1]); else renderHome();
   });
   window.addEventListener("load", () => {
     const m = (window.__bootHash || location.hash).match(/^#\/m\/(\d+)(?:\?.*)?$/);
-    if (m && +m[1] >= 1 && +m[1] <= 34) renderTool(+m[1]);
+    if (m && +m[1] >= 1 && +m[1] <= 58) renderTool(+m[1]);
   });
 
   // Instalação como app (PWA)
