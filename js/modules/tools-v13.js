@@ -87,7 +87,7 @@
     const Z = el[0], n = Z - q;
     if (n < 0 || n > 120) { box.textContent = "Carga incompatível com o número atômico."; return; }
     const c = config(Z, q), occ = Object.keys(c).filter(o => c[o] > 0);
-    let core = null; [[86, "Rn"], [54, "Xe"], [36, "Kr"], [18, "Ar"], [10, "Ne"], [2, "He"]].some(g => { if (g[0] < n) { core = g; return true; } });
+    let core = null; [[86, "Rn"], [54, "Xe"], [36, "Kr"], [18, "Ar"], [10, "Ne"], [2, "He"]].some(g => { if (g[0] < n) { core = g; return true; } return false; });
     let abbr = show(c);
     if (core) { const cc = madelung(core[0]), rest = {}; occ.forEach(o => { const d = c[o] - (cc[o] || 0); if (d > 0) rest[o] = d; }); abbr = `[${core[1]}] ${show(rest)}`; }
     let unp = 0; occ.forEach(o => { const m = 2 * LN[o[1]] + 1; unp += c[o] <= m ? c[o] : 2 * m - c[o]; });
@@ -155,7 +155,7 @@
       fav.insertAdjacentElement("afterend", b);
     }
     sc.querySelectorAll('[aria-live="polite"]').forEach(box => {
-      if (box.dataset.nb || !box.id || box.closest("#nb-list")) return; box.dataset.nb = "1";
+      if (box.dataset.nb || !box.id || box.closest("#nb-list") || !box.classList.contains("dos-border")) return; box.dataset.nb = "1"; // só caixas de resultado, não dicas ou avisos
       const b = document.createElement("button"); b.className = "dos-btn text-xs mt-1"; b.textContent = "+ CADERNO"; b.setAttribute("aria-label", "Guardar este resultado no caderno");
       b.onclick = () => { const t = plain(box).slice(0, 1500); if (!t || t.length < 4) return; const h = sc.querySelector(".text-xl"), a = load(); a.unshift({ t: h ? h.textContent.trim() : "Resultado", x: t, d: Date.now() }); toast(save(a) ? "Guardado no caderno" : "Não foi possível guardar (armazenamento bloqueado)"); };
       box.insertAdjacentElement("afterend", b);
@@ -172,7 +172,7 @@
       const z = load(); if (!z.length) return;
       const w = window.open("", "_blank"); if (!w) { toast("Permita pop-ups para exportar o PDF"); return; }
       const esc = t => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-      w.document.write('<!doctype html><html lang="pt-BR"><meta charset="utf-8"><title>Caderno CHEM.OS</title><style>body{font:14px/1.5 system-ui,sans-serif;margin:24px;color:#111}h1{font-size:20px}.e{border:1px solid #999;border-radius:6px;padding:8px 10px;margin:0 0 10px;page-break-inside:avoid}.m{font-size:11px;color:#555}pre{white-space:pre-wrap;font:13px/1.45 ui-monospace,monospace;margin:4px 0 0}</style><h1>Caderno de laboratório — CHEM.OS</h1>' + z.map(e => '<div class="e"><div class="m">' + esc(new Date(e.d).toLocaleString("pt-BR")) + " · " + esc(e.t) + "</div><pre>" + esc(e.x) + "</pre></div>").join("") + "<script>setTimeout(function(){window.print()},300)<\/script></html>");
+      w.document.write('<!doctype html><html lang="pt-BR"><meta charset="utf-8"><title>Caderno CHEM.OS</title><style>body{font:14px/1.5 system-ui,sans-serif;margin:24px;color:#111}h1{font-size:20px}.e{border:1px solid #999;border-radius:6px;padding:8px 10px;margin:0 0 10px;page-break-inside:avoid}.m{font-size:11px;color:#555}pre{white-space:pre-wrap;font:13px/1.45 ui-monospace,monospace;margin:4px 0 0}</style><h1>Caderno de laboratório — CHEM.OS</h1>' + z.map(e => '<div class="e"><div class="m">' + esc(new Date(e.d).toLocaleString("pt-BR")) + " · " + esc(e.t) + "</div><pre>" + esc(e.x) + "</pre></div>").join("") + "<script>setTimeout(function(){window.print()},300)</script></html>");
       w.document.close();
     };
     $("nb-clr").onclick = () => { if (load().length && confirm("Apagar todo o caderno?")) { save([]); r48(); } };

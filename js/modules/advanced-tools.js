@@ -77,7 +77,7 @@
             "CH3OH(l)": { dHf: -238.7, S: 126.8 }, "C2H5OH(l)": { dHf: -277.7, S: 160.7 },
             "C6H12O6(s)": { dHf: -1273.3, S: 212.1 }, "NaOH(s)": { dHf: -425.6, S: 64.5 },
             "KCl(s)": { dHf: -436.5, S: 82.6 }, "N2O(g)": { dHf: 82.1, S: 219.9 }, "CH3COOH(l)": { dHf: -484.5, S: 159.8 },
-            "CO2(aq)": { dHf: -413.8, S: 117.6 }, "H2O2(l)": { dHf: -187.8, S: 109.6 }
+            "CO2(aq)": { dHf: -413.8, S: 117.6 }
         };
 
         function runThermochemistry() {

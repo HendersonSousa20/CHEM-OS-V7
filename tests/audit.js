@@ -11,7 +11,7 @@ const BP = w => {
 const nums = t => (t.replace(/(\d),(\d)/g, "$1.$2").match(/-?\d+(?:\.\d+)?(?:e[+-]?\d+)?/gi) || []).map(Number);
 (async () => {
   const dom = await JSDOM.fromURL(BASE + "index.html", { runScripts: "dangerously", resources: "usable", pretendToBeVisual: true, virtualConsole: new VirtualConsole(), beforeParse: BP });
-  for (let i = 0; i < 80 && !(dom.window.document.getElementById("menu-filter") || dom.window.document.querySelector(".menu-item")); i++) await sleep(250); await sleep(400);
+  for (let i = 0; i < 80 && !(dom.window.document.getElementById("menu-filter") || dom.window.document.querySelector(".menu-item")); i++) await sleep(250); for (let i = 0; i < 160 && !dom.window.CHEMOS_READY; i++) await sleep(250); await sleep(400);
   const w = dom.window, d = w.document; let ok = 0, fail = 0;
   const report = (good, name, extra) => { good ? ok++ : fail++; console.log(good ? "OK   " : "FALHA", name, good ? "" : extra || ""); };
   // CSS: chaves balanceadas em todos os arquivos (uma chave sem fechar prende o resto da folha dentro de um @media)
@@ -158,7 +158,7 @@ const nums = t => (t.replace(/(\d),(\d)/g, "$1.$2").match(/-?\d+(?:\.\d+)?(?:e[+
   w.renderHome();
   // Espaço de tela no celular: regra que esconde a barra de comando e o rodapé de temas só em toque + tela estreita
   const css2 = (d.getElementById("critical-css") || {}).textContent || "";
-  report(/@media \(max-width: 640px\) and \(pointer: coarse\)\s*\{[^}]*footer\[role=contentinfo\][^}]*display: none/.test(css2) && /scroll-padding-bottom/.test(css2), "Layout: no celular o rodapé de temas e a barra de comando saem da frente; foco não fica coberto");
+  report(/@media\s*\(max-width:\s*640px\)\s*and\s*\(pointer:\s*coarse\)\s*\{[^}]*footer\[role=["]?contentinfo["]?\][^}]*display:\s*none/.test(css2) && /scroll-padding-bottom/.test(css2), "Layout: no celular o rodapé de temas e a barra de comando saem da frente; foco não fica coberto");
   // Estrutura visual da tela inicial e das telas de módulo (v11.4)
   w.renderHome(); await sleep(500);
   const cards = [...d.querySelectorAll(".menu-item")], counts = [...d.querySelectorAll(".menu-count")].reduce((t, e) => t + (+e.textContent || 0), 0);
@@ -176,5 +176,18 @@ const nums = t => (t.replace(/(\d),(\d)/g, "$1.$2").match(/-?\d+(?:\.\d+)?(?:e[+
   const M = [["Ligações Químicas", "ligacao", true], ["Ligação covalente", "ligacoes", true], ["Ácido forte", "acidos", true], ["Titulação", "titulacoes", true], ["Mol", "reacao", false], ["Termoquímica", "TERMOQUIMICA", true]];
   const badM = M.filter(([h, q, e]) => w.chemMatch(h, q) !== e);
   report(!badM.length, "Busca sem acento e com plural", JSON.stringify(badM));
+  // Registro de módulos: toda entrada de ajuda tem grupo no menu (exceto os ocultos de propósito) e o número máximo bate com a ajuda
+  { const HIDDEN = [20, 25, 28], max = w.MODULE_MAX, groups = (w.CHEM_GROUPS || []).flatMap(g => g[1]), miss = [];
+    for (let n = 1; n <= max; n++) { if (!w.MODULE_HELP[n]) miss.push(n + ":sem ajuda"); else if (!groups.includes(n) && !HIDDEN.includes(n)) miss.push(n + ":sem grupo"); }
+    groups.filter((n, i) => groups.indexOf(n) !== i).forEach(n => miss.push(n + ":em dois grupos")); groups.filter(n => n > max || !w.MODULE_HELP[n]).forEach(n => miss.push(n + ":grupo aponta para módulo inexistente"));
+    report(!miss.length && max >= 50, `Registro de módulos: ${max} módulos com ajuda e grupo (ocultos de propósito: ${HIDDEN.join(", ")})`, miss.join(", "));
+    report(w.parseModuleNumber("1") === 1 && w.parseModuleNumber(String(max)) === max && w.parseModuleNumber("0") === null && w.parseModuleNumber(String(max + 1)) === null && w.parseModuleNumber("3.5") === null && w.parseModuleNumber("1e1") === null && w.parseModuleNumber("abc") === null, "parseModuleNumber: só inteiros de 1 a MODULE_MAX"); }
+  // Versão: package.json = js/core/version.js = textos visíveis (sem número de versão fixo em texto antigo)
+  { const pkg = require("../package.json"), major = parseInt(pkg.version.split(".")[0], 10);
+    report(w.CHEMOS_VERSION === pkg.version && w.CHEMOS_MAJOR === major, "Versão: package.json = version.js (rode npm run version:sync se falhar)", `${pkg.version} vs ${w.CHEMOS_VERSION}`);
+    report(d.title.includes("v" + major) && (d.querySelector("header[role=banner]") || { textContent: "" }).textContent.includes("CHEM.OS v" + major), "Versão: título da página e cabeçalho mostram a versão atual", d.title); }
+  // Diagnóstico: o registro de erros funciona e é limitado
+  { const D = w.ChemDiag; D.clear(); for (let i = 0; i < 40; i++) w.dispatchEvent(new w.ErrorEvent("error", { message: "erro de teste " + i, filename: "x.js", lineno: i }));
+    const e = D.entries(); report(e.length === 30 && e[29].m === "erro de teste 39" && /erro de teste 39/.test(D.report()), "Diagnóstico: guarda os últimos 30 erros e gera relatório", String(e.length)); D.clear(); }
   console.log(`\n${ok} passaram, ${fail} falharam`); process.exit(fail ? 1 : 0);
 })();

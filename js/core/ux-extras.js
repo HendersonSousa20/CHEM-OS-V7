@@ -63,10 +63,10 @@
     cli.addEventListener("keydown", e => {
       if (e.key !== "Enter") return;
       const raw = cli.value.trim(), c = raw.toLowerCase();
-      const known = /^(exit|home|menu|cls|clear|help|ajuda|\?|test|testes|estrutura|editor|simulacao|simulação|md|experimento|laboratorio|lab|estudar|guia|detetive|caso|conversor|conv|formula|fórmula|quiz|mol|nox|ligacao|ligação|en|pilha|pilhas|galvanica|galvânica|eletroquimica|eletroquímica|eletrolise|eletrólise|faraday|previsao|previsão|descarga|oxidacao|oxidação|hist|histórico|historico|concentracao|concentração|reagente|referencia|referência|indicador|coligativas|crioscopia|arrhenius|vanthoff|temperatura|ph|phuniversal|ph-universal|calibracao|calibração|estatistica|estatística|vdw|gasesreais|vapor|radioatividade|decaimento|nuclear|incerteza|cromatografia|hplc|configuracao|configuração|cfg|energialigacao|receita|caderno|revisao|revisão|ordem|eletrodo|diluicoes|diluições|padroes|padrões|padronizacao|padronização|isotopos|isótopos|hess|cristal|cristais|aminoacido|aminoácido|aminoacidos|aminoácidos|maxwell|velocidades)$/;
+      const known = /^(exit|home|menu|cls|clear|help|ajuda|\?|test|testes|estrutura|editor|simulacao|simulação|md|experimento|laboratorio|lab|estudar|guia|detetive|caso|conversor|conv|formula|fórmula|quiz|mol|nox|ligacao|ligação|en|pilha|pilhas|galvanica|galvânica|eletroquimica|eletroquímica|eletrolise|eletrólise|faraday|previsao|previsão|descarga|oxidacao|oxidação|hist|histórico|historico|concentracao|concentração|reagente|referencia|referência|indicador|coligativas|crioscopia|arrhenius|vanthoff|temperatura|ph|phuniversal|ph-universal|calibracao|calibração|estatistica|estatística|vdw|gasesreais|vapor|radioatividade|decaimento|nuclear|incerteza|cromatografia|hplc|configuracao|configuração|cfg|energialigacao|receita|caderno|diagnostico|diagnóstico|revisao|revisão|ordem|eletrodo|diluicoes|diluições|padroes|padrões|padronizacao|padronização|isotopos|isótopos|hess|cristal|cristais|aminoacido|aminoácido|aminoacidos|aminoácidos|maxwell|velocidades)$/;
       const pref = /^(pubchem|balance|resolve) /;
-      if (raw && !known.test(c) && !pref.test(c) && !(!isNaN(c) && c >= 1 && c <= 58))
-        showToast(`Comando "${raw}" não reconhecido. Digite "ajuda" ou um número de 1 a 34.`);
+      if (raw && !known.test(c) && !pref.test(c) && parseModuleNumber(c) === null)
+        showToast(`Comando "${raw}" não reconhecido. Digite "ajuda" ou um número de 1 a ${window.MODULE_MAX}.`);
     }, true);
   }
 })();

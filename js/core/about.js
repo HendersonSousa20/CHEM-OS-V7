@@ -2,7 +2,7 @@
 (function () {
   window.showAbout = function () {
     openModal("SOBRE O CHEM.OS E SUAS LIMITAÇÕES", `<div class="space-y-3 text-sm">
-      <p><strong>CHEM.OS v11</strong> é uma ferramenta de estudo de química que roda inteira no navegador (funciona offline depois da primeira visita). Foi feita para <strong>aprender e conferir cálculos</strong>, não para decisões de segurança ou trabalho em laboratório real.</p>
+      <p><strong>CHEM.OS v${window.CHEMOS_MAJOR}</strong> é uma ferramenta de estudo de química que roda inteira no navegador (funciona offline depois da primeira visita). Foi feita para <strong>aprender e conferir cálculos</strong>, não para decisões de segurança ou trabalho em laboratório real.</p>
       <div><div class="font-bold">De onde vêm os dados</div><ul class="list-disc pl-5 space-y-1">
         <li><strong>Massas atômicas, grupos e períodos:</strong> tabela local do projeto.</li>
         <li><strong>Eletronegatividade (Pauling), 1ª energia de ionização e raio atômico:</strong> valores de livros-texto digitados à mão (Z = 1–92 para eletronegatividade; sem dado para alguns elementos). Confira numa fonte oficial antes de usar em avaliações.</li>

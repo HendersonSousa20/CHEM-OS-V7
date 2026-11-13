@@ -2,7 +2,7 @@
            2. MOTOR DE ÁLGEBRA LINEAR / BALANCIADOR DE EQUAÇÕES
            ========================================================================== */
         function parseFormula(formula) {
-            let clean = formula.replace(/[\[\{]/g, '(').replace(/[\]\}]/g, ')').replace(/\s+/g, '').replace(/[*·]/g, '.');
+            let clean = formula.replace(/[[{]/g, '(').replace(/[\]}]/g, ')').replace(/\s+/g, '').replace(/[*·]/g, '.');
             let parts = clean.split('.');
             let counts = {};
             let totalMass = 0;

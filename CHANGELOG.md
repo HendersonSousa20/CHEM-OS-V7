@@ -1,5 +1,55 @@
 # Changelog
 
+## 18.0 — Nível de produção
+**Build e desempenho**
+- **Build de produção** (`npm run build` → `dist/`): os 72 scripts viram **1 arquivo minificado com hash** (e mapa de fontes), o CSS é minificado, e a primeira carga cai de **75 para 3 requisições** (HTML, JS, CSS) mais fontes. Medido no Chromium: pronto em 0,33 s contra 0,99 s do código-fonte, sem diferença visual (0,000 % de pixels diferentes em 5 de 6 telas; 0,084 % na simulação, por causa das partículas em movimento).
+- **Orçamento de tamanho** verificado a cada build (gzip: scripts 216,7 KB de 240, CSS 3,2 KB de 40, HTML 11,3 KB de 60). O build também **falha** se houver declarações globais duplicadas entre arquivos (empacotar mudaria o comportamento), se o CSS embutido estiver desatualizado ou se a versão estiver dessincronizada.
+- **Service worker gerado**: a lista de pré-cache é calculada a partir dos arquivos (antes era escrita à mão e já tinha esquecido arquivos), o cache tem nome versionado por conteúdo, caches antigos são apagados, assets com hash usam cache primeiro e a navegação usa rede primeiro com retorno offline. Testado: offline, a tela inicial, os cálculos, o guia de estudos e o PDF funcionam. O `sw.js` da raiz agora é só de desenvolvimento e não guarda nada em cache.
+
+**Segurança**
+- **Política de segurança de conteúdo (CSP)** injetada no build e em `_headers`, restringindo conexões a PubChem, OPSIN, CACTUS e Wikipédia, e imagens a PubChem, `data:` e `blob:`; `object-src 'none'`, `base-uri 'self'`, `frame-ancestors 'none'`. Testado: um host não autorizado é bloqueado.
+- **jsPDF atualizado e hospedado localmente** (2.5.1 → 4.x): a versão antiga tinha 2 vulnerabilidades conhecidas (1 alta, 1 crítica) e vinha de um CDN sem verificação de integridade. Agora é carregada **sob demanda** (só ao exportar PDF) de `vendor/` e funciona offline. `npm audit`: 0 vulnerabilidades.
+- **Teste de injeção de HTML** (`tests/xss.js`) em todos os campos de todos os módulos, na linha de comando e na busca, inclusive com respostas de API falsas contendo HTML: nenhuma injeção.
+- Cabeçalhos de segurança e de cache prontos (`dist/_headers`; exemplo de nginx em `docs/DEPLOY.md`).
+
+**Qualidade de código**
+- **ESLint** com os globais compartilhados entre arquivos detectados automaticamente (`npm run lint`, `lint:strict`). Corrigidos 6 achados: chave duplicada numa tabela termodinâmica (`H2O2(l)`), escapes inúteis e um retorno faltando.
+- **Fontes únicas de verdade:** `MODULE_MAX` e `parseModuleNumber` (antes o número de módulos estava escrito à mão em 8 lugares, com regras de validação diferentes) e `version.js` (versão). Corrigidos textos que ainda diziam "v11" no título da página e na janela "Sobre", e o aviso "número de 1 a 34" do terminal.
+- **Diagnóstico de erros** (`js/core/diagnostics.js`): guarda os últimos 30 erros no navegador, avisa uma vez por sessão e o comando `diagnostico` copia um relatório. Nada é enviado.
+- **Sinal de pronto** (`CHEMOS_READY`): os testes esperam por ele em vez de pausas fixas (acabou a instabilidade de carregamento).
+- O script externo do jsPDF (CDN, bloqueante) saiu do carregamento inicial.
+
+**Testes e CI**
+- **Executor único** (`npm test`) com servidor próprio em porta livre (não precisa de Python nem de servidor manual); `--dist` testa o build; `--full` inclui as varreduras longas (`tests/fuzz.js`, `tests/xss.js`).
+- **`tests/dist.js`:** 20 verificações de integridade do build (hashes, CSP, pré-cache completo, mapa de fontes, nada de código-fonte vazando).
+- Auditoria de 95 para 100 verificações: registro de módulos (ajuda e grupo para todos), versão consistente, diagnóstico, CSS embutido em dia. Testes tornados à prova de minificação.
+- **CI** (`.github/workflows/ci.yml`): `npm ci`, `npm audit`, lint, testes, build, testes do build e, em outro job, as varreduras longas contra o build.
+
+**Documentação e projeto**
+- README reescrito (estava desatualizado), `docs/ARCHITECTURE.md`, `docs/CONTRIBUTING.md` (checklist de módulo novo), `docs/DEPLOY.md`, `docs/SECURITY.md` (CSP, inventário de dados no navegador, serviços externos), `.editorconfig`, `.nvmrc`, `.gitignore`, `engines`, `package-lock.json`.
+
+## 17.3 — Correções de interface e celular mais enxuto
+- **Bug do editor de estruturas (módulo 21):** a barra "MODELOS PRONTOS / REFAZER" era inserida fora da tela do módulo (antes do `#screen-content`, porque o canvas é filho direto dele). Resultado: ela ficava no topo de todos os outros módulos e da tela inicial e se duplicava a cada visita ao editor (3 visitas = 3 barras com o mesmo `id`). Agora ela é inserida logo acima do canvas, dentro da tela. Teste de regressão adicionado (`tests/ux.js`), que falha com o código antigo e passa com o novo.
+- **Botão + CADERNO no lugar errado:** ele aparecia dentro do painel "ELEMENTO" do editor, abaixo de uma dica. Agora só caixas de resultado (`.dos-border`) recebem o botão; conferido em 24 módulos, todos com o botão na barra e no resultado.
+- **Celular:** a barra de ferramentas cabe em uma linha (FAVORITAR vira uma estrela, que muda para ★ preenchida quando ativada), o caminho de navegação ocupa uma linha só e deixa de repetir "MÓDULO N", que já aparece no marcador, e o título é proporcional.
+- Verificação: os 8 conjuntos de testes passam (auditoria 95/95, UX 52/52, acessibilidade, cálculo 8/8, laboratório 5/5, contraste, simulação e fumaça), a varredura de entradas extremas nos 58 módulos segue sem erros, e as telas foram conferidas em capturas de um navegador real (Chromium).
+
+## 17.2 — Identidade visual: marca, ícones e molécula de abertura
+- **Marca "Os":** CHEM.OS ganha uma célula da tabela periódica do ósmio (símbolo Os, nº 76, o "OS" do nome) no cabeçalho, no mesmo formato do marcador dos módulos.
+- **Ícones novos do app:** os 5 ícones PNG (192, 512, "maskable" 512 com margem de segurança, apple-touch 180 e favicon 32) e o favicon SVG foram refeitos com a célula Os e a fonte VT323 do app.
+- **Molécula na tela inicial:** o cabeçalho da abertura mostra a estrutura do paracetamol, desenhada por código em traço de fósforo (anel com ligações duplas alternadas, OH, NH, C=O e CH₃), com animação de traçado e legenda. Usa a cor do tema ativo, some em telas estreitas (< 980 px) e fica estática com movimento reduzido.
+- **Correções de conteúdo:** o parágrafo de apresentação do módulo 23 aparecia duas vezes seguidas (um no módulo e outro na lista de experimentos); o rótulo de acessibilidade da linha de comando ainda dizia "módulo (1 a 34)" e agora diz "1 a 58".
+- Verificação: os 8 conjuntos de testes passam (auditoria 95/95, UX 50/50, acessibilidade, cálculo 8/8, laboratório 5/5, contraste, simulação e fumaça), a varredura de entradas extremas nos 58 módulos segue sem erros, e as telas e os ícones foram conferidos em capturas de um navegador real (Chromium).
+
+## 17.1 — Mapa de módulos e acabamento
+- **Mapa de módulos na tela inicial:** abaixo das trilhas, uma grade de células numeradas (no mesmo formato do marcador dos módulos), agrupadas como no menu. Um clique abre o módulo; 3 colunas no celular, entrada escalonada (desligada com movimento reduzido).
+- **Sinal de resultado atualizado:** quando um cálculo é refeito, a caixa de resultado pulsa por menos de 1 s, confirmando que o valor mudou (desligado com movimento reduzido).
+- **Busca (Ctrl+K) legível:** o resultado selecionado tinha texto escuro sobre fundo escuro; agora é um bloco preenchido, e a lista usa a fonte de pixel em tamanho maior.
+- **Janelas (ajuda, busca, sistema):** caixa com borda e sombra no padrão do app, texto em IBM Plex Mono com entrelinha maior, título em VT323. O título "ATALHOS v8" da ajuda agora é "ATALHOS".
+- **Cartões do guia de estudos:** título e rótulos maiores e legíveis, fundo próprio, realce ao passar o mouse e barra de progresso mais fina.
+- **Testes:** os testes passam a esperar o fim do carregamento da página (antes, às vezes começavam com scripts de módulo ainda carregando e falhavam por acaso).
+- Verificação: os 8 conjuntos de testes passam (auditoria 95/95, UX 50/50, acessibilidade, cálculo 8/8, laboratório 5/5, contraste, simulação e fumaça), a varredura de entradas extremas nos 58 módulos segue sem erros, e as telas foram conferidas em capturas de um navegador real (Chromium).
+
 ## 17.0 — Nova camada visual
 - **Bug de CSS corrigido (antigo):** em `ui-v11.css` havia um `@media (prefers-reduced-motion: reduce) { @media print { … }` com uma chave sem fechar. Todo o CSS seguinte ficava preso dentro da regra de movimento reduzido e só valia para quem pede isso no sistema. Com a correção, voltam a valer os rótulos de grupo, período e bloco da tabela periódica, a rolagem sob a barra de comando e, no celular, o ocultamento do rodapé de temas e da barra de comando (que já existe na navegação inferior). A auditoria passou a verificar que as chaves de todos os `css/*.css` estão balanceadas.
 - **Tipografia com papéis claros:** VT323 para título, rótulos e controles; IBM Plex Mono para texto, campos, resultados e tabelas (antes tudo era VT323 em tamanho muito pequeno). Texto de leitura com 78 caracteres no máximo por linha e entrelinha de 1,6.

@@ -917,12 +917,12 @@
             window.print();
         }
 
-        // Exportação em PDF real (via jsPDF, carregado no index.html), sem depender
+        // Exportação em PDF real (via jsPDF, carregado sob demanda de vendor/), sem depender
         // do diálogo de impressão do navegador. Reaproveita os mesmos dados do
         // relatório em tela; o gráfico é embutido como imagem a partir do canvas.
-        function geExportPDF() {
-            if (!window.jspdf || !window.jspdf.jsPDF) {
-                geShowSetupError && geShowSetupError("Biblioteca de PDF não carregou (sem internet?). Use IMPRIMIR como alternativa.");
+        async function geExportPDF() {
+            try { await window.loadJsPdf(); } catch (e) {
+                geShowSetupError && geShowSetupError("Não foi possível carregar o gerador de PDF. Use IMPRIMIR como alternativa.");
                 return;
             }
             const exp = geExp();

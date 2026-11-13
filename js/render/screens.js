@@ -9,7 +9,7 @@
         function renderHomeInner() {
             const screen = document.getElementById("screen-content");
             screen.innerHTML = `
-<div class="font-bold leading-none text-5xl md:text-7xl mb-3 tracking-wider" aria-hidden="true">CHEM.OS <span class="opacity-70">V17</span></div>
+<div class="font-bold leading-none text-5xl md:text-7xl mb-3 tracking-wider" aria-hidden="true">CHEM.OS <span class="opacity-70">V${window.CHEMOS_MAJOR}</span></div>
 <div class="border-b border-current pb-2 mb-3">
     <div class="text-xl font-bold">Química pura e ferramentas de bancada</div>
     <div class="text-xs opacity-80">Pressione F1 para o guia de uso e Ctrl+K para buscar um módulo.</div>
@@ -515,7 +515,6 @@
                 case 23:
                     screen.innerHTML = `
                         <div class="text-xl font-bold border-b border-current pb-1 mb-3">23. [LAB] EXPERIMENTOS GUIADOS (LABORATÓRIO VIRTUAL)</div>
-                        <p class="text-xs mb-3 opacity-80">Diferente das calculadoras dos outros módulos, aqui você conduz um experimento passo a passo: prepara a bancada, adiciona reagente aos poucos, observa e registra o que acontece — e só no final descobre o quanto sua leitura experimental chegou perto do valor teórico. No fim, um relatório pronto para imprimir ou salvar como PDF.</p>
                         <div id="ge-content"></div>
                     `;
                     geInit();

@@ -14,7 +14,7 @@ const BP = w => {
 let ok = 0, bad = 0; const check = (n, c, info = "") => { c ? ok++ : bad++; console.log(c ? "OK   " : "FALHA", n, info); };
 (async () => {
   const dom = await JSDOM.fromURL(BASE + "index.html", { runScripts: "dangerously", resources: "usable", pretendToBeVisual: true, virtualConsole: new VirtualConsole(), beforeParse: BP });
-  for (let i = 0; i < 80 && !(dom.window.document.getElementById("menu-filter") || dom.window.document.querySelector(".menu-item")); i++) await sleep(250); await sleep(400);
+  for (let i = 0; i < 80 && !(dom.window.document.getElementById("menu-filter") || dom.window.document.querySelector(".menu-item")); i++) await sleep(250); for (let i = 0; i < 160 && !dom.window.CHEMOS_READY; i++) await sleep(250); await sleep(400);
   const w = dom.window, d = w.document, sc = () => d.getElementById("screen-content"), txt = id => ((d.getElementById(id) || {}).textContent || "").replace(/\s+/g, " ").trim();
   // início
   w.renderHome(); await sleep(50);
@@ -24,7 +24,7 @@ let ok = 0, bad = 0; const check = (n, c, info = "") => { c ? ok++ : bad++; cons
   const f = d.getElementById("menu-filter"); f.value = "equilíbrio químico"; f.dispatchEvent(new w.Event("input", { bubbles: true }));
   check("busca encontra por descrição (ex.: 'constante de equilíbrio')", (f.value = "constante de equilíbrio", f.dispatchEvent(new w.Event("input", { bubbles: true })), d.querySelectorAll("#menu-groups .menu-item:not(.hidden)").length >= 1));
   // ajuda por módulo
-  let missing = []; for (let n = 1; n <= 58; n++) { w.renderTool(n); if (!sc().querySelector(".mod-desc") || !sc().querySelector(".mod-help")) missing.push(n); }
+  let missing = []; for (let n = 1; n <= w.MODULE_MAX; n++) { w.renderTool(n); if (!sc().querySelector(".mod-desc") || !sc().querySelector(".mod-help")) missing.push(n); }
   check("ajuda (descrição + teoria) em todos os 34 módulos", !missing.length, missing.join(",") || "");
   w.renderTool(6); check("glossário: Ka com dica", !!sc().querySelector("abbr.gloss"));
   // cálculo ao vivo: resultado ao abrir
@@ -108,5 +108,10 @@ let ok = 0, bad = 0; const check = (n, c, info = "") => { c ? ok++ : bad++; cons
   Object.defineProperty(w.navigator, "onLine", { value: false, configurable: true });
   const off = await w.fetch("http://example.org/x").then(() => "ok", e => e.message);
   check("rede: mensagem clara quando está offline", /Sem conexão/.test(off), off.slice(0, 50));
+  // regressão: a barra "modelos prontos" do editor (módulo 21) vazava para fora da tela e se duplicava a cada visita
+  for (let i = 0; i < 3; i++) { w.renderTool(21); await sleep(30); }
+  check("editor: barra de modelos única e dentro da tela", d.querySelectorAll("#se-tpl").length === 1 && !!d.querySelector("#se-tpl").closest("#screen-content"), d.querySelectorAll("#se-tpl").length + " barra(s)");
+  w.renderTool(22); await sleep(30); w.renderHome(); await sleep(30);
+  check("editor: a barra não aparece em outras telas", d.querySelectorAll("#se-tpl").length === 0, d.querySelectorAll("#se-tpl").length + " barra(s)");
   console.log(`\n${ok} passaram, ${bad} falharam`); process.exit(bad ? 1 : 0);
 })();

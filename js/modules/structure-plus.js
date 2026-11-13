@@ -78,7 +78,7 @@
     orig(id);
     if (parseInt(id) !== 21 || !seCanvas) return;
     redo = [];
-    seCanvas.parentElement.insertAdjacentHTML("beforebegin", `<div class="flex flex-wrap items-end gap-2 mb-2 text-xs">
+    seCanvas.insertAdjacentHTML("beforebegin", `<div class="flex flex-wrap items-end gap-2 mb-2 text-xs">
       <label>MODELOS PRONTOS<br><select id="se-tpl" class="dos-input p-1"><option value="">— escolha uma molécula —</option>${Object.keys(TPL).map(n => `<option>${n}</option>`).join("")}</select></label>
       <button class="dos-btn" id="se-redo" title="Refazer (Ctrl+Y)">↷ REFAZER</button></div>`);
     $("se-tpl").onchange = e => { load(e.target.value); e.target.value = ""; };

@@ -13,9 +13,9 @@ const BP = function (w) {
 (async () => {
   const dom = await JSDOM.fromURL(""+(process.env.CHEMOS_URL||""+(process.env.CHEMOS_BASE||"http://localhost:8080/")+"index.html")+"", { runScripts: "dangerously", resources: "usable", pretendToBeVisual: true, virtualConsole: vc,
     beforeParse: BP });
-  for (let i = 0; i < 80 && !(dom.window.document.getElementById("menu-filter") || dom.window.document.querySelector(".menu-item")); i++) await sleep(250); await sleep(400);
+  for (let i = 0; i < 80 && !(dom.window.document.getElementById("menu-filter") || dom.window.document.querySelector(".menu-item")); i++) await sleep(250); for (let i = 0; i < 160 && !dom.window.CHEMOS_READY; i++) await sleep(250); await sleep(400);
   const w = dom.window, d = w.document, sc = () => d.getElementById("screen-content"), bad = [];
-  for (let n = 1; n <= 58; n++) { try { w.renderTool(n); if (sc().textContent.trim().length < 40) bad.push(n + ":vazio"); } catch (e) { bad.push(n + ":" + e.message); } }
+  for (let n = 1; n <= w.MODULE_MAX; n++) { try { w.renderTool(n); if (sc().textContent.trim().length < 40) bad.push(n + ":vazio"); } catch (e) { bad.push(n + ":" + e.message); } }
   console.log("módulos 1-34 com problema:", bad.join(", ") || "nenhum");
   // quiz: errar de propósito
   w.renderTool(28); d.getElementById("qz-mode").value = "0"; d.getElementById("qz-pool").value = "20"; w.startQuiz();

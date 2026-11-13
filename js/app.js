@@ -46,12 +46,13 @@
                 else if (cmd === "cristal" || cmd === "cristais") { renderTool(56); }
                 else if (cmd === "aminoacido" || cmd === "aminoácido" || cmd === "aminoacidos" || cmd === "aminoácidos") { renderTool(57); }
                 else if (cmd === "maxwell" || cmd === "velocidades") { renderTool(58); }
+                else if (cmd === "diagnostico" || cmd === "diagnóstico") { ChemDiag.copy(); }
                 else if (cmd === "nox" || cmd === "oxidacao" || cmd === "oxidação") { renderTool(30); }
                 else if (cmd === "mol") { renderTool(29); }
                 else if (cmd === "quiz") { renderTool(28); }
                 else if (cmd === "conversor" || cmd === "conv") { renderTool(26); }
                 else if (cmd === "detetive" || cmd === "caso") { renderTool(25); }
-                else if (/^\d+$/.test(cmd) && +cmd >= 1 && +cmd <= 58) renderTool(parseInt(cmd, 10));
+                else if (parseModuleNumber(cmd) !== null) renderTool(parseModuleNumber(cmd));
                 else if (cmd.startsWith("pubchem ")) { renderTool(2); document.getElementById("pubchem-input").value = cmd.substring(8); runPubChemSearch(); }
                 else if (cmd.startsWith("balance ")) { renderTool(1); document.getElementById("eq-input").value = raw.substring(8); runBalancer(); }
                 else if (cmd.startsWith("resolve ")) { renderTool(13); document.getElementById("resolver-input").value = raw.substring(8); runNameResolver(); }

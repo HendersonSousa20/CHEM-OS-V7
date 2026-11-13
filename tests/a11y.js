@@ -20,10 +20,10 @@ function nameOf(el, d) {
 }
 (async () => {
   const dom = await JSDOM.fromURL(BASE + "index.html", { runScripts: "dangerously", resources: "usable", pretendToBeVisual: true, virtualConsole: new VirtualConsole(), beforeParse: BP });
-  for (let i = 0; i < 80 && !(dom.window.document.getElementById("menu-filter") || dom.window.document.querySelector(".menu-item")); i++) await sleep(250); await sleep(400);
+  for (let i = 0; i < 80 && !(dom.window.document.getElementById("menu-filter") || dom.window.document.querySelector(".menu-item")); i++) await sleep(250); for (let i = 0; i < 160 && !dom.window.CHEMOS_READY; i++) await sleep(250); await sleep(400);
   const w = dom.window, d = w.document, tot = { semNome: 0, botaoVazio: 0, soMouse: 0, imgSemAlt: 0, canvasSemRotulo: 0 }, ex = [];
   const snippet = el => `${el.tagName.toLowerCase()}${el.id ? "#" + el.id : ""}${el.className && typeof el.className === "string" ? "." + el.className.split(" ")[0] : ""}`;
-  for (let n = 1; n <= 58; n++) {
+  for (let n = 1; n <= w.MODULE_MAX; n++) {
     try { w.renderTool(n); } catch (e) { continue; }
     if (n === 7) await sleep(50);
     const sc = d.getElementById("screen-content");

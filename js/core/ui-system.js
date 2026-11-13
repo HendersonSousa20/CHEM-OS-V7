@@ -119,7 +119,7 @@
         function maybeShowOnboardingTour() {
             const prefs = loadPrefs();
             if (prefs.onboardingSeen) return;
-            openModal("BEM-VINDO AO CHEM.OS v17", `
+            openModal("BEM-VINDO AO CHEM.OS v" + window.CHEMOS_MAJOR, `
                 <div class="text-sm mb-3">Este é um laboratório de química com 55 módulos — de calculadoras rápidas a um laboratório virtual guiado. Não sabe por onde começar? Algumas sugestões:</div>
                 <div class="space-y-2 text-xs mb-3">
                     <div class="dos-border p-2"><strong>Precisa revisar a base primeiro?</strong> O módulo <strong>24 — Guia de Estudos</strong> resume os fundamentos de Química Geral (mol, pH, ligações, gases...) com mnemônicos e mini-quiz.</div>
@@ -174,7 +174,7 @@
             const body = `
                 <div class="mb-3">
                     <div class="font-bold underline mb-1">NAVEGAÇÃO</div>
-                    <div>• Digite um número de <strong>1 a 58</strong> no CLI e pressione ENTER para abrir um módulo direto.</div>
+                    <div>• Digite um número de <strong>1 a ${window.MODULE_MAX}</strong> no CLI e pressione ENTER para abrir um módulo direto.</div>
                     <div>• Digite <strong>home</strong>, <strong>menu</strong>, <strong>cls</strong> ou <strong>exit</strong> para voltar ao início.</div>
                     <div>• Digite <strong>test</strong> para rodar a suíte de testes automatizados (módulo 20).</div>
                     <div>• Tecla <strong>ESC</strong> fecha este modal ou volta ao menu principal.</div>
@@ -227,5 +227,5 @@
                     <strong>Sobre a precisão dos dados:</strong> este software usa APIs públicas gratuitas e uma base termodinâmica local limitada. Não substitui uma FISPQ/SDS oficial nem validação em laboratório. Use para fins didáticos.
                 </div>
             `;
-            openModal("AJUDA — CHEM.OS v17", body);
+            openModal("AJUDA — CHEM.OS v" + window.CHEMOS_MAJOR, body);
         }
